@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Office.Work.Platform.Api.AppCodes;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.Controllers
@@ -37,6 +39,11 @@ namespace Office.Work.Platform.Api.Controllers
         {
             return await _FileRepository.GetOneByIdAsync(Id);
         }
+        /// <summary>
+        /// 用指定的条件类查询文件。
+        /// </summary>
+        /// <param name="mSearchFile"></param>
+        /// <returns></returns>
         [HttpGet("Search")]
         public async Task<IEnumerable<ModelFile>> GetPlanFilesAsync([FromQuery]MSearchFile mSearchFile)
         {

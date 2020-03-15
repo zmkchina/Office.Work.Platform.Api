@@ -37,7 +37,11 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<IEnumerable<ModelFile>> GetEntitiesAsync(MSearchFile mSearchFile)
         {
             IQueryable<ModelFile> Items = _ghDbContext.Files as IQueryable<ModelFile>;
-
+            //设定有文件读取权限的用户
+            if (!string.IsNullOrWhiteSpace(mSearchFile.CanReadUserId))
+            {
+                Items = Items.Where(e => e.ReadGrant.Contains(mSearchFile.CanReadUserId));
+            }
             if (!string.IsNullOrWhiteSpace(mSearchFile.OwnerId))
             {
                 Items = Items.Where(e => e.OwnerId.Equals(mSearchFile.OwnerId));

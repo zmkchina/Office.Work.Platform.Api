@@ -9,10 +9,13 @@ using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.AppCodes
 {
-    public class ResourceOwnerValidator : IResourceOwnerPasswordValidator
+    /// <summary>
+    /// 登录的时候要使用数据中保存的用户进行验证，要实IResourceOwnerPasswordValidator接口.
+    /// </summary>
+    public class IS4UserValidator : IResourceOwnerPasswordValidator
     {
         private readonly DataUserRepository _UserRepository; //用户数据表操作对象
-        public ResourceOwnerValidator(GHDbContext ghDbContet)
+        public IS4UserValidator(GHDbContext ghDbContet)
         {
             _UserRepository = new DataUserRepository(ghDbContet);
         }
@@ -25,7 +28,7 @@ namespace Office.Work.Platform.Api.AppCodes
                 if (user != null)
                 {
                     context.Result = new GrantValidationResult(
-                            subject: user.Id.ToString(),
+                            subject: user.Id,
                             authenticationMethod: "custom",
                             claims: GetUserClaims(user) //视情况，可以不需要此claims
                             );

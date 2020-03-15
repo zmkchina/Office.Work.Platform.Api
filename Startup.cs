@@ -39,7 +39,8 @@ namespace Office.Work.Platform.Api
                   .AddInMemoryApiResources(IS4Config.GetApiResources()) //IS4 导入定义的应用资源API
                   .AddInMemoryIdentityResources(IS4Config.GetIdentityResources())  //IS4 自身API
                   .AddInMemoryClients(IS4Config.GetClients())  //IS4 导入定义的客户端
-                  .AddResourceOwnerValidator<ResourceOwnerValidator>();//IS4 自数据库验证用户类
+                  .AddResourceOwnerValidator<IS4UserValidator>() //IS4 自数据库验证用户类
+                  .AddProfileService<IS4ProfileService>();//IS4 自数据库验证用户类
 
 
             //注册验证（*用于保护API资源，与IS4无关* ） 

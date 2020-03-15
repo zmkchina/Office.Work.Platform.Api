@@ -5,12 +5,12 @@ using System.Collections.Generic;
 namespace Office.Work.Platform.Api.AppCodes
 {
     /// <summary>
-    /// IdentityServer4的配置类
+    /// IdentityServer4的配置类，配置IdentityResource，ApiResource以及Client：
     /// </summary>
     public class IS4Config
     {
         /// <summary>
-        /// 获取IS4自身内置的标准API资源
+        /// 获取IS4自身内置的标准API资源(IdentityResource)
         /// </summary>
         /// <returns></returns>
         public static IEnumerable<IdentityResource> GetIdentityResources()
@@ -22,7 +22,7 @@ namespace Office.Work.Platform.Api.AppCodes
             };
         }
         /// <summary>
-        /// 获取应用需调用的（用户自己编写的）API资源
+        /// 获取应用需调用的（用户自己编写的）API资源(ApiResource)
         /// </summary>
         /// <returns></returns>
         public static IEnumerable<ApiResource> GetApiResources()
@@ -32,7 +32,7 @@ namespace Office.Work.Platform.Api.AppCodes
             };
         }
         /// <summary>
-        /// 定义将访问IS4 的客户端
+        /// 定义将访问IS4 的客户端(Client)
         /// </summary>
         /// <returns></returns>
         public static IEnumerable<Client> GetClients()
