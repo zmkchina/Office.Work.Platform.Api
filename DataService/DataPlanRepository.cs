@@ -21,42 +21,43 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<ModelPlan>> GetAllAsync()
         {
-            return await _ghDbContext.Plans.ToListAsync();
+            return await _ghDbContext.Plans.ToListAsync().ConfigureAwait(false);
         }
-        public async Task<ModelPlan> GetOneByIdAsync(string P_Id)
+        public async Task<ModelPlan> GetOneByIdAsync(string Id)
         {
-            return await _ghDbContext.Plans.FindAsync(P_Id);
+            return await _ghDbContext.Plans.FindAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，则更新之。
         /// </summary>
-        /// <param name="P_Entity"></param>
+        /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddOrUpdateAsync(ModelPlan P_Entity)
+        public async Task<int> AddOrUpdateAsync(ModelPlan Entity)
         {
-            bool IsExist = _ghDbContext.Plans.Count<ModelPlan>(e => e.Id == P_Entity.Id) > 0;
+
+            bool IsExist = await _ghDbContext.Plans.FirstOrDefaultAsync(e => e.Id == Entity.Id).ConfigureAwait(false) != null;
             if (IsExist)
             {
-                _ghDbContext.Plans.Update(P_Entity);
+                _ghDbContext.Plans.Update(Entity);
                 //_ghDbContext.Entry(P_Entity).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
             }
             else
             {
-                _ghDbContext.Plans.Add(P_Entity);
+                _ghDbContext.Plans.Add(Entity);
             }
-            return await _ghDbContext.SaveChangesAsync();
+            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
 
         }
 
         /// <summary>
         /// 更新一个实体信息
         /// </summary>
-        /// <param name="P_Entity"></param>
+        /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(ModelPlan P_Entity)
+        public async Task<int> UpdateAsync(ModelPlan Entity)
         {
-            _ghDbContext.Plans.Update(P_Entity);
-            return await _ghDbContext.SaveChangesAsync();
+            _ghDbContext.Plans.Update(Entity);
+            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
 
@@ -68,31 +69,33 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<IEnumerable<ModelPlan>> GetEntitiesAsync(MSearchPlan mSearchPlan)
         {
             IQueryable<ModelPlan> Items = _ghDbContext.Plans as IQueryable<ModelPlan>;
-
-            if (!string.IsNullOrWhiteSpace(mSearchPlan.CreateUserId))
+            if (mSearchPlan != null)
             {
-                Items = Items.Where(e => e.CreateUserId.Equals(mSearchPlan.CreateUserId));
+                if (!string.IsNullOrWhiteSpace(mSearchPlan.CreateUserId))
+                {
+                    Items = Items.Where(e => e.CreateUserId.Equals(mSearchPlan.CreateUserId, StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchPlan.CurrectState))
+                {
+                    Items = Items.Where(e => mSearchPlan.CurrectState.Contains(e.CurrectState, StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchPlan.KeysInMultiple))
+                {
+                    Items = Items.Where(e => e.Caption.Contains(mSearchPlan.KeysInMultiple, StringComparison.Ordinal) || e.Content.Contains(mSearchPlan.KeysInMultiple, StringComparison.Ordinal));
+                }
             }
-            if (!string.IsNullOrWhiteSpace(mSearchPlan.CurrectState))
-            {
-                Items = Items.Where(e => mSearchPlan.CurrectState.Contains(e.CurrectState));
-            }
-            if (!string.IsNullOrWhiteSpace(mSearchPlan.KeysInMultiple))
-            {
-                Items = Items.Where(e => e.Caption.Contains(mSearchPlan.KeysInMultiple) || e.Content.Contains(mSearchPlan.KeysInMultiple));
-            }
-
-            return await Items.ToListAsync();
+            return await Items.ToListAsync().ConfigureAwait(false);
         }
 
-        public async Task<int> DeleteAsync(string P_Id)
+        public async Task<int> DeleteAsync(string Id)
         {
-            ModelPlan tempPlan = _ghDbContext.Plans.Find(P_Id);
-            if (tempPlan == null) {
+            ModelPlan tempPlan = _ghDbContext.Plans.Find(Id);
+            if (tempPlan == null)
+            {
                 return 0;
             }
             _ghDbContext.Plans.Remove(tempPlan);
-            return await _ghDbContext.SaveChangesAsync();
+            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

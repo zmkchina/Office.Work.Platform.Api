@@ -16,7 +16,7 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly DataFileRepository _FileRepository;
         private readonly IConfiguration _configuration;
-        public FileDownController(IConfiguration configuration, GHDbContext ghDbContext, ILogger<ModelUser> logger)
+        public FileDownController(IConfiguration configuration, GHDbContext ghDbContext)
         {
             _FileRepository = new DataFileRepository(ghDbContext);
             _configuration = configuration;
@@ -30,26 +30,24 @@ namespace Office.Work.Platform.Api.Controllers
         [Route("{Id}")]
         public async Task<ActionResult> Get(string Id)
         {
-            ModelFile TheFile = await _FileRepository.GetOneByIdAsync(Id);
+            ModelFile TheFile = await _FileRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
             FileStream downFileStream = null;
-            string FileName = null;
             if (TheFile != null)
             {
-                FileName = $"{TheFile.Name}({TheFile.Id}){TheFile.ExtendName}";
+                string FileName = $"{TheFile.Name}({TheFile.Id}){TheFile.ExtendName}";
                 string fileFullName = _configuration["StaticFileDir"] + $"\\{TheFile.Id}{TheFile.ExtendName}";
                 if (System.IO.File.Exists(fileFullName))
                 {
-                    downFileStream = new FileStream(fileFullName, FileMode.Open);
+                    using (downFileStream = new FileStream(fileFullName, FileMode.Open))
+                    {
+                        if (downFileStream != null)
+                        {
+                            return File(downFileStream, "application/octet-stream", FileName);
+                        }
+                    }  
                 }
             }
-            if (downFileStream == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return File(downFileStream, "application/octet-stream", FileName);
-            }
+            return NotFound();
         }
     }
 }

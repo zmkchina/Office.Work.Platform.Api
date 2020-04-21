@@ -15,22 +15,14 @@ namespace Office.Work.Platform.Api.AppCodes
     {
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
-            try
+            await Task.Run(() =>
             {
-                await Task.Run(() =>
-                {
                     //depending on the scope accessing the user data.
                     var claims = context.Subject.Claims.ToList();
 
                     //set issued claims to return
                     context.IssuedClaims = claims.ToList();
-                });
-               
-            }
-            catch (Exception ex)
-            {
-                //log your error
-            }
+            }).ConfigureAwait(false);
         }
 
         public async Task IsActiveAsync(IsActiveContext context)
@@ -38,7 +30,7 @@ namespace Office.Work.Platform.Api.AppCodes
             await Task.Run(() =>
             {
                 context.IsActive = true;
-            });
+            }).ConfigureAwait(false);
         }
     }
 }

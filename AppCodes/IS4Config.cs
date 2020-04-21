@@ -7,7 +7,7 @@ namespace Office.Work.Platform.Api.AppCodes
     /// <summary>
     /// IdentityServer4的配置类，配置IdentityResource，ApiResource以及Client：
     /// </summary>
-    public class IS4Config
+    public static class IS4Config
     {
         /// <summary>
         /// 获取IS4自身内置的标准API资源(IdentityResource)

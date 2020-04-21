@@ -27,14 +27,14 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<ModelPlan>> GetAsync()
         {
-            return await _PlanRepository.GetAllAsync();
+            return await _PlanRepository.GetAllAsync().ConfigureAwait(false);
         }
 
         [HttpGet]
         [Route("{Id}")]
         public async Task<ModelPlan> GetAsync(string Id)
         {
-            return await _PlanRepository.GetOneByIdAsync(Id);
+            return await _PlanRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -45,18 +45,18 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpGet("Search")]
         public async Task<IEnumerable<ModelPlan>> GetAsync([FromQuery]MSearchPlan mSearchPlan)
         {
-            return await _PlanRepository.GetEntitiesAsync(mSearchPlan);
+            return await _PlanRepository.GetEntitiesAsync(mSearchPlan).ConfigureAwait(false);
         }
 
 
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromForm]ModelPlan P_FileInfo)
+        public async Task<string> PostAsync([FromForm]ModelPlan FileInfo)
         {
             ModelResult actResult = new ModelResult();
-            if (P_FileInfo != null)
+            if (FileInfo != null)
             {
-                if (await _PlanRepository.AddOrUpdateAsync(P_FileInfo) > 0)
+                if (await _PlanRepository.AddOrUpdateAsync(FileInfo).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "保存成功");
                 }
@@ -68,12 +68,12 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         [HttpPut]
-        public async Task<string> PutAsync([FromForm]ModelPlan P_Entity)
+        public async Task<string> PutAsync([FromForm]ModelPlan Entity)
         {
             ModelResult actResult = new ModelResult();
-            if (P_Entity != null)
+            if (Entity != null)
             {
-                if (await _PlanRepository.UpdateAsync(P_Entity) > 0)
+                if (await _PlanRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "更新成功");
                 }
@@ -85,12 +85,12 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         [HttpDelete]
-        public async Task<string> DeleteAsync(string P_Id)
+        public async Task<string> DeleteAsync(string Id)
         {
             ModelResult actResult = new ModelResult();
-            if (!string.IsNullOrEmpty(P_Id))
+            if (!string.IsNullOrEmpty(Id))
             {
-                if (await _PlanRepository.DeleteAsync(P_Id) > 0)
+                if (await _PlanRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "删除成功");
                 }

@@ -25,7 +25,7 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<ModelUser>> GetAsync()
         {
-            return await _UserRepository.GetAllAsync();
+            return await _UserRepository.GetAllAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 根据ID读取单个用户
@@ -36,7 +36,7 @@ namespace Office.Work.Platform.Api.Controllers
         [Route("{Id}")]
         public async Task<ModelUser> GetAsync(string Id)
         {
-            return await _UserRepository.GetOneByIdAsync(Id);
+            return await _UserRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 新增用户
@@ -46,7 +46,7 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpPost]
         public async Task<int> PostAsync(ModelUser userModel)
         {
-            return await _UserRepository.AddNew(userModel);
+            return await _UserRepository.AddNew(userModel).ConfigureAwait(false);
         }
     }
 }

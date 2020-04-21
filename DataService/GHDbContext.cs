@@ -21,16 +21,19 @@ namespace Office.Work.Platform.Api.DataService
         public DbSet<ModelSettingServer> ServerSetting { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ModelUser>().HasKey(x => x.Id);
-            modelBuilder.Entity<ModelFile>().HasKey(x => x.Id);
-            modelBuilder.Entity<ModelFile>().Property("Name").IsRequired().HasMaxLength(100);
-            modelBuilder.Entity<ModelMember>().HasKey(x => x.Id);
-            modelBuilder.Entity<ModelMember>().Property("Name").IsRequired().HasMaxLength(50);
-            modelBuilder.Entity<ModelMemberFamily>().HasKey(x => x.Name);
-            modelBuilder.Entity<ModelMemberFamily>().Property("Name").IsRequired().HasMaxLength(50);
-            modelBuilder.Entity<ModelPlan>().HasKey(x => x.Id);
-            modelBuilder.Entity<ModelPlan>().Property("Caption").IsRequired().HasMaxLength(100);
-            modelBuilder.Entity<ModelSettingServer>().HasKey(x => x.Id);
+            if (modelBuilder != null)
+            {
+                modelBuilder.Entity<ModelUser>().HasKey(x => x.Id);
+                modelBuilder.Entity<ModelFile>().HasKey(x => x.Id);
+                modelBuilder.Entity<ModelFile>().Property("Name").IsRequired().HasMaxLength(100);
+                modelBuilder.Entity<ModelMember>().HasKey(x => x.Id);
+                modelBuilder.Entity<ModelMember>().Property("Name").IsRequired().HasMaxLength(50);
+                modelBuilder.Entity<ModelMemberFamily>().HasKey(x => x.Name);
+                modelBuilder.Entity<ModelMemberFamily>().Property("Name").IsRequired().HasMaxLength(50);
+                modelBuilder.Entity<ModelPlan>().HasKey(x => x.Id);
+                modelBuilder.Entity<ModelPlan>().Property("Caption").IsRequired().HasMaxLength(100);
+                modelBuilder.Entity<ModelSettingServer>().HasKey(x => x.Id);
+            }
         }
     }
 }

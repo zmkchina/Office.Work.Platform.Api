@@ -25,30 +25,30 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<ModelMember>> GetAsync()
         {
-            return await _MemberRepository.GetAllAsync();
+            return await _MemberRepository.GetAllAsync().ConfigureAwait(false);
         }
 
         [HttpGet]
         [Route("{Id}")]
         public async Task<ModelMember> GetAsync(string Id)
         {
-            return await _MemberRepository.GetOneByIdAsync(Id);
+            return await _MemberRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
 
         [HttpGet("Search")]
         public async Task<IEnumerable<ModelMember>> GetPlanByConditionAsync([FromQuery]MSearchMember mSearchMember)
         {
-            return await _MemberRepository.GetEntitiesAsync(mSearchMember);
+            return await _MemberRepository.GetEntitiesAsync(mSearchMember).ConfigureAwait(false);
         }
 
         [HttpPost]
-        public async Task<string> PostAsync([FromForm]ModelMember P_Entity)
+        public async Task<string> PostAsync([FromForm]ModelMember Entity)
         {
             ModelResult actResult = new ModelResult();
 
-            if (P_Entity != null)
+            if (Entity != null)
             {
-                if (await _MemberRepository.AddOrUpdateAsync(P_Entity) > 0)
+                if (await _MemberRepository.AddOrUpdateAsync(Entity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "保存成功");
                 }
@@ -61,15 +61,15 @@ namespace Office.Work.Platform.Api.Controllers
         }
 
         [HttpPost("AddRange")]
-        public async Task<string> PostAsync([FromBody]List<ModelMember> P_Entitys)
+        public async Task<string> PostAsync([FromBody]List<ModelMember> Entitys)
         {
             ModelResult actResult = new ModelResult();
 
-            if (P_Entitys != null && P_Entitys.Count > 0)
+            if (Entitys != null && Entitys.Count > 0)
             {
                 try
                 {
-                    if (await _MemberRepository.AddRangeAsync(P_Entitys) > 0)
+                    if (await _MemberRepository.AddRangeAsync(Entitys).ConfigureAwait(false) > 0)
                     {
                         actResult.SetValues(0, "保存成功");
                     }
@@ -87,13 +87,13 @@ namespace Office.Work.Platform.Api.Controllers
         }
 
         [HttpPut]
-        public async Task<string> Put([FromForm]ModelMember P_Entity)
+        public async Task<string> Put([FromForm]ModelMember Entity)
         {
             ModelResult actResult = new ModelResult();
 
-            if (P_Entity != null)
+            if (Entity != null)
             {
-                if (await _MemberRepository.UpdateAsync(P_Entity) > 0)
+                if (await _MemberRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "更新成功");
                 }
@@ -107,12 +107,12 @@ namespace Office.Work.Platform.Api.Controllers
         }
 
         [HttpDelete]
-        public async Task<string> Delete(string P_Id)
+        public async Task<string> Delete(string Id)
         {
             ModelResult actResult = new ModelResult();
-            if (P_Id != null)
+            if (Id != null)
             {
-                if (await _MemberRepository.DeleteAsync(P_Id) > 0)
+                if (await _MemberRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "删除成功");
                 }

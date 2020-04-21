@@ -23,16 +23,16 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpGet]
         public async Task<ModelSettingServer> GetAsync()
         {
-            return await _DataSettingsRepository.GetOneByIdAsync(0); 
+            return await _DataSettingsRepository.GetOneByIdAsync(0).ConfigureAwait(false); 
         }
 
         [HttpPut]
-        public async Task<string> PutAsync([FromForm]ModelSettingServer P_Entity)
+        public async Task<string> PutAsync([FromForm]ModelSettingServer Entity)
         {
             ModelResult actResult = new ModelResult();
-            if (P_Entity != null)
+            if (Entity != null)
             {
-                if (await _DataSettingsRepository.UpdateAsync(P_Entity) > 0)
+                if (await _DataSettingsRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "设置成功");
                 }

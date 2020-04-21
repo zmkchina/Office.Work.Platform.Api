@@ -19,26 +19,26 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<ModelUser>> GetAllAsync()
         {
-            return await _ghDbContext.Users.ToListAsync();
+            return await _ghDbContext.Users.ToListAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 根据Id查询用户信息
         /// </summary>
-        /// <param name="P_Id"></param>
+        /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<ModelUser> GetOneByIdAsync(string P_Id)
+        public async Task<ModelUser> GetOneByIdAsync(string Id)
         {
-            return await _ghDbContext.Users.FindAsync(P_Id);
+            return await _ghDbContext.Users.FindAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 根据Id、Pwd 查询用户信息
         /// </summary>
-        /// <param name="P_Id"></param>
+        /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<ModelUser> GetOneByIdPwdAsync(string P_Id,string P_Pwd)
+        public async Task<ModelUser> GetOneByIdPwdAsync(string Id,string Pwd)
         {
-            ModelUser user= await _ghDbContext.Users.FindAsync(P_Id);
-            if (user.PassWord.Equals(P_Pwd))
+            ModelUser user= await _ghDbContext.Users.FindAsync(Id).ConfigureAwait(false);
+            if (user.PassWord.Equals(Pwd,System.StringComparison.Ordinal))
             {
                 return user;
             }
@@ -47,18 +47,18 @@ namespace Office.Work.Platform.Api.DataService
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2。
         /// </summary>
-        /// <param name="P_Entity"></param>
+        /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddNew(ModelUser P_Entity)
+        public async Task<int> AddNew(ModelUser Entity)
         {
-            if (P_Entity == null) return 0;
-            bool IsExist = _ghDbContext.Users.Count(e => e.Id == P_Entity.Id) > 0;
+            if (Entity == null) return 0;
+            bool IsExist =await _ghDbContext.Users.FirstOrDefaultAsync(e => e.Id == Entity.Id).ConfigureAwait(false)!=null;
             if (IsExist)
             {
                 return -2;
             }
-            _ghDbContext.Users.Add(P_Entity);
-            return await _ghDbContext.SaveChangesAsync();
+            _ghDbContext.Users.Add(Entity);
+            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

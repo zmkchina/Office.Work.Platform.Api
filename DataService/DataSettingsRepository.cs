@@ -11,15 +11,15 @@ namespace Office.Work.Platform.Api.DataService
             _ghDbContext = ghDbContext;
         }
 
-        public async Task<ModelSettingServer> GetOneByIdAsync(int P_Id)
+        public async Task<ModelSettingServer> GetOneByIdAsync(int Id)
         {
-            return await _ghDbContext.ServerSetting.FindAsync(P_Id);
+            return await _ghDbContext.ServerSetting.FindAsync(Id).ConfigureAwait(false);
         }
 
-        public async Task<int> UpdateAsync(ModelSettingServer P_Entity)
+        public async Task<int> UpdateAsync(ModelSettingServer Entity)
         {
-            _ghDbContext.ServerSetting.Update(P_Entity);
-            return await _ghDbContext.SaveChangesAsync();
+            _ghDbContext.ServerSetting.Update(Entity);
+            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

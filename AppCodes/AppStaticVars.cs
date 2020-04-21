@@ -7,6 +7,5 @@ namespace Office.Work.Platform.Api.AppCodes
 {
     public static class AppStaticVars
     {
-        public static string SearchNoValue = "|^NoValue^|";
     }
 }

@@ -23,7 +23,7 @@ namespace Office.Work.Platform.Api.AppCodes
         {
             try
             {
-                var user = await _UserRepository.GetOneByIdPwdAsync(context.UserName, context.Password);
+                var user = await _UserRepository.GetOneByIdPwdAsync(context?.UserName, context.Password).ConfigureAwait(false);
                 //如用户名与密码都正确，User 才不会为 null
                 if (user != null)
                 {
@@ -52,7 +52,7 @@ namespace Office.Work.Platform.Api.AppCodes
         {
             return new Claim[]
             {
-                new Claim("user_id", user.Id ?? ""),
+                new Claim("user_id", user?.Id ?? ""),
                 new Claim(JwtClaimTypes.Name,user.Id ?? ""),
                 new Claim(JwtClaimTypes.Role, user.Post)
             };
