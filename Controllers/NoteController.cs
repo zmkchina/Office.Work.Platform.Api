@@ -11,42 +11,42 @@ namespace Office.Work.Platform.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class UserController : ControllerBase
+    public class NoteController : ControllerBase
     {
-        private readonly UserRepository _UserRepository;
-        public UserController(GHDbContext ghDbContet, ILogger<User> logger)
+        private readonly NoteRepository _NoteRepository;
+        public NoteController(GHDbContext ghDbContet, ILogger<Note> logger)
         {
-            _UserRepository = new UserRepository(ghDbContet);
+            _NoteRepository = new NoteRepository(ghDbContet);
         }
         /// <summary>
-        /// 读取所有用户
+        /// 读取所有记录
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<User>> GetAsync()
+        public async Task<IEnumerable<Note>> GetAsync()
         {
-            return await _UserRepository.GetAllAsync().ConfigureAwait(false);
+            return await _NoteRepository.GetAllAsync().ConfigureAwait(false);
         }
         /// <summary>
-        /// 根据ID读取单个用户
+        /// 根据ID读取记录
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<User> GetAsync(string Id)
+        public async Task<Note> GetAsync(string Id)
         {
-            return await _UserRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
+            return await _NoteRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
-        /// 新增用户
+        /// 新增记录
         /// </summary>
         /// <param name="userModel"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<int> PostAsync(User userModel)
+        public async Task<int> PostAsync(Note newNode)
         {
-            return await _UserRepository.AddNew(userModel).ConfigureAwait(false);
+            return await _NoteRepository.AddNew(newNode).ConfigureAwait(false);
         }
     }
 }

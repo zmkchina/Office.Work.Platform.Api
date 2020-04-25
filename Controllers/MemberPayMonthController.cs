@@ -13,28 +13,28 @@ namespace Office.Work.Platform.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class PlanInfoController : ControllerBase
+    public class MemberPayMonthController : ControllerBase
     {
-        private readonly DataPlanRepository _PlanRepository;
+        private readonly MemberPlayMonthRepository _PayMonthRepository;
         private readonly IConfiguration _configuration;
 
-        public PlanInfoController(IConfiguration configuration, GHDbContext ghDbContet, ILogger<ModelUser> logger)
+        public MemberPayMonthController(IConfiguration configuration, GHDbContext ghDbContet, ILogger<User> logger)
         {
-            _PlanRepository = new DataPlanRepository(ghDbContet);
+            _PayMonthRepository = new MemberPlayMonthRepository(ghDbContet);
             _configuration = configuration;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ModelPlan>> GetAsync()
+        public async Task<IEnumerable<MemberPayMonth>> GetAsync()
         {
-            return await _PlanRepository.GetAllAsync().ConfigureAwait(false);
+            return await _PayMonthRepository.GetAllAsync().ConfigureAwait(false);
         }
 
         [HttpGet]
         [Route("{Id}")]
-        public async Task<ModelPlan> GetAsync(string Id)
+        public async Task<MemberPayMonth> GetAsync(string Id)
         {
-            return await _PlanRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
+            return await _PayMonthRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -43,20 +43,24 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<ModelPlan>> GetAsync([FromQuery]MSearchPlan mSearchPlan)
+        public async Task<IEnumerable<MemberPayMonth>> GetAsync([FromQuery]MemberSearch mSearchPlan)
         {
-            return await _PlanRepository.GetEntitiesAsync(mSearchPlan).ConfigureAwait(false);
+            return await _PayMonthRepository.GetEntitiesAsync(mSearchPlan).ConfigureAwait(false);
         }
 
-
+        /// <summary>
+        /// 新增或更新计划
+        /// </summary>
+        /// <param name="FileInfo"></param>
+        /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromForm]ModelPlan FileInfo)
+        public async Task<string> PostAsync([FromForm]MemberPayMonth EntityInfo)
         {
-            ModelResult actResult = new ModelResult();
-            if (FileInfo != null)
+            ExcuteResult actResult = new ExcuteResult();
+            if (EntityInfo != null)
             {
-                if (await _PlanRepository.AddOrUpdateAsync(FileInfo).ConfigureAwait(false) > 0)
+                if (await _PayMonthRepository.AddOrUpdateAsync(EntityInfo).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "保存成功");
                 }
@@ -68,12 +72,12 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         [HttpPut]
-        public async Task<string> PutAsync([FromForm]ModelPlan Entity)
+        public async Task<string> PutAsync([FromForm]MemberPayMonth Entity)
         {
-            ModelResult actResult = new ModelResult();
+            ExcuteResult actResult = new ExcuteResult();
             if (Entity != null)
             {
-                if (await _PlanRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
+                if (await _PayMonthRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "更新成功");
                 }
@@ -87,10 +91,10 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpDelete]
         public async Task<string> DeleteAsync(string Id)
         {
-            ModelResult actResult = new ModelResult();
+            ExcuteResult actResult = new ExcuteResult();
             if (!string.IsNullOrEmpty(Id))
             {
-                if (await _PlanRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
+                if (await _PayMonthRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "删除成功");
                 }

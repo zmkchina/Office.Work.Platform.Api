@@ -2,7 +2,7 @@
 using IdentityServer4.Models;
 using System.Collections.Generic;
 
-namespace Office.Work.Platform.Api.AppCodes
+namespace Office.Work.Platform.Api.IdentityUser
 {
     /// <summary>
     /// IdentityServer4的配置类，配置IdentityResource，ApiResource以及Client：

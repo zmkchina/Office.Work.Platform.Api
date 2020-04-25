@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -15,37 +14,27 @@ namespace Office.Work.Platform.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class FileInfoController : ControllerBase
+    public class MemberFileController : ControllerBase
     {
-        private readonly DataFileRepository _FileRepository;
+        private readonly MemberFileRepository _FileRepository;
         private readonly IConfiguration _configuration;
-        public FileInfoController(IConfiguration configuration, GHDbContext ghDbContext, ILogger<ModelUser> logger)
+        public MemberFileController(IConfiguration configuration, GHDbContext ghDbContext, ILogger<User> logger)
         {
-            _FileRepository = new DataFileRepository(ghDbContext);
+            _FileRepository = new MemberFileRepository(ghDbContext);
             _configuration = configuration;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ModelFile>> GetAsync()
+        public async Task<IEnumerable<MemberFile>> GetAsync()
         {
             return await _FileRepository.GetAllAsync().ConfigureAwait(false);
         }
 
         [HttpGet]
         [Route("{Id}")]
-        public async Task<ModelFile> GetAsync(string Id)
+        public async Task<MemberFile> GetAsync(string Id)
         {
             return await _FileRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
-        }
-        /// <summary>
-        /// 用指定的条件类查询文件。
-        /// </summary>
-        /// <param name="mSearchFile"></param>
-        /// <returns></returns>
-        [HttpGet("Search")]
-        public async Task<IEnumerable<ModelFile>> GetPlanFilesAsync([FromQuery]MSearchFile mSearchFile)
-        {
-            return await _FileRepository.GetEntitiesAsync(mSearchFile).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -55,9 +44,9 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromForm]ModelFile FileInfo)
+        public async Task<string> PostAsync([FromForm]MemberFile FileInfo)
         {
-            ModelResult actResult = new ModelResult();
+            ExcuteResult actResult = new ExcuteResult();
            
             if (Request.Form.Files.Count > 0 && FileInfo != null)
             {
@@ -89,9 +78,9 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="FileInfo"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> Put([FromForm]ModelFile FileInfo)
+        public async Task<string> Put([FromForm]MemberFile FileInfo)
         {
-            ModelResult actResult = new ModelResult();
+            ExcuteResult actResult = new ExcuteResult();
             if (FileInfo != null)
             {
                 if (await _FileRepository.UpdateAsync(FileInfo).ConfigureAwait(false) > 0)
@@ -116,7 +105,7 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpDelete]
         public async Task<string> Delete(string FileId, string FileExtName)
         {
-            ModelResult actResult = new ModelResult();
+            ExcuteResult actResult = new ExcuteResult();
             if (FileId != null)
             {
                 if (await _FileRepository.DeleteAsync(FileId).ConfigureAwait(false) > 0)
@@ -134,6 +123,39 @@ namespace Office.Work.Platform.Api.Controllers
                 }
             }
             return JsonConvert.SerializeObject(actResult);
+        }
+        /// <summary>
+        /// 下载文件。
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{Id}")]
+        public async Task<ActionResult> GetAsync(MemberFile DownFileInfo)
+        {
+            if (DownFileInfo != null)
+            {
+                string FileName = $"{DownFileInfo.Name}({DownFileInfo.Id}){DownFileInfo.ExtendName}";
+                FileStream downFileStream = null;
+
+                await Task.Run(() =>
+                {
+                    string OwnerPath = "MemberFiles";
+                    if (DownFileInfo != null)
+                    {
+                        string fileFullName = _configuration["StaticFileDir"] + $"\\{OwnerPath}\\{DownFileInfo.Id}{DownFileInfo.ExtendName}";
+                        if (System.IO.File.Exists(fileFullName))
+                        {
+                            downFileStream = new FileStream(fileFullName, FileMode.Open);
+                        }
+                    }
+                }).ConfigureAwait(false);
+
+                if (downFileStream != null)
+                {
+                    return File(downFileStream, "application/octet-stream", FileName);
+                }
+            }
+            return NotFound();
         }
     }
 }

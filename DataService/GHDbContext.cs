@@ -1,9 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Office.Work.Platform.Lib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.DataService
 {
@@ -13,26 +9,48 @@ namespace Office.Work.Platform.Api.DataService
         {
 
         }
-        public DbSet<ModelUser> Users { get; set; }
-        public DbSet<ModelFile> Files { get; set; }
-        public DbSet<ModelMember> Members { get; set; }
-        public DbSet<ModelMemberFamily> MemberFamily { get; set; }
-        public DbSet<ModelPlan> Plans { get; set; }
-        public DbSet<ModelSettingServer> ServerSetting { get; set; }
+        public DbSet<SettingServer> dsServerSetting { get; set; }
+
+        public DbSet<User> dsUsers { get; set; }
+
+        public DbSet<Note> dsNotes { get; set; }
+
+        public DbSet<Plan> dsPlans { get; set; }
+        public DbSet<PlanFile> dsPlanFiles { get; set; }
+        public DbSet<Member> dsMembers { get; set; }
+        public DbSet<MemberPayMonth> dsMemberPayMonth { get; set; }
+        public DbSet<MemberPayMonthUnofficial> dsMemberPayMonthUnofficial { get; set; }
+        public DbSet<MemberPayTemp> dsMemberPayTemp { get; set; }
+        public DbSet<MemberFile> dsMemberFiles { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             if (modelBuilder != null)
             {
-                modelBuilder.Entity<ModelUser>().HasKey(x => x.Id);
-                modelBuilder.Entity<ModelFile>().HasKey(x => x.Id);
-                modelBuilder.Entity<ModelFile>().Property("Name").IsRequired().HasMaxLength(100);
-                modelBuilder.Entity<ModelMember>().HasKey(x => x.Id);
-                modelBuilder.Entity<ModelMember>().Property("Name").IsRequired().HasMaxLength(50);
-                modelBuilder.Entity<ModelMemberFamily>().HasKey(x => x.Name);
-                modelBuilder.Entity<ModelMemberFamily>().Property("Name").IsRequired().HasMaxLength(50);
-                modelBuilder.Entity<ModelPlan>().HasKey(x => x.Id);
-                modelBuilder.Entity<ModelPlan>().Property("Caption").IsRequired().HasMaxLength(100);
-                modelBuilder.Entity<ModelSettingServer>().HasKey(x => x.Id);
+                //modelBuilder.Entity<SettingServer>().HasKey(x => x.Id);
+
+                //modelBuilder.Entity<User>().HasKey(x => x.Id);
+
+                //modelBuilder.Entity<Note>().HasKey(x => x.Id);
+
+                //modelBuilder.Entity<Plan>().HasKey(x => x.Id);
+                //modelBuilder.Entity<Plan>().Property("Caption").IsRequired().HasMaxLength(100);
+
+                //modelBuilder.Entity<PlanFile>().HasKey(x => x.Id);
+                //modelBuilder.Entity<PlanFile>().Property("Name").IsRequired().HasMaxLength(100);
+
+                //modelBuilder.Entity<Member>().HasKey(x => x.Id);
+                //modelBuilder.Entity<Member>().Property("Name").IsRequired().HasMaxLength(50);
+
+                //modelBuilder.Entity<MemberPayMonth>().HasKey(x => x.Id);
+
+                //modelBuilder.Entity<MemberPayMonthUnofficial>().HasKey(x => x.Id);
+
+                //modelBuilder.Entity<MemberPayTemp>().HasKey(x => x.Id);
+                //modelBuilder.Entity<MemberPayTemp>().Property("PayName").IsRequired().HasMaxLength(50);
+
+                //modelBuilder.Entity<MemberFile>().HasKey(x => x.Id);
+                //modelBuilder.Entity<MemberFile>().Property("Name").IsRequired().HasMaxLength(50);
             }
         }
     }

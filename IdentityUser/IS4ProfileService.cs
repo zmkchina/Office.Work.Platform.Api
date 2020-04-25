@@ -1,11 +1,9 @@
-﻿using IdentityServer4.Models;
-using IdentityServer4.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using IdentityServer4.Models;
+using IdentityServer4.Services;
 
-namespace Office.Work.Platform.Api.AppCodes
+namespace Office.Work.Platform.Api.IdentityUser
 {
     /// <summary>
     /// IdentityServer提供了接口访问用户信息，但是默认返回的数据只有sub，就是IS4UserValidator.cs中设置的subject: user.Id,，

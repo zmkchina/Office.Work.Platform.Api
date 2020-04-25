@@ -7,10 +7,10 @@ using Office.Work.Platform.Lib;
 
 namespace Office.Work.Platform.Api.DataService
 {
-    public class DataMemberRepository
+    public class MemberPlayMonthUnofficialRepository
     {
         private readonly GHDbContext _ghDbContext;
-        public DataMemberRepository(GHDbContext ghDbContext)
+        public MemberPlayMonthUnofficialRepository(GHDbContext ghDbContext)
         {
             _ghDbContext = ghDbContext;
         }
@@ -18,9 +18,9 @@ namespace Office.Work.Platform.Api.DataService
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<ModelMember>> GetAllAsync()
+        public async Task<IEnumerable<MemberPayMonthUnofficial>> GetAllAsync()
         {
-            return await _ghDbContext.Members.ToListAsync().ConfigureAwait(false);
+            return await _ghDbContext.dsMemberPayMonthUnofficial.ToListAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -28,9 +28,9 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<ModelMember> GetOneByIdAsync(string Id)
+        public async Task<MemberPayMonthUnofficial> GetOneByIdAsync(string Id)
         {
-            return await _ghDbContext.Members.FindAsync(Id).ConfigureAwait(false);
+            return await _ghDbContext.dsMemberPayMonthUnofficial.FindAsync(Id).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -38,16 +38,16 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddOrUpdateAsync(ModelMember Entity)
+        public async Task<int> AddOrUpdateAsync(MemberPayMonthUnofficial Entity)
         {
-            bool IsExist = await _ghDbContext.Members.FirstOrDefaultAsync(e => e.Id == Entity.Id).ConfigureAwait(false) != null;
+            bool IsExist = await _ghDbContext.dsMemberPayMonth.FirstOrDefaultAsync(e => e.Id == Entity.Id).ConfigureAwait(false) != null;
             if (IsExist)
             {
-                _ghDbContext.Members.Update(Entity);
+                _ghDbContext.dsMemberPayMonthUnofficial.Update(Entity);
             }
             else
             {
-                _ghDbContext.Members.Add(Entity);
+                _ghDbContext.dsMemberPayMonthUnofficial.Add(Entity);
             }
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
 
@@ -58,11 +58,11 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddRangeAsync(List<ModelMember> Entitys)
+        public async Task<int> AddRangeAsync(List<MemberPayMonthUnofficial> Entitys)
         {
             if (Entitys != null && Entitys.Count > 0)
             {
-                _ghDbContext.Members.AddRange(Entitys);
+                _ghDbContext.dsMemberPayMonthUnofficial.AddRange(Entitys);
                 return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
             }
             else
@@ -76,9 +76,9 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(ModelMember Entity)
+        public async Task<int> UpdateAsync(MemberPayMonthUnofficial Entity)
         {
-            _ghDbContext.Members.Update(Entity);
+            _ghDbContext.dsMemberPayMonthUnofficial.Update(Entity);
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -87,23 +87,23 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<IEnumerable<ModelMember>> GetEntitiesAsync(MSearchMember mSearchMember)
+        public async Task<IEnumerable<MemberPayMonthUnofficial>> GetEntitiesAsync(MemberSearch mSearchMember)
         {
-            IQueryable<ModelMember> Items = _ghDbContext.Members as IQueryable<ModelMember>;
+            IQueryable<MemberPayMonthUnofficial> Items = _ghDbContext.dsMemberPayMonthUnofficial as IQueryable<MemberPayMonthUnofficial>;
             if (mSearchMember != null)
             {
-                if (!string.IsNullOrWhiteSpace(mSearchMember.Name))
-                {
-                    Items = Items.Where(e => e.Name.Contains(mSearchMember.Name,StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
-                }
-                if (!string.IsNullOrWhiteSpace(mSearchMember.EducationTop))
-                {
-                    Items = Items.Where(e => e.EducationTop.Contains(mSearchMember.EducationTop, StringComparison.Ordinal));
-                }
-                if (!string.IsNullOrWhiteSpace(mSearchMember.TechnicalTitle))
-                {
-                    Items = Items.Where(e => e.TechnicalTitle.Contains(mSearchMember.TechnicalTitle, StringComparison.Ordinal));
-                }
+                //if (!string.IsNullOrWhiteSpace(mSearchMember.Name))
+                //{
+                //    Items = Items.Where(e => e.Name.Contains(mSearchMember.Name,StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                //}
+                //if (!string.IsNullOrWhiteSpace(mSearchMember.EducationTop))
+                //{
+                //    Items = Items.Where(e => e.EducationTop.Contains(mSearchMember.EducationTop, StringComparison.Ordinal));
+                //}
+                //if (!string.IsNullOrWhiteSpace(mSearchMember.TechnicalTitle))
+                //{
+                //    Items = Items.Where(e => e.TechnicalTitle.Contains(mSearchMember.TechnicalTitle, StringComparison.Ordinal));
+                //}
             }
 
             return await Items.ToListAsync().ConfigureAwait(false);
@@ -116,8 +116,8 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<int> DeleteAsync(string Id)
         {
-            ModelMember tempPlan = _ghDbContext.Members.Find(Id);
-            _ghDbContext.Members.Remove(tempPlan);
+            MemberPayMonthUnofficial tempPlan = _ghDbContext.dsMemberPayMonthUnofficial.Find(Id);
+            _ghDbContext.dsMemberPayMonthUnofficial.Remove(tempPlan);
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }

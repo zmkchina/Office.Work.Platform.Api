@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Office.Work.Platform.Api.AppCodes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Office.Work.Platform.Api.DataService;
-
+using Office.Work.Platform.Api.IdentityUser;
 namespace Office.Work.Platform.Api
 {
     /// <summary>
@@ -27,7 +27,7 @@ namespace Office.Work.Platform.Api
         {
             services.AddDbContextPool<GHDbContext>(option =>
             {
-                option.UseMySQL(Configuration["DbConnString"]);
+                option.UseMySql(Configuration["DbConnString"]);
             });
             //允许跨域请求
             services.AddCors(option => option.AddPolicy("cors", 
@@ -43,7 +43,7 @@ namespace Office.Work.Platform.Api
                   .AddProfileService<IS4ProfileService>();//IS4 自数据库验证用户类
 
 
-            //注册验证（*用于保护API资源，与IS4无关* ） 
+            //注册验证（*用于被保护的API资源，与IS4无关* ） 
             services.AddAuthentication("Bearer").AddJwtBearer(r =>
             {
                 //认证服务地址
@@ -54,7 +54,14 @@ namespace Office.Work.Platform.Api
                 r.RequireHttpsMetadata = false;
             });
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                //忽略循环引用
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                //不更改元数据的key的大小写
+                options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+            }); 
+
             services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(x =>
             {
                 x.ValueLengthLimit = int.MaxValue;
@@ -69,12 +76,12 @@ namespace Office.Work.Platform.Api
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseStaticFiles();
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(Configuration["StaticFileDir"]),
-                RequestPath = @"/GHStaticFiles"
-            });
+            //不启用静态文件，以防止用户直接访问文件而绕过授权。
+            //app.UseStaticFiles(new StaticFileOptions
+            //{
+            //    FileProvider = new PhysicalFileProvider(Configuration["StaticFileDir"]),
+            //    RequestPath = @"/GHStaticFiles"
+            //});
             app.UseCors("cors");
             app.UseRouting();
 

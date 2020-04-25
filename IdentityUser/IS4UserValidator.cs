@@ -7,17 +7,17 @@ using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Office.Work.Platform.Api.AppCodes
+namespace Office.Work.Platform.Api.IdentityUser
 {
     /// <summary>
     /// 登录的时候要使用数据中保存的用户进行验证，要实IResourceOwnerPasswordValidator接口.
     /// </summary>
     public class IS4UserValidator : IResourceOwnerPasswordValidator
     {
-        private readonly DataUserRepository _UserRepository; //用户数据表操作对象
+        private readonly UserRepository _UserRepository; //用户数据表操作对象
         public IS4UserValidator(GHDbContext ghDbContet)
         {
-            _UserRepository = new DataUserRepository(ghDbContet);
+            _UserRepository = new UserRepository(ghDbContet);
         }
         public async Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
         {
@@ -48,7 +48,7 @@ namespace Office.Work.Platform.Api.AppCodes
         }
 
         //build claims array from user data  
-        public static Claim[] GetUserClaims(ModelUser user)
+        public static Claim[] GetUserClaims(User user)
         {
             return new Claim[]
             {

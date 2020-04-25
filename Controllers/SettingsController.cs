@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
-using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.Controllers
 {
@@ -13,23 +13,23 @@ namespace Office.Work.Platform.Api.Controllers
     [Route("Api/[controller]")]
     public class SettingsController : ControllerBase
     {
-        private readonly DataSettingsRepository _DataSettingsRepository;
+        private readonly SettingsRepository _DataSettingsRepository;
 
-        public SettingsController(GHDbContext ghDbContext, ILogger<ModelUser> logger)
+        public SettingsController(GHDbContext ghDbContext, ILogger<User> logger)
         {
-            _DataSettingsRepository = new DataSettingsRepository(ghDbContext);
+            _DataSettingsRepository = new SettingsRepository(ghDbContext);
         }
 
         [HttpGet]
-        public async Task<ModelSettingServer> GetAsync()
+        public async Task<SettingServer> GetAsync()
         {
-            return await _DataSettingsRepository.GetOneByIdAsync(0).ConfigureAwait(false); 
+            return await _DataSettingsRepository.ReadAsync().ConfigureAwait(false); 
         }
 
         [HttpPut]
-        public async Task<string> PutAsync([FromForm]ModelSettingServer Entity)
+        public async Task<string> PutAsync([FromForm]SettingServer Entity)
         {
-            ModelResult actResult = new ModelResult();
+            ExcuteResult actResult = new ExcuteResult();
             if (Entity != null)
             {
                 if (await _DataSettingsRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)

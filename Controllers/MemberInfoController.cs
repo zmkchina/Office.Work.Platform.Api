@@ -15,36 +15,36 @@ namespace Office.Work.Platform.Api.Controllers
     [Route("Api/[controller]")]
     public class MemberInfoController : ControllerBase
     {
-        private readonly DataMemberRepository _MemberRepository;
+        private readonly MemberRepository _MemberRepository;
 
-        public MemberInfoController(GHDbContext ghDbContext, ILogger<ModelUser> logger)
+        public MemberInfoController(GHDbContext ghDbContext, ILogger<User> logger)
         {
-            _MemberRepository = new DataMemberRepository(ghDbContext);
+            _MemberRepository = new MemberRepository(ghDbContext);
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ModelMember>> GetAsync()
+        public async Task<IEnumerable<Member>> GetAsync()
         {
             return await _MemberRepository.GetAllAsync().ConfigureAwait(false);
         }
 
         [HttpGet]
         [Route("{Id}")]
-        public async Task<ModelMember> GetAsync(string Id)
+        public async Task<Member> GetAsync(string Id)
         {
             return await _MemberRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
 
         [HttpGet("Search")]
-        public async Task<IEnumerable<ModelMember>> GetPlanByConditionAsync([FromQuery]MSearchMember mSearchMember)
+        public async Task<IEnumerable<Member>> GetPlanByConditionAsync([FromQuery]MemberSearch mSearchMember)
         {
             return await _MemberRepository.GetEntitiesAsync(mSearchMember).ConfigureAwait(false);
         }
 
         [HttpPost]
-        public async Task<string> PostAsync([FromForm]ModelMember Entity)
+        public async Task<string> PostAsync([FromForm]Member Entity)
         {
-            ModelResult actResult = new ModelResult();
+            ExcuteResult actResult = new ExcuteResult();
 
             if (Entity != null)
             {
@@ -61,9 +61,9 @@ namespace Office.Work.Platform.Api.Controllers
         }
 
         [HttpPost("AddRange")]
-        public async Task<string> PostAsync([FromBody]List<ModelMember> Entitys)
+        public async Task<string> PostAsync([FromBody]List<Member> Entitys)
         {
-            ModelResult actResult = new ModelResult();
+            ExcuteResult actResult = new ExcuteResult();
 
             if (Entitys != null && Entitys.Count > 0)
             {
@@ -87,9 +87,9 @@ namespace Office.Work.Platform.Api.Controllers
         }
 
         [HttpPut]
-        public async Task<string> Put([FromForm]ModelMember Entity)
+        public async Task<string> Put([FromForm]Member Entity)
         {
-            ModelResult actResult = new ModelResult();
+            ExcuteResult actResult = new ExcuteResult();
 
             if (Entity != null)
             {
@@ -109,7 +109,7 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpDelete]
         public async Task<string> Delete(string Id)
         {
-            ModelResult actResult = new ModelResult();
+            ExcuteResult actResult = new ExcuteResult();
             if (Id != null)
             {
                 if (await _MemberRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)

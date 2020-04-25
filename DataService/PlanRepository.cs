@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.DataService
 {
-    public class DataPlanRepository
+    public class PlanRepository
     {
         private readonly GHDbContext _ghDbContext;
-        public DataPlanRepository(GHDbContext ghDbContext)
+        public PlanRepository(GHDbContext ghDbContext)
         {
             _ghDbContext = ghDbContext;
         }
@@ -19,31 +19,30 @@ namespace Office.Work.Platform.Api.DataService
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<ModelPlan>> GetAllAsync()
+        public async Task<IEnumerable<Plan>> GetAllAsync()
         {
-            return await _ghDbContext.Plans.ToListAsync().ConfigureAwait(false);
+            return await _ghDbContext.dsPlans.ToListAsync().ConfigureAwait(false);
         }
-        public async Task<ModelPlan> GetOneByIdAsync(string Id)
+        public async Task<Plan> GetOneByIdAsync(string Id)
         {
-            return await _ghDbContext.Plans.FindAsync(Id).ConfigureAwait(false);
+            return await _ghDbContext.dsPlans.FindAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，则更新之。
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddOrUpdateAsync(ModelPlan Entity)
+        public async Task<int> AddOrUpdateAsync(Plan Entity)
         {
 
-            bool IsExist = await _ghDbContext.Plans.FirstOrDefaultAsync(e => e.Id == Entity.Id).ConfigureAwait(false) != null;
+            bool IsExist = await _ghDbContext.dsPlans.AnyAsync(e => e.Id == Entity.Id).ConfigureAwait(false);
             if (IsExist)
             {
-                _ghDbContext.Plans.Update(Entity);
-                //_ghDbContext.Entry(P_Entity).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                _ghDbContext.dsPlans.Update(Entity);
             }
             else
             {
-                _ghDbContext.Plans.Add(Entity);
+                _ghDbContext.dsPlans.Add(Entity);
             }
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
 
@@ -54,9 +53,9 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(ModelPlan Entity)
+        public async Task<int> UpdateAsync(Plan Entity)
         {
-            _ghDbContext.Plans.Update(Entity);
+            _ghDbContext.dsPlans.Update(Entity);
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -66,9 +65,9 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="mSearchPlan">计划查询类对象</param>
         /// <returns></returns>
-        public async Task<IEnumerable<ModelPlan>> GetEntitiesAsync(MSearchPlan mSearchPlan)
+        public async Task<IEnumerable<Plan>> GetEntitiesAsync(PlanSearch mSearchPlan)
         {
-            IQueryable<ModelPlan> Items = _ghDbContext.Plans as IQueryable<ModelPlan>;
+            IQueryable<Plan> Items = _ghDbContext.dsPlans as IQueryable<Plan>;
             if (mSearchPlan != null)
             {
                 if (!string.IsNullOrWhiteSpace(mSearchPlan.CreateUserId))
@@ -89,12 +88,12 @@ namespace Office.Work.Platform.Api.DataService
 
         public async Task<int> DeleteAsync(string Id)
         {
-            ModelPlan tempPlan = _ghDbContext.Plans.Find(Id);
+            Plan tempPlan = _ghDbContext.dsPlans.Find(Id);
             if (tempPlan == null)
             {
                 return 0;
             }
-            _ghDbContext.Plans.Remove(tempPlan);
+            _ghDbContext.dsPlans.Remove(tempPlan);
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }
