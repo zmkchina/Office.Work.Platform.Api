@@ -30,30 +30,33 @@ namespace Office.Work.Platform.Api.DataService
         {
             return await _ghDbContext.dsPlanFiles.FindAsync(Id).ConfigureAwait(false);
         }
-       
+
         /// <summary>
         /// 按指定的条件查询数据
         /// </summary>
         /// <returns></returns>
         public async Task<IEnumerable<PlanFile>> GetEntitiesAsync(PlanFileSearch mSearchFile)
         {
-            IQueryable<PlanFile> Items = _ghDbContext.dsPlanFiles as IQueryable<PlanFile>;
+            IQueryable<PlanFile> Items = _ghDbContext.dsPlanFiles.Include(x=>x.Plan) as IQueryable<PlanFile>;
             if (mSearchFile != null && !string.IsNullOrWhiteSpace(mSearchFile.UserId))
             {
-                //判断请求用户是否有权限
-                Items = Items.Where(e => e.ReadGrant == null || e.ReadGrant.Contains(mSearchFile.UserId, System.StringComparison.Ordinal));
-
+                //判断请求用户是否有权限(必须对该文件所属计划有读取权限)
+                Items = Items.Where(e => e.Plan.ReadGrant == null || e.Plan.ReadGrant.Contains(mSearchFile.UserId, System.StringComparison.Ordinal));
                 if (!string.IsNullOrWhiteSpace(mSearchFile.PlanId))
                 {
-                    //当只查询指定编号的计划所属文件时，将计划信息也一并查询。
-                    Items = Items.Include(x => x.Plan).Where(e => e.PlanId.Contains(mSearchFile.PlanId, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.PlanId.Equals(mSearchFile.PlanId, System.StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchFile.ContentType))
+                {
+                    Items = Items.Where(e => e.Plan.PlanType.Equals(mSearchFile.ContentType, System.StringComparison.Ordinal));
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchFile.SearchFromNameDesc))
                 {
                     Items = Items.Where(e => e.Name.Contains(mSearchFile.SearchFromNameDesc, System.StringComparison.Ordinal) || e.Describe.Contains(mSearchFile.SearchFromNameDesc, System.StringComparison.Ordinal));
                 }
+                return await Items.ToListAsync().ConfigureAwait(false);
             }
-            return await Items.ToListAsync().ConfigureAwait(false);
+            return new List<PlanFile>();
         }
 
         /// <summary>

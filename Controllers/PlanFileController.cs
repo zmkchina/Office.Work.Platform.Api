@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -24,20 +25,30 @@ namespace Office.Work.Platform.Api.Controllers
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// 获取所有文件记录
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IEnumerable<PlanFile>> GetAsync()
         {
             return await _FileRepository.GetAllAsync().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// 获取指定Id文件信息
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
         public async Task<PlanFile> GetAsync(string Id)
         {
             return await _FileRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
+
         /// <summary>
-        /// 用指定的条件类查询文件。
+        /// 用指定的条件类查询文件信息。
         /// </summary>
         /// <param name="mSearchFile"></param>
         /// <returns></returns>
@@ -47,20 +58,18 @@ namespace Office.Work.Platform.Api.Controllers
             return await _FileRepository.GetEntitiesAsync(mSearchFile).ConfigureAwait(false);
         }
 
-
-
         /// <summary>
         /// 更新文件的描述信息
         /// </summary>
         /// <param name="FileInfo"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> Put([FromForm]PlanFile FileInfo)
+        public async Task<string> Put([FromForm]PlanFile PFileInfo)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (FileInfo != null)
+            if (PFileInfo != null && PFileInfo.Id != null)
             {
-                if (await _FileRepository.UpdateAsync(FileInfo).ConfigureAwait(false) > 0)
+                if (await _FileRepository.UpdateAsync(PFileInfo).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "文件信息更新成功!");
                 }
@@ -74,7 +83,7 @@ namespace Office.Work.Platform.Api.Controllers
 
 
         /// <summary>
-        /// 删除一个文件
+        /// 删除一个文件信息，包括磁盘上的具体文件。
         /// </summary>
         /// <param name="P_FileId"></param>
         /// <param name="P_FileExtName"></param>
@@ -102,29 +111,31 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         /// <summary>
-        /// 上传一个文件，包括文件的相关描述
+        /// 新增一个文件信息，包括将文件内容保存到磁盘上。
         /// </summary>
-        /// <param name="FileInfo">上传的文件描述信息</param>
+        /// <param name="PFile">上传的文件描述信息</param>
         /// <returns></returns>
         [HttpPost("UpLoadFile")]
         [DisableRequestSizeLimit]
-        public async Task<string> PostUpLoadFileAsync([FromForm]PlanFile pfile)
+        public async Task<string> PostUpLoadFileAsync([FromForm]PlanFile PFile)
         {
             ExcuteResult actResult = new ExcuteResult();
 
-            if (Request.Form.Files.Count > 0 && pfile != null)
+            if (Request.Form.Files.Count > 0 && PFile != null)
             {
                 try
                 {
-                    var fileName = _configuration["StaticFileDir"] + $"\\PlanFiles\\{pfile.Id}{pfile.ExtendName}";
-                    using (FileStream fs = System.IO.File.Create(fileName))
+                    string FileName = Path.Combine(_configuration["StaticFileDir"], "PlanFiles", $"{PFile.Id}{PFile.ExtendName}");// _configuration["StaticFileDir"] + $"\\PlanFiles\\{pfile.Id}{pfile.ExtendName}";
+                    using (FileStream fs = System.IO.File.Create(FileName))
                     {
                         await Request.Form.Files[0].CopyToAsync(fs).ConfigureAwait(false);
                         fs.Flush();
                     }
-                    if (System.IO.File.Exists(fileName))
+                    if (System.IO.File.Exists(FileName))
                     {
-                        await _FileRepository.AddAsync(pfile).ConfigureAwait(false);
+                        //文件写入成功后，再保存文件信息到数据表
+                        PFile.UpDateTime = DateTime.Now;
+                        await _FileRepository.AddAsync(PFile).ConfigureAwait(false);
                     }
                     actResult.SetValues(0, "上传成功");
                 }
@@ -135,9 +146,11 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
+
         /// <summary>
-        /// 下载文件。
+        /// 根据Id号从磁盘上下载文件。
         /// </summary>
+        /// <param name="FileId">文件Id号</param>
         /// <returns></returns>
         [HttpGet]
         [Route("DownLoadFile/{FileId}")]
@@ -168,12 +181,10 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return NotFound();
         }
-        public IActionResult BannerImage()
-        {
-            var file = Path.Combine(Directory.GetCurrentDirectory(),
-                                    "MyStaticFiles", "images", "banner1.svg");
-
-            return PhysicalFile(file, "image/svg+xml");
-        }
+        //public IActionResult BannerImage()
+        //{
+        //    var file = Path.Combine(Directory.GetCurrentDirectory(),"MyStaticFiles", "images", "banner1.svg");
+        //    return PhysicalFile(file, "image/svg+xml");
+        //}
     }
 }

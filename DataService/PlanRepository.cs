@@ -28,22 +28,19 @@ namespace Office.Work.Platform.Api.DataService
             return await _ghDbContext.dsPlans.FindAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
-        /// 向数据库表添加一个新的记录，如果该记录已经存在，则更新之。
+        /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2。
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddOrUpdateAsync(Plan Entity)
+        public async Task<int> AddNewAsync(Plan Entity)
         {
 
             bool IsExist = await _ghDbContext.dsPlans.AnyAsync(e => e.Id == Entity.Id).ConfigureAwait(false);
             if (IsExist)
             {
-                _ghDbContext.dsPlans.Update(Entity);
+                return -2;
             }
-            else
-            {
-                _ghDbContext.dsPlans.Add(Entity);
-            }
+            _ghDbContext.dsPlans.Add(Entity);
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
 
         }

@@ -38,12 +38,12 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddOrUpdateAsync(Member Entity)
+        public async Task<int> AddNewAsync(Member Entity)
         {
-            bool IsExist = await _ghDbContext.dsMembers.FirstOrDefaultAsync(e => e.Id == Entity.Id).ConfigureAwait(false) != null;
+            bool IsExist = await _ghDbContext.dsMembers.AnyAsync(e => e.Id == Entity.Id).ConfigureAwait(false);
             if (IsExist)
             {
-                _ghDbContext.dsMembers.Update(Entity);
+                return -2;
             }
             else
             {
@@ -92,9 +92,13 @@ namespace Office.Work.Platform.Api.DataService
             IQueryable<Member> Items = _ghDbContext.dsMembers as IQueryable<Member>;
             if (mSearchMember != null)
             {
+                if (!string.IsNullOrWhiteSpace(mSearchMember.Id))
+                {
+                    Items = Items.Where(e => e.Id.Equals(mSearchMember.Id, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                }
                 if (!string.IsNullOrWhiteSpace(mSearchMember.Name))
                 {
-                    Items = Items.Where(e => e.Name.Contains(mSearchMember.Name,StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => e.Name.Contains(mSearchMember.Name, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchMember.EducationTop))
                 {

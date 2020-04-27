@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -56,12 +57,13 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromForm]Plan PlanInfo)
+        public async Task<string> PostAsync([FromForm]Plan Entity)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (PlanInfo != null)
+            if (Entity != null)
             {
-                if (await _PlanRepository.AddOrUpdateAsync(PlanInfo).ConfigureAwait(false) > 0)
+                
+                if (await _PlanRepository.AddNewAsync(Entity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "保存成功");
                 }
@@ -78,6 +80,10 @@ namespace Office.Work.Platform.Api.Controllers
             ExcuteResult actResult = new ExcuteResult();
             if (Entity != null)
             {
+                if (!Entity.CurrectState.Equals(PlanStatus.WaitBegin, StringComparison.Ordinal))
+                {
+                    Entity.FinishDate = DateTime.Now;
+                }
                 if (await _PlanRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "更新成功");
@@ -89,7 +95,8 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
-        [HttpDelete]
+        //删除指定的计划信息
+        [HttpDelete("{Id}")]
         public async Task<string> DeleteAsync(string Id)
         {
             ExcuteResult actResult = new ExcuteResult();

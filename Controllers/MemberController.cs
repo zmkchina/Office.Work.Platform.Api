@@ -13,11 +13,11 @@ namespace Office.Work.Platform.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class MemberInfoController : ControllerBase
+    public class MemberController : ControllerBase
     {
         private readonly MemberRepository _MemberRepository;
 
-        public MemberInfoController(GHDbContext ghDbContext, ILogger<User> logger)
+        public MemberController(GHDbContext ghDbContext, ILogger<User> logger)
         {
             _MemberRepository = new MemberRepository(ghDbContext);
         }
@@ -36,7 +36,7 @@ namespace Office.Work.Platform.Api.Controllers
         }
 
         [HttpGet("Search")]
-        public async Task<IEnumerable<Member>> GetPlanByConditionAsync([FromQuery]MemberSearch mSearchMember)
+        public async Task<IEnumerable<Member>> GetMemberByConditionAsync([FromQuery]MemberSearch mSearchMember)
         {
             return await _MemberRepository.GetEntitiesAsync(mSearchMember).ConfigureAwait(false);
         }
@@ -48,7 +48,7 @@ namespace Office.Work.Platform.Api.Controllers
 
             if (Entity != null)
             {
-                if (await _MemberRepository.AddOrUpdateAsync(Entity).ConfigureAwait(false) > 0)
+                if (await _MemberRepository.AddNewAsync(Entity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "保存成功");
                 }

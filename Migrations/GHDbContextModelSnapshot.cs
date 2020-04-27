@@ -32,7 +32,6 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("Department")
-                        .IsRequired()
                         .HasColumnType("varchar(30)");
 
                     b.Property<string>("EducationDays")
@@ -45,7 +44,6 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("EmploymentType")
-                        .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.Property<DateTime>("EnterOrganization")
@@ -67,11 +65,9 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("Job")
-                        .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("JobGrade")
-                        .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.Property<DateTime>("JoinCPC")
@@ -91,15 +87,12 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("varchar(10)");
 
                     b.Property<string>("PoliticalStatus")
-                        .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("Post")
-                        .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("PostInCPC")
-                        .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("Prize")
@@ -115,14 +108,12 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("varchar(2000)");
 
                     b.Property<string>("Sex")
-                        .IsRequired()
                         .HasColumnType("varchar(5)");
 
                     b.Property<string>("TechnicalTitle")
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("UnitName")
-                        .IsRequired()
                         .HasColumnType("varchar(30)");
 
                     b.Property<DateTime>("UpDateTime")
@@ -148,6 +139,10 @@ namespace Office.Work.Platform.Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(10)");
 
+                    b.Property<string>("FType")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
                     b.Property<long>("Length")
                         .HasColumnType("bigint");
 
@@ -159,9 +154,8 @@ namespace Office.Work.Platform.Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(200)");
 
-                    b.Property<string>("ReadGrant")
-                        .IsRequired()
-                        .HasColumnType("varchar(1000)");
+                    b.Property<string>("PayId")
+                        .HasColumnType("varchar(20)");
 
                     b.Property<DateTime>("UpDateTime")
                         .HasColumnType("datetime(6)");
@@ -323,10 +317,15 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("Remark")
+                        .IsRequired()
                         .HasColumnType("varchar(500)");
 
                     b.Property<DateTime>("UpDateTime")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
 
                     b.HasKey("Id");
 
@@ -404,7 +403,6 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("varchar(500)");
 
                     b.Property<string>("Helpers")
-                        .IsRequired()
                         .HasColumnType("varchar(500)");
 
                     b.Property<string>("PlanType")
@@ -442,9 +440,6 @@ namespace Office.Work.Platform.Api.Migrations
 
                     b.Property<string>("PlanId")
                         .HasColumnType("varchar(20)");
-
-                    b.Property<string>("ReadGrant")
-                        .HasColumnType("varchar(1000)");
 
                     b.Property<DateTime>("UpDateTime")
                         .HasColumnType("datetime(6)");
