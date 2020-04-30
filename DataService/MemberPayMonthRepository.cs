@@ -73,15 +73,12 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<int> AddAsync(MemberPayMonth PEntity)
         {
-            bool IsExist = await _ghDbContext.dsMemberPayMonth.AnyAsync(e => e.Id.Equals(PEntity.Id, StringComparison.Ordinal)).ConfigureAwait(false);
-            if (IsExist)
+            if (PEntity == null || PEntity.Id != null)
             {
                 return -2;
             }
-            else
-            {
-                _ghDbContext.dsMemberPayMonth.Add(PEntity);
-            }
+            PEntity.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
+            _ghDbContext.dsMemberPayMonth.Add(PEntity);
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
 
         }

@@ -8,10 +8,10 @@ namespace Office.Work.Platform.Api.DataService
 {
     public class NoteRepository
     {
-        private readonly GHDbContext _ghDbContext;
+        private readonly GHDbContext _GhDbContext;
         public NoteRepository(GHDbContext ghDbContext)
         {
-            _ghDbContext = ghDbContext;
+            _GhDbContext = ghDbContext;
         }
         /// <summary>
         /// 返回所有数据
@@ -19,7 +19,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<Note>> GetAllAsync()
         {
-            return await _ghDbContext.dsNotes.ToListAsync().ConfigureAwait(false);
+            return await _GhDbContext.dsNotes.ToListAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 根据Id查询用户信息
@@ -28,7 +28,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<Note> GetOneByIdAsync(string Id)
         {
-            return await _ghDbContext.dsNotes.FindAsync(Id).ConfigureAwait(false);
+            return await _GhDbContext.dsNotes.FindAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2。
@@ -37,14 +37,13 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<int> AddNew(Note Entity)
         {
-            if (Entity == null) return 0;
-            bool IsExist =await _ghDbContext.dsNotes.FirstOrDefaultAsync(e => e.Id == Entity.Id).ConfigureAwait(false)!=null;
-            if (IsExist)
+            if (Entity == null || Entity.Id!=null)
             {
                 return -2;
             }
-            _ghDbContext.dsNotes.Add(Entity);
-            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
+            Entity.Id= AppCodes.AppStaticClass.GetIdOfDateTime();
+            _GhDbContext.dsNotes.Add(Entity);
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

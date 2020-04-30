@@ -70,14 +70,13 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(MemberFile Entity)
+        public async Task<int> AddAsync(MemberFile Entity,string FileId)
         {
-            if (Entity == null) return 0;
-            bool IsExist = await _ghDbContext.dsMemberFiles.FirstOrDefaultAsync(e => e.Id == Entity.Id).ConfigureAwait(false) != null;
-            if (IsExist)
+            if(Entity == null || Entity.Id != null)
             {
                 return -2;
             }
+            Entity.Id = FileId;
             _ghDbContext.dsMemberFiles.Add(Entity);
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
         }

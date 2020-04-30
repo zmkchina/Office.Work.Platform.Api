@@ -24,6 +24,10 @@ namespace Office.Work.Platform.Api.Controllers
         public IEnumerable<UpdateFile> Get()
         {
             string UpdateFileDir = System.IO.Path.Combine(_configuration["StaticFileDir"], "UpdateFiles");
+            if (System.IO.Directory.Exists(UpdateFileDir))
+            {
+                System.IO.Directory.CreateDirectory(UpdateFileDir);
+            }
             string[] UpdateFiles = System.IO.Directory.GetFiles(UpdateFileDir);
             List<UpdateFile> UpFileList = new List<UpdateFile>();
             foreach (string item in UpdateFiles)

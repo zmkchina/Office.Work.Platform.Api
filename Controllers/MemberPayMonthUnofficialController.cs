@@ -16,12 +16,10 @@ namespace Office.Work.Platform.Api.Controllers
     public class MemberPayMonthUnofficialController : ControllerBase
     {
         private readonly MemberPayMonthUnofficialRepository _PayRepository;
-        private readonly IConfiguration _configuration;
 
-        public MemberPayMonthUnofficialController(IConfiguration configuration, GHDbContext ghDbContet, ILogger<User> logger)
+        public MemberPayMonthUnofficialController( GHDbContext ghDbContet, ILogger<User> logger)
         {
             _PayRepository = new MemberPayMonthUnofficialRepository(ghDbContet);
-            _configuration = configuration;
         }
         /// <summary>
         /// 返回所有记录
@@ -65,16 +63,13 @@ namespace Office.Work.Platform.Api.Controllers
         public async Task<string> PostAsync([FromForm]MemberPayMonthUnofficial EntityInfo)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (EntityInfo != null)
+            if (await _PayRepository.AddAsync(EntityInfo).ConfigureAwait(false) > 0)
             {
-                if (await _PayRepository.AddAsync(EntityInfo).ConfigureAwait(false) > 0)
-                {
-                    actResult.SetValues(0, "保存成功");
-                }
-                else
-                {
-                    actResult.SetValues(1, "保存失败");
-                }
+                actResult.SetValues(p_state: 0, p_msg: "保存成功", p_tag: EntityInfo?.Id);
+            }
+            else
+            {
+                actResult.SetValues(1, "保存失败");
             }
             return JsonConvert.SerializeObject(actResult);
         }
@@ -112,5 +107,5 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
-    }    
+    }
 }

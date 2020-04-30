@@ -18,12 +18,10 @@ namespace Office.Work.Platform.Api.Controllers
     public class PlanController : ControllerBase
     {
         private readonly PlanRepository _PlanRepository;
-        private readonly IConfiguration _configuration;
 
-        public PlanController(IConfiguration configuration, GHDbContext ghDbContet, ILogger<User> logger)
+        public PlanController( GHDbContext ghDbContet)
         {
             _PlanRepository = new PlanRepository(ghDbContet);
-            _configuration = configuration;
         }
 
         [HttpGet]
@@ -65,7 +63,7 @@ namespace Office.Work.Platform.Api.Controllers
                 
                 if (await _PlanRepository.AddNewAsync(Entity).ConfigureAwait(false) > 0)
                 {
-                    actResult.SetValues(0, "保存成功");
+                    actResult.SetValues(p_state: 0, p_msg: "保存成功", p_tag: Entity?.Id);
                 }
                 else
                 {

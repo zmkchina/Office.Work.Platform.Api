@@ -145,12 +145,13 @@ namespace Office.Work.Platform.Api.Controllers
             {
                 try
                 {
+                    string FileId = AppCodes.AppStaticClass.GetIdOfDateTime();
                     string FilePath = Path.Combine(_configuration["StaticFileDir"], "MemberFiles");
                     if (!System.IO.Directory.Exists(FilePath))
                     {
                         System.IO.Directory.CreateDirectory(FilePath);
                     }
-                    string FileName = Path.Combine(FilePath, $"{PFile.Id}{PFile.ExtendName}");
+                    string FileName = Path.Combine(FilePath, $"{FileId}{PFile.ExtendName}");
                     using (FileStream fs = System.IO.File.Create(FileName))
                     {
                         await Request.Form.Files[0].CopyToAsync(fs).ConfigureAwait(false);
@@ -160,7 +161,7 @@ namespace Office.Work.Platform.Api.Controllers
                     {
                         //文件写入成功后，再保存文件信息到数据表
                         PFile.UpDateTime = DateTime.Now;
-                        await _FileRepository.AddAsync(PFile).ConfigureAwait(false);
+                        await _FileRepository.AddAsync(PFile, FileId).ConfigureAwait(false);
                     }
                     actResult.SetValues(0, "上传成功");
                 }

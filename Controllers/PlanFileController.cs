@@ -71,7 +71,7 @@ namespace Office.Work.Platform.Api.Controllers
             {
                 if (await _FileRepository.UpdateAsync(FileInfo).ConfigureAwait(false) > 0)
                 {
-                    actResult.SetValues(0, "文件信息更新成功!");
+                    actResult.SetValues(p_state: 0, p_msg: "文件信息更新成功", p_tag: FileInfo?.Id);
                 }
                 else
                 {
@@ -126,12 +126,13 @@ namespace Office.Work.Platform.Api.Controllers
             {
                 try
                 {
+                    string FileId= AppCodes.AppStaticClass.GetIdOfDateTime(); 
                     string FilePath = Path.Combine(_configuration["StaticFileDir"], "PlanFiles");
                     if (!System.IO.Directory.Exists(FilePath))
                     {
                         System.IO.Directory.CreateDirectory(FilePath);
                     }
-                    string FileName = Path.Combine(FilePath, $"{PFile.Id}{PFile.ExtendName}");// _configuration["StaticFileDir"] + $"\\PlanFiles\\{pfile.Id}{pfile.ExtendName}";
+                    string FileName = Path.Combine(FilePath, $"{FileId}{PFile.ExtendName}");// _configuration["StaticFileDir"] + $"\\PlanFiles\\{pfile.Id}{pfile.ExtendName}";
                     using (FileStream fs = System.IO.File.Create(FileName))
                     {
                         await Request.Form.Files[0].CopyToAsync(fs).ConfigureAwait(false);
@@ -141,7 +142,7 @@ namespace Office.Work.Platform.Api.Controllers
                     {
                         //文件写入成功后，再保存文件信息到数据表
                         PFile.UpDateTime = DateTime.Now;
-                        await _FileRepository.AddAsync(PFile).ConfigureAwait(false);
+                        await _FileRepository.AddAsync(PFile, FileId).ConfigureAwait(false);
                     }
                     actResult.SetValues(0, "上传成功");
                 }

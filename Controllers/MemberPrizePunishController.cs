@@ -13,22 +13,22 @@ namespace Office.Work.Platform.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class MemberPayTempController : ControllerBase
+    public class MemberPrizePunishController : ControllerBase
     {
-        private readonly MemberPayTempRepository _PayRepository;
+        private readonly MemberPrizePunishRepository _DataRepository;
 
-        public MemberPayTempController(GHDbContext ghDbContet, ILogger<User> logger)
+        public MemberPrizePunishController(GHDbContext ghDbContet, ILogger<User> logger)
         {
-            _PayRepository = new MemberPayTempRepository(ghDbContet);
+            _DataRepository = new MemberPrizePunishRepository(ghDbContet);
         }
         /// <summary>
         /// 返回所有记录
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<MemberPayTemp>> GetAsync()
+        public async Task<IEnumerable<MemberPrizePunish>> GetAsync()
         {
-            return await _PayRepository.GetAllAsync().ConfigureAwait(false);
+            return await _DataRepository.GetAllAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 查询指定编号的记录
@@ -37,9 +37,9 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<MemberPayTemp> GetAsync(string Id)
+        public async Task<MemberPrizePunish> GetAsync(string Id)
         {
-            return await _PayRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
+            return await _DataRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 查询指定条件的数据
@@ -47,9 +47,9 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="SearchCondition"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberPayTemp>> GetAsync([FromQuery]MemberPayTempSearch SearchCondition)
+        public async Task<IEnumerable<MemberPrizePunish>> GetAsync([FromQuery]MemberPrizePunishSearch SearchCondition)
         {
-            return await _PayRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
+            return await _DataRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -59,10 +59,10 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromForm]MemberPayTemp EntityInfo)
+        public async Task<string> PostAsync([FromForm]MemberPrizePunish EntityInfo)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (await _PayRepository.AddAsync(EntityInfo).ConfigureAwait(false) > 0)
+            if (await _DataRepository.AddAsync(EntityInfo).ConfigureAwait(false) > 0)
             {
                 actResult.SetValues(p_state: 0, p_msg: "保存成功", p_tag: EntityInfo?.Id);
             }
@@ -78,12 +78,12 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="Entity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromForm]MemberPayTemp Entity)
+        public async Task<string> PutAsync([FromForm]MemberPrizePunish Entity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (Entity != null)
             {
-                if (await _PayRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
+                if (await _DataRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "更新成功");
                 }
@@ -105,7 +105,7 @@ namespace Office.Work.Platform.Api.Controllers
             ExcuteResult actResult = new ExcuteResult();
             if (!string.IsNullOrEmpty(Id))
             {
-                if (await _PayRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
+                if (await _DataRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "删除成功");
                 }

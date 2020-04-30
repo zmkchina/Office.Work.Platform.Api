@@ -9,10 +9,10 @@ namespace Office.Work.Platform.Api.DataService
 {
     public class MemberPayMonthUnofficialRepository
     {
-        private readonly GHDbContext _ghDbContext;
+        private readonly GHDbContext _GhDbContext;
         public MemberPayMonthUnofficialRepository(GHDbContext ghDbContext)
         {
-            _ghDbContext = ghDbContext;
+            _GhDbContext = ghDbContext;
         }
         /// <summary>
         /// 返回所有数据
@@ -20,7 +20,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<MemberPayMonthUnofficial>> GetAllAsync()
         {
-            return await _ghDbContext.dsMemberPayMonthUnofficial.ToListAsync().ConfigureAwait(false);
+            return await _GhDbContext.dsMemberPayMonthUnofficial.ToListAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<MemberPayMonthUnofficial> GetOneByIdAsync(string Id)
         {
-            return await _ghDbContext.dsMemberPayMonthUnofficial.FindAsync(Id).ConfigureAwait(false);
+            return await _GhDbContext.dsMemberPayMonthUnofficial.FindAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 根据条件查询计划,返回查询的实体列表
@@ -39,7 +39,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<MemberPayMonthUnofficial>> GetEntitiesAsync(MemberPayMonthUnofficialSearch SearchCondition)
         {
-            IQueryable<MemberPayMonthUnofficial> Items = _ghDbContext.dsMemberPayMonthUnofficial as IQueryable<MemberPayMonthUnofficial>;
+            IQueryable<MemberPayMonthUnofficial> Items = _GhDbContext.dsMemberPayMonthUnofficial as IQueryable<MemberPayMonthUnofficial>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
@@ -73,16 +73,13 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<int> AddAsync(MemberPayMonthUnofficial PEntity)
         {
-            bool IsExist = await _ghDbContext.dsMemberPayMonthUnofficial.AnyAsync(e => e.Id.Equals(PEntity.Id, StringComparison.Ordinal)).ConfigureAwait(false);
-            if (IsExist)
+            if (PEntity==null || PEntity.Id!=null)
             {
                 return -2;
             }
-            else
-            {
-                _ghDbContext.dsMemberPayMonthUnofficial.Add(PEntity);
-            }
-            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
+            PEntity.Id=AppCodes.AppStaticClass.GetIdOfDateTime();
+            _GhDbContext.dsMemberPayMonthUnofficial.Add(PEntity);
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
 
         }
 
@@ -95,8 +92,8 @@ namespace Office.Work.Platform.Api.DataService
         {
             if (Entitys != null && Entitys.Count > 0)
             {
-                _ghDbContext.dsMemberPayMonthUnofficial.AddRange(Entitys);
-                return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
+                _GhDbContext.dsMemberPayMonthUnofficial.AddRange(Entitys);
+                return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
             }
             else
             {
@@ -111,8 +108,8 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<int> UpdateAsync(MemberPayMonthUnofficial Entity)
         {
-            _ghDbContext.dsMemberPayMonthUnofficial.Update(Entity);
-            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
+            _GhDbContext.dsMemberPayMonthUnofficial.Update(Entity);
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
         // <summary>
@@ -122,9 +119,9 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<int> DeleteAsync(string Id)
         {
-            MemberPayMonthUnofficial tempPlan = _ghDbContext.dsMemberPayMonthUnofficial.Find(Id);
-            _ghDbContext.dsMemberPayMonthUnofficial.Remove(tempPlan);
-            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
+            MemberPayMonthUnofficial tempPlan = _GhDbContext.dsMemberPayMonthUnofficial.Find(Id);
+            _GhDbContext.dsMemberPayMonthUnofficial.Remove(tempPlan);
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }
    

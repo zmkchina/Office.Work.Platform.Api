@@ -22,6 +22,24 @@ namespace Office.Work.Platform.Api.DataService
         public DbSet<MemberPayMonthInsurance> dsMemberPayMonthInsurance { get; set; }
         public DbSet<MemberPayMonthUnofficial> dsMemberPayMonthUnofficial { get; set; }
         public DbSet<MemberPayTemp> dsMemberPayTemp { get; set; }
+        /// <summary>
+        /// 个人简历
+        /// </summary>
+        public DbSet<MemberResume> dsMemberResume { get; set; }
+        /// <summary>
+        /// 奖惩情况
+        /// </summary>
+        public DbSet<MemberPrizePunish> dsMemberPrizePunish { get; set; }
+        /// <summary>
+        /// 社会关系
+        /// </summary>
+        public DbSet<MemberRelations> dsMemberRelations { get; set; }
+        /// <summary>
+        /// 考勤情况
+        /// </summary>
+        public DbSet<MemberAttendance> dsMemberAttendance { get; set; }
+
+
         public DbSet<MemberFile> dsMemberFiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

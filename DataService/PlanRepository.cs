@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Office.Work.Platform.Api.AppCodes;
 using Office.Work.Platform.Lib;
 using System;
 using System.Collections.Generic;
@@ -34,12 +33,11 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<int> AddNewAsync(Plan Entity)
         {
-
-            bool IsExist = await _ghDbContext.dsPlans.AnyAsync(e => e.Id == Entity.Id).ConfigureAwait(false);
-            if (IsExist)
+            if (Entity == null || Entity.Id != null)
             {
                 return -2;
             }
+            Entity.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
             _ghDbContext.dsPlans.Add(Entity);
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
 

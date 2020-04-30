@@ -95,16 +95,7 @@ namespace Office.Work.Platform.Api.Migrations
                     b.Property<string>("PostInCPC")
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("Prize")
-                        .HasColumnType("varchar(2000)");
-
-                    b.Property<string>("Punish")
-                        .HasColumnType("varchar(2000)");
-
                     b.Property<string>("Remarks")
-                        .HasColumnType("varchar(2000)");
-
-                    b.Property<string>("Resume")
                         .HasColumnType("varchar(2000)");
 
                     b.Property<string>("Sex")
@@ -125,6 +116,44 @@ namespace Office.Work.Platform.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("dsMembers");
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberAttendance", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime>("BeginDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("HolidayReasion")
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("HolidayType")
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Remark")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("UpDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("dsMemberAttendance");
                 });
 
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberFile", b =>
@@ -336,13 +365,13 @@ namespace Office.Work.Platform.Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("PayName")
-                        .IsRequired()
-                        .HasColumnType("varchar(30)");
-
                     b.Property<string>("Remark")
                         .IsRequired()
                         .HasColumnType("varchar(500)");
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasColumnType("varchar(30)");
 
                     b.Property<DateTime>("UpDateTime")
                         .HasColumnType("datetime(6)");
@@ -356,6 +385,123 @@ namespace Office.Work.Platform.Api.Migrations
                     b.HasIndex("MemberId");
 
                     b.ToTable("dsMemberPayTemp");
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberPrizePunish", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<int>("GetScore")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime>("OccurDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("PrizrOrPunishName")
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("PrizrOrPunishReasion")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("PrizrOrPunishType")
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("PrizrOrPunishUnit")
+                        .HasColumnType("varchar(60)");
+
+                    b.Property<string>("Remark")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("UpDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("dsMemberPrizePunish");
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberRelations", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Relation")
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Remark")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("UnitName")
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("UpDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("dsMemberRelations");
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberResume", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime>("BeginDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Remark")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("UpDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("dsMemberResume");
                 });
 
             modelBuilder.Entity("Office.Work.Platform.Lib.Note", b =>
@@ -540,10 +686,19 @@ namespace Office.Work.Platform.Api.Migrations
                     b.ToTable("dsUsers");
                 });
 
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberAttendance", b =>
+                {
+                    b.HasOne("Office.Work.Platform.Lib.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberFile", b =>
                 {
                     b.HasOne("Office.Work.Platform.Lib.Member", "Member")
-                        .WithMany("Files")
+                        .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -552,7 +707,7 @@ namespace Office.Work.Platform.Api.Migrations
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonth", b =>
                 {
                     b.HasOne("Office.Work.Platform.Lib.Member", "Member")
-                        .WithMany("PayMonths")
+                        .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -570,7 +725,7 @@ namespace Office.Work.Platform.Api.Migrations
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonthUnofficial", b =>
                 {
                     b.HasOne("Office.Work.Platform.Lib.Member", "Member")
-                        .WithMany("PayMonthUnofficials")
+                        .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -579,7 +734,34 @@ namespace Office.Work.Platform.Api.Migrations
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayTemp", b =>
                 {
                     b.HasOne("Office.Work.Platform.Lib.Member", "Member")
-                        .WithMany("PayTemps")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberPrizePunish", b =>
+                {
+                    b.HasOne("Office.Work.Platform.Lib.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberRelations", b =>
+                {
+                    b.HasOne("Office.Work.Platform.Lib.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberResume", b =>
+                {
+                    b.HasOne("Office.Work.Platform.Lib.Member", "Member")
+                        .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

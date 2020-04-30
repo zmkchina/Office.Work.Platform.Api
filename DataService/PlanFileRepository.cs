@@ -8,10 +8,10 @@ namespace Office.Work.Platform.Api.DataService
 {
     public class PlanFileRepository
     {
-        private readonly GHDbContext _ghDbContext;
-        public PlanFileRepository(GHDbContext ghDbContext)
+        private readonly GHDbContext _GhDbContext;
+        public PlanFileRepository(GHDbContext GhDbContext)
         {
-            _ghDbContext = ghDbContext;
+            _GhDbContext = GhDbContext;
         }
         /// <summary>
         /// 返回所有数据
@@ -19,7 +19,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<PlanFile>> GetAllAsync()
         {
-            return await _ghDbContext.dsPlanFiles.ToListAsync().ConfigureAwait(false);
+            return await _GhDbContext.dsPlanFiles.ToListAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 根据Id获取一个对象
@@ -28,7 +28,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<PlanFile> GetOneByIdAsync(string Id)
         {
-            return await _ghDbContext.dsPlanFiles.FindAsync(Id).ConfigureAwait(false);
+            return await _GhDbContext.dsPlanFiles.FindAsync(Id).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<PlanFile>> GetEntitiesAsync(PlanFileSearch mSearchFile)
         {
-            IQueryable<PlanFile> Items = _ghDbContext.dsPlanFiles.Include(x=>x.Plan) as IQueryable<PlanFile>;
+            IQueryable<PlanFile> Items = _GhDbContext.dsPlanFiles.Include(x=>x.Plan) as IQueryable<PlanFile>;
             if (mSearchFile != null && !string.IsNullOrWhiteSpace(mSearchFile.UserId))
             {
                 //判断请求用户是否有权限(必须对该文件所属计划有读取权限)
@@ -64,16 +64,15 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(PlanFile Entity)
+        public async Task<int> AddAsync(PlanFile Entity,string FileId)
         {
-            if (Entity == null) return 0;
-            bool IsExist = await _ghDbContext.dsPlanFiles.AnyAsync(e => e.Id == Entity.Id).ConfigureAwait(false);
-            if (IsExist)
+            if (Entity == null || Entity.Id!=null)
             {
                 return -2;
             }
-            _ghDbContext.dsPlanFiles.Add(Entity);
-            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
+            Entity.Id = FileId;
+            _GhDbContext.dsPlanFiles.Add(Entity);
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -83,8 +82,8 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<int> UpdateAsync(PlanFile Entity)
         {
-            _ghDbContext.dsPlanFiles.Update(Entity);
-            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
+            _GhDbContext.dsPlanFiles.Update(Entity);
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -95,10 +94,10 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<int> DeleteAsync(string Id)
         {
 
-            PlanFile tempPlan = _ghDbContext.dsPlanFiles.Find(Id);
-            _ghDbContext.dsPlanFiles.Remove(tempPlan);
+            PlanFile tempPlan = _GhDbContext.dsPlanFiles.Find(Id);
+            _GhDbContext.dsPlanFiles.Remove(tempPlan);
 
-            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }
