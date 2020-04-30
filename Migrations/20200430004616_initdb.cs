@@ -117,6 +117,7 @@ namespace Office.Work.Platform.Api.Migrations
                     PassWord = table.Column<string>(type: "varchar(20)", nullable: false),
                     Name = table.Column<string>(type: "varchar(20)", nullable: false),
                     Post = table.Column<string>(type: "varchar(20)", nullable: false),
+                    UnitName = table.Column<string>(type: "varchar(40)", nullable: false),
                     Department = table.Column<string>(type: "varchar(20)", nullable: false),
                     Grants = table.Column<string>(type: "varchar(1000)", nullable: false),
                     OrderIndex = table.Column<int>(nullable: false)
@@ -132,8 +133,8 @@ namespace Office.Work.Platform.Api.Migrations
                 {
                     Id = table.Column<string>(nullable: false),
                     MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
-                    FType = table.Column<string>(type: "varchar(20)", nullable: false),
-                    PayId = table.Column<string>(type: "varchar(20)", nullable: true),
+                    FileType = table.Column<string>(type: "varchar(20)", nullable: false),
+                    OtherRecordId = table.Column<string>(type: "varchar(20)", nullable: true),
                     Name = table.Column<string>(type: "varchar(200)", nullable: false),
                     ExtendName = table.Column<string>(type: "varchar(10)", nullable: false),
                     Length = table.Column<long>(type: "bigint", nullable: false),
@@ -158,18 +159,13 @@ namespace Office.Work.Platform.Api.Migrations
                 {
                     Id = table.Column<string>(nullable: false),
                     MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
-                    PostPay = table.Column<float>(nullable: false),
-                    ScalePay = table.Column<float>(nullable: false),
-                    PostAllowance = table.Column<float>(nullable: false),
-                    LivingAllowance = table.Column<float>(nullable: false),
-                    IncentivePerformancePay = table.Column<float>(nullable: false),
-                    HousingFund = table.Column<float>(nullable: false),
-                    OccupationalPension = table.Column<float>(nullable: false),
-                    PensionInsurance = table.Column<float>(nullable: false),
-                    UnemploymentInsurance = table.Column<float>(nullable: false),
-                    MedicalInsurance = table.Column<float>(nullable: false),
-                    UnionFees = table.Column<float>(nullable: false),
-                    Tax = table.Column<float>(nullable: false),
+                    PostPay = table.Column<float>(type: "float(10,2)", nullable: false),
+                    ScalePay = table.Column<float>(type: "float(10,2)", nullable: false),
+                    PostAllowance = table.Column<float>(type: "float(10,2)", nullable: false),
+                    LivingAllowance = table.Column<float>(type: "float(10,2)", nullable: false),
+                    IncentivePerformancePay = table.Column<float>(type: "float(10,2)", nullable: false),
+                    TrafficAllowance = table.Column<float>(type: "float(10,2)", nullable: false),
+                    FoodAllowance = table.Column<float>(type: "float(10,2)", nullable: false),
                     PayYear = table.Column<int>(nullable: false),
                     PayMonth = table.Column<int>(nullable: false),
                     UpDateTime = table.Column<DateTime>(nullable: false),
@@ -188,21 +184,46 @@ namespace Office.Work.Platform.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "dsMemberPayMonthInsurance",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
+                    HousingFund = table.Column<float>(type: "float(10,2)", nullable: false),
+                    OccupationalPension = table.Column<float>(type: "float(10,2)", nullable: false),
+                    PensionInsurance = table.Column<float>(type: "float(10,2)", nullable: false),
+                    UnemploymentInsurance = table.Column<float>(type: "float(10,2)", nullable: false),
+                    MedicalInsurance = table.Column<float>(type: "float(10,2)", nullable: false),
+                    UnionFees = table.Column<float>(type: "float(10,2)", nullable: false),
+                    Tax = table.Column<float>(type: "float(10,2)", nullable: false),
+                    PayYear = table.Column<int>(nullable: false),
+                    PayMonth = table.Column<int>(nullable: false),
+                    UpDateTime = table.Column<DateTime>(nullable: false),
+                    UserId = table.Column<string>(type: "varchar(20)", nullable: false),
+                    Remark = table.Column<string>(type: "varchar(500)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dsMemberPayMonthInsurance", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dsMemberPayMonthInsurance_dsMembers_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "dsMembers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "dsMemberPayMonthUnofficial",
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
                     MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
-                    BasicPay = table.Column<float>(nullable: false),
-                    PostPay = table.Column<float>(nullable: false),
-                    PerformancePay = table.Column<float>(nullable: false),
-                    HousingFund = table.Column<float>(nullable: false),
-                    OccupationalPension = table.Column<float>(nullable: false),
-                    PensionInsurance = table.Column<float>(nullable: false),
-                    UnemploymentInsurance = table.Column<float>(nullable: false),
-                    MedicalInsurance = table.Column<float>(nullable: false),
-                    UnionFees = table.Column<float>(nullable: false),
-                    Tax = table.Column<float>(nullable: false),
+                    BasicPay = table.Column<float>(type: "float(10,2)", nullable: false),
+                    PostPay = table.Column<float>(type: "float(10,2)", nullable: false),
+                    PerformancePay = table.Column<float>(type: "float(10,2)", nullable: false),
+                    TrafficAllowance = table.Column<float>(type: "float(10,2)", nullable: false),
+                    FoodAllowance = table.Column<float>(type: "float(10,2)", nullable: false),
                     PayYear = table.Column<int>(nullable: false),
                     PayMonth = table.Column<int>(nullable: false),
                     UpDateTime = table.Column<DateTime>(nullable: false),
@@ -225,9 +246,9 @@ namespace Office.Work.Platform.Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
-                    PayName = table.Column<string>(nullable: true),
+                    PayName = table.Column<string>(type: "varchar(30)", nullable: false),
                     MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
-                    Amount = table.Column<float>(nullable: false),
+                    Amount = table.Column<float>(type: "float(10,2)", nullable: false),
                     UpDateTime = table.Column<DateTime>(nullable: false),
                     Remark = table.Column<string>(type: "varchar(500)", nullable: false),
                     UserId = table.Column<string>(type: "varchar(20)", nullable: false)
@@ -278,6 +299,11 @@ namespace Office.Work.Platform.Api.Migrations
                 column: "MemberId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_dsMemberPayMonthInsurance_MemberId",
+                table: "dsMemberPayMonthInsurance",
+                column: "MemberId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_dsMemberPayMonthUnofficial_MemberId",
                 table: "dsMemberPayMonthUnofficial",
                 column: "MemberId");
@@ -300,6 +326,9 @@ namespace Office.Work.Platform.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "dsMemberPayMonth");
+
+            migrationBuilder.DropTable(
+                name: "dsMemberPayMonthInsurance");
 
             migrationBuilder.DropTable(
                 name: "dsMemberPayMonthUnofficial");

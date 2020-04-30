@@ -7,10 +7,10 @@ using Office.Work.Platform.Lib;
 
 namespace Office.Work.Platform.Api.DataService
 {
-    public class MemberPlayMonthUnofficialRepository
+    public class MemberPayMonthUnofficialRepository
     {
         private readonly GHDbContext _ghDbContext;
-        public MemberPlayMonthUnofficialRepository(GHDbContext ghDbContext)
+        public MemberPayMonthUnofficialRepository(GHDbContext ghDbContext)
         {
             _ghDbContext = ghDbContext;
         }
@@ -32,22 +32,55 @@ namespace Office.Work.Platform.Api.DataService
         {
             return await _ghDbContext.dsMemberPayMonthUnofficial.FindAsync(Id).ConfigureAwait(false);
         }
-
         /// <summary>
-        /// 向数据库表添加一个新的记录，如果该记录已经存在，则更新之。
+        /// 根据条件查询计划,返回查询的实体列表
         /// </summary>
-        /// <param name="P_Entity"></param>
+        /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<int> AddOrUpdateAsync(MemberPayMonthUnofficial Entity)
+        public async Task<IEnumerable<MemberPayMonthUnofficial>> GetEntitiesAsync(MemberPayMonthUnofficialSearch SearchCondition)
         {
-            bool IsExist = await _ghDbContext.dsMemberPayMonth.FirstOrDefaultAsync(e => e.Id == Entity.Id).ConfigureAwait(false) != null;
+            IQueryable<MemberPayMonthUnofficial> Items = _ghDbContext.dsMemberPayMonthUnofficial as IQueryable<MemberPayMonthUnofficial>;
+            if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
+            {
+                if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
+                {
+                    Items = Items.Where(e => e.Id.Equals(SearchCondition.Id, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                }
+                if (!string.IsNullOrWhiteSpace(SearchCondition.MemberId))
+                {
+                    Items = Items.Where(e => e.MemberId.Equals(SearchCondition.MemberId, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                }
+                if (!string.IsNullOrWhiteSpace(SearchCondition.Remark))
+                {
+                    Items = Items.Where(e => e.Remark.Contains(SearchCondition.Remark, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                }
+                if (SearchCondition.PayYear > 0)
+                {
+                    Items = Items.Where(e => e.PayYear == SearchCondition.PayYear);
+                }
+                if (SearchCondition.PayMonth > 0)
+                {
+                    Items = Items.Where(e => e.PayMonth == SearchCondition.PayMonth);
+                }
+                return await Items.ToListAsync().ConfigureAwait(false);
+            }
+            return new List<MemberPayMonthUnofficial>();
+        }
+        /// <summary>
+        /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2
+        /// </summary>
+        /// <param name="PEntity"></param>
+        /// <returns></returns>
+        public async Task<int> AddAsync(MemberPayMonthUnofficial PEntity)
+        {
+            bool IsExist = await _ghDbContext.dsMemberPayMonthUnofficial.AnyAsync(e => e.Id.Equals(PEntity.Id, StringComparison.Ordinal)).ConfigureAwait(false);
             if (IsExist)
             {
-                _ghDbContext.dsMemberPayMonthUnofficial.Update(Entity);
+                return -2;
             }
             else
             {
-                _ghDbContext.dsMemberPayMonthUnofficial.Add(Entity);
+                _ghDbContext.dsMemberPayMonthUnofficial.Add(PEntity);
             }
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
 
@@ -82,33 +115,6 @@ namespace Office.Work.Platform.Api.DataService
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// 根据条件查询计划,返回查询的实体列表
-        /// </summary>
-        /// <param name="mSearchMember">员工查询类对象</param>
-        /// <returns></returns>
-        public async Task<IEnumerable<MemberPayMonthUnofficial>> GetEntitiesAsync(MemberSearch mSearchMember)
-        {
-            IQueryable<MemberPayMonthUnofficial> Items = _ghDbContext.dsMemberPayMonthUnofficial as IQueryable<MemberPayMonthUnofficial>;
-            if (mSearchMember != null)
-            {
-                //if (!string.IsNullOrWhiteSpace(mSearchMember.Name))
-                //{
-                //    Items = Items.Where(e => e.Name.Contains(mSearchMember.Name,StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
-                //}
-                //if (!string.IsNullOrWhiteSpace(mSearchMember.EducationTop))
-                //{
-                //    Items = Items.Where(e => e.EducationTop.Contains(mSearchMember.EducationTop, StringComparison.Ordinal));
-                //}
-                //if (!string.IsNullOrWhiteSpace(mSearchMember.TechnicalTitle))
-                //{
-                //    Items = Items.Where(e => e.TechnicalTitle.Contains(mSearchMember.TechnicalTitle, StringComparison.Ordinal));
-                //}
-            }
-
-            return await Items.ToListAsync().ConfigureAwait(false);
-        }
-
         // <summary>
         /// 根据Id删除一个实体信息
         /// </summary>
@@ -121,4 +127,5 @@ namespace Office.Work.Platform.Api.DataService
             return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }
+   
 }

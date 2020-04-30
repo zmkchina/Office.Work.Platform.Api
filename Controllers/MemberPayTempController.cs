@@ -15,41 +15,47 @@ namespace Office.Work.Platform.Api.Controllers
     [Route("Api/[controller]")]
     public class MemberPayTempController : ControllerBase
     {
-        private readonly MemberPlayTempRepository _PayTempRepository;
+        private readonly MemberPayTempRepository _PayRepository;
         private readonly IConfiguration _configuration;
 
         public MemberPayTempController(IConfiguration configuration, GHDbContext ghDbContet, ILogger<User> logger)
         {
-            _PayTempRepository = new MemberPlayTempRepository(ghDbContet);
+            _PayRepository = new MemberPayTempRepository(ghDbContet);
             _configuration = configuration;
         }
-
+        /// <summary>
+        /// 返回所有记录
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IEnumerable<MemberPayTemp>> GetAsync()
         {
-            return await _PayTempRepository.GetAllAsync().ConfigureAwait(false);
+            return await _PayRepository.GetAllAsync().ConfigureAwait(false);
         }
-
+        /// <summary>
+        /// 查询指定编号的记录
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
         public async Task<MemberPayTemp> GetAsync(string Id)
         {
-            return await _PayTempRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
+            return await _PayRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
-
         /// <summary>
-        /// 查询数据
+        /// 查询指定条件的数据
         /// </summary>
-        /// <param name="mSearchPlan"></param>
+        /// <param name="SearchCondition"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberPayTemp>> GetAsync([FromQuery]MemberSearch mSearchPlan)
+        public async Task<IEnumerable<MemberPayTemp>> GetAsync([FromQuery]MemberPayTempSearch SearchCondition)
         {
-            return await _PayTempRepository.GetEntitiesAsync(mSearchPlan).ConfigureAwait(false);
+            return await _PayRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// 新增或更新计划
+        /// 新增记录
         /// </summary>
         /// <param name="FileInfo"></param>
         /// <returns></returns>
@@ -60,7 +66,7 @@ namespace Office.Work.Platform.Api.Controllers
             ExcuteResult actResult = new ExcuteResult();
             if (EntityInfo != null)
             {
-                if (await _PayTempRepository.AddOrUpdateAsync(EntityInfo).ConfigureAwait(false) > 0)
+                if (await _PayRepository.AddAsync(EntityInfo).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "保存成功");
                 }
@@ -71,13 +77,18 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        /// <param name="Entity"></param>
+        /// <returns></returns>
         [HttpPut]
         public async Task<string> PutAsync([FromForm]MemberPayTemp Entity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (Entity != null)
             {
-                if (await _PayTempRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
+                if (await _PayRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "更新成功");
                 }
@@ -88,13 +99,18 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
+        /// <summary>
+        /// 删除记录
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         [HttpDelete]
         public async Task<string> DeleteAsync(string Id)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (!string.IsNullOrEmpty(Id))
             {
-                if (await _PayTempRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
+                if (await _PayRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "删除成功");
                 }

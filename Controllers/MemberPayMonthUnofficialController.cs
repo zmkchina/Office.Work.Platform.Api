@@ -15,41 +15,48 @@ namespace Office.Work.Platform.Api.Controllers
     [Route("Api/[controller]")]
     public class MemberPayMonthUnofficialController : ControllerBase
     {
-        private readonly MemberPlayMonthUnofficialRepository _PlayMonthUnofficialRepository;
+        private readonly MemberPayMonthUnofficialRepository _PayRepository;
         private readonly IConfiguration _configuration;
 
         public MemberPayMonthUnofficialController(IConfiguration configuration, GHDbContext ghDbContet, ILogger<User> logger)
         {
-            _PlayMonthUnofficialRepository = new MemberPlayMonthUnofficialRepository(ghDbContet);
+            _PayRepository = new MemberPayMonthUnofficialRepository(ghDbContet);
             _configuration = configuration;
         }
-
+        /// <summary>
+        /// 返回所有记录
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IEnumerable<MemberPayMonthUnofficial>> GetAsync()
         {
-            return await _PlayMonthUnofficialRepository.GetAllAsync().ConfigureAwait(false);
+            return await _PayRepository.GetAllAsync().ConfigureAwait(false);
         }
-
+        /// <summary>
+        /// 查询指定编号的记录
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
         public async Task<MemberPayMonthUnofficial> GetAsync(string Id)
         {
-            return await _PlayMonthUnofficialRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
+            return await _PayRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// 查询数据
+        /// 查询指定条件的数据
         /// </summary>
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberPayMonthUnofficial>> GetAsync([FromQuery]MemberSearch mSearchPlan)
+        public async Task<IEnumerable<MemberPayMonthUnofficial>> GetAsync([FromQuery]MemberPayMonthUnofficialSearch SearchCondition)
         {
-            return await _PlayMonthUnofficialRepository.GetEntitiesAsync(mSearchPlan).ConfigureAwait(false);
+            return await _PayRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// 新增或更新计划
+        /// 新增记录
         /// </summary>
         /// <param name="FileInfo"></param>
         /// <returns></returns>
@@ -60,7 +67,7 @@ namespace Office.Work.Platform.Api.Controllers
             ExcuteResult actResult = new ExcuteResult();
             if (EntityInfo != null)
             {
-                if (await _PlayMonthUnofficialRepository.AddOrUpdateAsync(EntityInfo).ConfigureAwait(false) > 0)
+                if (await _PayRepository.AddAsync(EntityInfo).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "保存成功");
                 }
@@ -77,7 +84,7 @@ namespace Office.Work.Platform.Api.Controllers
             ExcuteResult actResult = new ExcuteResult();
             if (Entity != null)
             {
-                if (await _PlayMonthUnofficialRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
+                if (await _PayRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "更新成功");
                 }
@@ -94,7 +101,7 @@ namespace Office.Work.Platform.Api.Controllers
             ExcuteResult actResult = new ExcuteResult();
             if (!string.IsNullOrEmpty(Id))
             {
-                if (await _PlayMonthUnofficialRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
+                if (await _PayRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "删除成功");
                 }
@@ -105,5 +112,5 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
-    }
+    }    
 }

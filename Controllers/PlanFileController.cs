@@ -19,7 +19,7 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly PlanFileRepository _FileRepository;
         private readonly IConfiguration _configuration;
-        public PlanFileController(IConfiguration configuration, GHDbContext ghDbContext, ILogger<User> logger)
+        public PlanFileController(IConfiguration configuration, GHDbContext ghDbContext, ILogger<PlanFileController> logger)
         {
             _FileRepository = new PlanFileRepository(ghDbContext);
             _configuration = configuration;
@@ -64,12 +64,12 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="FileInfo"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> Put([FromForm]PlanFile PFileInfo)
+        public async Task<string> PutAsync([FromForm]PlanFile FileInfo)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (PFileInfo != null && PFileInfo.Id != null)
+            if (FileInfo != null && FileInfo.Id != null)
             {
-                if (await _FileRepository.UpdateAsync(PFileInfo).ConfigureAwait(false) > 0)
+                if (await _FileRepository.UpdateAsync(FileInfo).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "文件信息更新成功!");
                 }
@@ -110,6 +110,7 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
+
         /// <summary>
         /// 新增一个文件信息，包括将文件内容保存到磁盘上。
         /// </summary>
@@ -125,7 +126,12 @@ namespace Office.Work.Platform.Api.Controllers
             {
                 try
                 {
-                    string FileName = Path.Combine(_configuration["StaticFileDir"], "PlanFiles", $"{PFile.Id}{PFile.ExtendName}");// _configuration["StaticFileDir"] + $"\\PlanFiles\\{pfile.Id}{pfile.ExtendName}";
+                    string FilePath = Path.Combine(_configuration["StaticFileDir"], "PlanFiles");
+                    if (!System.IO.Directory.Exists(FilePath))
+                    {
+                        System.IO.Directory.CreateDirectory(FilePath);
+                    }
+                    string FileName = Path.Combine(FilePath, $"{PFile.Id}{PFile.ExtendName}");// _configuration["StaticFileDir"] + $"\\PlanFiles\\{pfile.Id}{pfile.ExtendName}";
                     using (FileStream fs = System.IO.File.Create(FileName))
                     {
                         await Request.Form.Files[0].CopyToAsync(fs).ConfigureAwait(false);
@@ -160,6 +166,17 @@ namespace Office.Work.Platform.Api.Controllers
             if (FileInfo != null)
             {
                 string FileName = $"{FileInfo.Name}({FileInfo.Id}){FileInfo.ExtendName}";
+                string fileFullName = Path.Combine(_configuration["StaticFileDir"], "PlanFiles", $"{FileInfo.Id}{FileInfo.ExtendName}");
+                if (System.IO.File.Exists(fileFullName))
+                {
+                    return PhysicalFile(fileFullName, "application/octet-stream", FileName);
+                }
+            }
+            return NotFound();
+            /*
+            if (FileInfo != null)
+            {
+                string FileName = $"{FileInfo.Name}({FileInfo.Id}){FileInfo.ExtendName}";
                 FileStream downFileStream = null;
 
                 await Task.Run(() =>
@@ -180,11 +197,7 @@ namespace Office.Work.Platform.Api.Controllers
                 }
             }
             return NotFound();
+            */
         }
-        //public IActionResult BannerImage()
-        //{
-        //    var file = Path.Combine(Directory.GetCurrentDirectory(),"MyStaticFiles", "images", "banner1.svg");
-        //    return PhysicalFile(file, "image/svg+xml");
-        //}
     }
 }

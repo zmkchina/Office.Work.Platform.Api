@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -18,58 +19,62 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly MemberFileRepository _FileRepository;
         private readonly IConfiguration _configuration;
-        public MemberFileController(IConfiguration configuration, GHDbContext ghDbContext, ILogger<User> logger)
+        public MemberFileController(IConfiguration configuration, GHDbContext ghDbContext, ILogger<MemberFileController> logger)
         {
             _FileRepository = new MemberFileRepository(ghDbContext);
             _configuration = configuration;
         }
-
+        /// <summary>
+        /// 获取所有文件记录
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<IEnumerable<MemberFile>> GetAsync()
         {
             return await _FileRepository.GetAllAsync().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// 获取指定Id文件信息
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
         public async Task<MemberFile> GetAsync(string Id)
         {
             return await _FileRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
-
         /// <summary>
-        /// 上传一个文件，包括文件的相关描述
+        /// 根据Id号从磁盘上下载文件。
         /// </summary>
-        /// <param name="FileInfo">上传的文件描述信息</param>
+        /// <param name="FileId">文件Id号</param>
         /// <returns></returns>
-        [HttpPost]
-        [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromForm]MemberFile FileInfo)
+        [HttpGet]
+        [Route("DownLoadFile/{FileId}")]
+        public async Task<ActionResult> GetDownLoadFileAsync(string FileId)
         {
-            ExcuteResult actResult = new ExcuteResult();
-           
-            if (Request.Form.Files.Count > 0 && FileInfo != null)
+            MemberFile FileInfo = await _FileRepository.GetOneByIdAsync(FileId).ConfigureAwait(false);
+            if (FileInfo != null)
             {
-                try
+                string FileName = $"{FileInfo.Name}({FileInfo.Id}){FileInfo.ExtendName}";
+                string fileFullName = Path.Combine(_configuration["StaticFileDir"], "MemberFiles", $"{FileInfo.Id}{FileInfo.ExtendName}");
+                if (System.IO.File.Exists(fileFullName))
                 {
-                    var fileName = _configuration["StaticFileDir"] + $"\\{FileInfo.Id}{FileInfo.ExtendName}";
-                    using (FileStream fs = System.IO.File.Create(fileName))
-                    {
-                        await Request.Form.Files[0].CopyToAsync(fs).ConfigureAwait(false);
-                        fs.Flush();
-                    }
-                    if (System.IO.File.Exists(fileName))
-                    {
-                        await _FileRepository.AddAsync(FileInfo).ConfigureAwait(false);
-                    }
-                    actResult.SetValues(0, "上传成功", @"GHStaticFiles/" + FileInfo.Id + FileInfo.ExtendName);
-                }
-                catch (System.Exception err)
-                {
-                    actResult.SetValues(1, err.Message);
+                    return PhysicalFile(fileFullName, "application/octet-stream", FileName);
                 }
             }
-            return JsonConvert.SerializeObject(actResult);
+            return NotFound();
+        }
+        /// <summary>
+        /// 用指定的条件类查询文件信息(不下载具体文件）。
+        /// </summary>
+        /// <param name="mSearchFile"></param>
+        /// <returns></returns>
+        [HttpGet("Search")]
+        public async Task<IEnumerable<MemberFile>> GetPlanFilesAsync([FromQuery]MemberFileSearch mfSearchFile)
+        {
+            return await _FileRepository.GetEntitiesAsync(mfSearchFile).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -81,15 +86,15 @@ namespace Office.Work.Platform.Api.Controllers
         public async Task<string> Put([FromForm]MemberFile FileInfo)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (FileInfo != null)
+            if (FileInfo != null && FileInfo.Id != null)
             {
                 if (await _FileRepository.UpdateAsync(FileInfo).ConfigureAwait(false) > 0)
                 {
-                    actResult.SetValues(0, "更新成功!", @"GHStaticFiles/" + FileInfo.Id + FileInfo.ExtendName);
+                    actResult.SetValues(0, "文件信息更新成功!");
                 }
                 else
                 {
-                    actResult.SetValues(1, "更新失败!");
+                    actResult.SetValues(1, "文件信息更新失败!");
                 }
             }
             return JsonConvert.SerializeObject(actResult);
@@ -97,7 +102,7 @@ namespace Office.Work.Platform.Api.Controllers
 
 
         /// <summary>
-        /// 删除一个文件
+        /// 删除一个文件信息，包括磁盘上的具体文件。
         /// </summary>
         /// <param name="P_FileId"></param>
         /// <param name="P_FileExtName"></param>
@@ -110,7 +115,7 @@ namespace Office.Work.Platform.Api.Controllers
             {
                 if (await _FileRepository.DeleteAsync(FileId).ConfigureAwait(false) > 0)
                 {
-                    var fileName = _configuration["StaticFileDir"] + $"\\{FileId}{FileExtName}";
+                    var fileName = _configuration["StaticFileDir"] + $"\\MemberFiles\\{FileId}{FileExtName}";
                     if (System.IO.File.Exists(fileName))
                     {
                         System.IO.File.Delete(fileName);
@@ -124,38 +129,49 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
+
         /// <summary>
-        /// 下载文件。
+        /// 新增一个文件信息，包括将文件内容保存到磁盘上。
         /// </summary>
+        /// <param name="PFile">上传的文件描述信息</param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("{Id}")]
-        public async Task<ActionResult> GetAsync(MemberFile DownFileInfo)
+        [HttpPost("UpLoadFile")]
+        [DisableRequestSizeLimit]
+        public async Task<string> PostUpLoadFileAsync([FromForm]MemberFile PFile)
         {
-            if (DownFileInfo != null)
+            ExcuteResult actResult = new ExcuteResult();
+
+            if (Request.Form.Files.Count > 0 && PFile != null)
             {
-                string FileName = $"{DownFileInfo.Name}({DownFileInfo.Id}){DownFileInfo.ExtendName}";
-                FileStream downFileStream = null;
-
-                await Task.Run(() =>
+                try
                 {
-                    string OwnerPath = "MemberFiles";
-                    if (DownFileInfo != null)
+                    string FilePath = Path.Combine(_configuration["StaticFileDir"], "MemberFiles");
+                    if (!System.IO.Directory.Exists(FilePath))
                     {
-                        string fileFullName = _configuration["StaticFileDir"] + $"\\{OwnerPath}\\{DownFileInfo.Id}{DownFileInfo.ExtendName}";
-                        if (System.IO.File.Exists(fileFullName))
-                        {
-                            downFileStream = new FileStream(fileFullName, FileMode.Open);
-                        }
+                        System.IO.Directory.CreateDirectory(FilePath);
                     }
-                }).ConfigureAwait(false);
-
-                if (downFileStream != null)
+                    string FileName = Path.Combine(FilePath, $"{PFile.Id}{PFile.ExtendName}");
+                    using (FileStream fs = System.IO.File.Create(FileName))
+                    {
+                        await Request.Form.Files[0].CopyToAsync(fs).ConfigureAwait(false);
+                        fs.Flush();
+                    }
+                    if (System.IO.File.Exists(FileName))
+                    {
+                        //文件写入成功后，再保存文件信息到数据表
+                        PFile.UpDateTime = DateTime.Now;
+                        await _FileRepository.AddAsync(PFile).ConfigureAwait(false);
+                    }
+                    actResult.SetValues(0, "上传成功");
+                }
+                catch (System.Exception err)
                 {
-                    return File(downFileStream, "application/octet-stream", FileName);
+                    actResult.SetValues(1, err.Message);
                 }
             }
-            return NotFound();
+            return JsonConvert.SerializeObject(actResult);
         }
+
+
     }
 }

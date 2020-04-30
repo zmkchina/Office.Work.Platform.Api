@@ -60,6 +60,8 @@ namespace Office.Work.Platform.Api
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 //不更改元数据的key的大小写
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+                //设置时间格式
+                options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
             }); 
 
             services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(x =>

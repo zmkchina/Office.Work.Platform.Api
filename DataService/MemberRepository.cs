@@ -100,6 +100,14 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.Name.Contains(mSearchMember.Name, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
+                if (!string.IsNullOrWhiteSpace(mSearchMember.UnitName))
+                {
+                    Items = Items.Where(e => e.UnitName.Contains(mSearchMember.UnitName, StringComparison.Ordinal));
+                }
+                if (mSearchMember.Age > 0)
+                {
+                    Items = Items.Where(e => DateTime.Now.Year - e.Birthday.Year > mSearchMember.Age);
+                }
                 if (!string.IsNullOrWhiteSpace(mSearchMember.EducationTop))
                 {
                     Items = Items.Where(e => e.EducationTop.Contains(mSearchMember.EducationTop, StringComparison.Ordinal));
@@ -108,9 +116,10 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.TechnicalTitle.Contains(mSearchMember.TechnicalTitle, StringComparison.Ordinal));
                 }
+                return await Items.ToListAsync().ConfigureAwait(false);
             }
 
-            return await Items.ToListAsync().ConfigureAwait(false);
+            return new List<Member>();
         }
 
         // <summary>

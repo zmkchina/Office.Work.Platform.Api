@@ -139,7 +139,7 @@ namespace Office.Work.Platform.Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(10)");
 
-                    b.Property<string>("FType")
+                    b.Property<string>("FileType")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
 
@@ -154,7 +154,7 @@ namespace Office.Work.Platform.Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(200)");
 
-                    b.Property<string>("PayId")
+                    b.Property<string>("OtherRecordId")
                         .HasColumnType("varchar(20)");
 
                     b.Property<DateTime>("UpDateTime")
@@ -176,24 +176,18 @@ namespace Office.Work.Platform.Api.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<float>("HousingFund")
-                        .HasColumnType("float");
+                    b.Property<float>("FoodAllowance")
+                        .HasColumnType("float(10,2)");
 
                     b.Property<float>("IncentivePerformancePay")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
                     b.Property<float>("LivingAllowance")
-                        .HasColumnType("float");
-
-                    b.Property<float>("MedicalInsurance")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
                     b.Property<string>("MemberId")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
-
-                    b.Property<float>("OccupationalPension")
-                        .HasColumnType("float");
 
                     b.Property<int>("PayMonth")
                         .HasColumnType("int");
@@ -201,29 +195,20 @@ namespace Office.Work.Platform.Api.Migrations
                     b.Property<int>("PayYear")
                         .HasColumnType("int");
 
-                    b.Property<float>("PensionInsurance")
-                        .HasColumnType("float");
-
                     b.Property<float>("PostAllowance")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
                     b.Property<float>("PostPay")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
                     b.Property<string>("Remark")
                         .HasColumnType("varchar(500)");
 
                     b.Property<float>("ScalePay")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
-                    b.Property<float>("Tax")
-                        .HasColumnType("float");
-
-                    b.Property<float>("UnemploymentInsurance")
-                        .HasColumnType("float");
-
-                    b.Property<float>("UnionFees")
-                        .HasColumnType("float");
+                    b.Property<float>("TrafficAllowance")
+                        .HasColumnType("float(10,2)");
 
                     b.Property<DateTime>("UpDateTime")
                         .HasColumnType("datetime(6)");
@@ -239,26 +224,23 @@ namespace Office.Work.Platform.Api.Migrations
                     b.ToTable("dsMemberPayMonth");
                 });
 
-            modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonthUnofficial", b =>
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonthInsurance", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<float>("BasicPay")
-                        .HasColumnType("float");
-
                     b.Property<float>("HousingFund")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
                     b.Property<float>("MedicalInsurance")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
                     b.Property<string>("MemberId")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.Property<float>("OccupationalPension")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
                     b.Property<int>("PayMonth")
                         .HasColumnType("int");
@@ -267,25 +249,66 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("int");
 
                     b.Property<float>("PensionInsurance")
-                        .HasColumnType("float");
-
-                    b.Property<float>("PerformancePay")
-                        .HasColumnType("float");
-
-                    b.Property<float>("PostPay")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
                     b.Property<string>("Remark")
                         .HasColumnType("varchar(500)");
 
                     b.Property<float>("Tax")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
                     b.Property<float>("UnemploymentInsurance")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
                     b.Property<float>("UnionFees")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<DateTime>("UpDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("dsMemberPayMonthInsurance");
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonthUnofficial", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<float>("BasicPay")
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<float>("FoodAllowance")
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int>("PayMonth")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PayYear")
+                        .HasColumnType("int");
+
+                    b.Property<float>("PerformancePay")
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<float>("PostPay")
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<string>("Remark")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<float>("TrafficAllowance")
+                        .HasColumnType("float(10,2)");
 
                     b.Property<DateTime>("UpDateTime")
                         .HasColumnType("datetime(6)");
@@ -307,14 +330,15 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.Property<float>("Amount")
-                        .HasColumnType("float");
+                        .HasColumnType("float(10,2)");
 
                     b.Property<string>("MemberId")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("PayName")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .IsRequired()
+                        .HasColumnType("varchar(30)");
 
                     b.Property<string>("Remark")
                         .IsRequired()
@@ -507,6 +531,10 @@ namespace Office.Work.Platform.Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(20)");
 
+                    b.Property<string>("UnitName")
+                        .IsRequired()
+                        .HasColumnType("varchar(40)");
+
                     b.HasKey("Id");
 
                     b.ToTable("dsUsers");
@@ -525,6 +553,15 @@ namespace Office.Work.Platform.Api.Migrations
                 {
                     b.HasOne("Office.Work.Platform.Lib.Member", "Member")
                         .WithMany("PayMonths")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonthInsurance", b =>
+                {
+                    b.HasOne("Office.Work.Platform.Lib.Member", "Member")
+                        .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

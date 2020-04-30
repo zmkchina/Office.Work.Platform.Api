@@ -50,9 +50,9 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.Plan.PlanType.Equals(mSearchFile.ContentType, System.StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchFile.SearchFromNameDesc))
+                if (!string.IsNullOrWhiteSpace(mSearchFile.SearchNameOrDesc))
                 {
-                    Items = Items.Where(e => e.Name.Contains(mSearchFile.SearchFromNameDesc, System.StringComparison.Ordinal) || e.Describe.Contains(mSearchFile.SearchFromNameDesc, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.Name.Contains(mSearchFile.SearchNameOrDesc, System.StringComparison.Ordinal) || e.Describe.Contains(mSearchFile.SearchNameOrDesc, System.StringComparison.Ordinal));
                 }
                 return await Items.ToListAsync().ConfigureAwait(false);
             }
