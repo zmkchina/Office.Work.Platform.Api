@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +38,8 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<PlanFile>> GetEntitiesAsync(PlanFileSearch mSearchFile)
         {
-            IQueryable<PlanFile> Items = _GhDbContext.dsPlanFiles.Include(x=>x.Plan) as IQueryable<PlanFile>;
+            IQueryable<PlanFile> Items = _GhDbContext.dsPlanFiles.Include(x => x.Plan) as IQueryable<PlanFile>;
+            //需要连同该文件的Plan信息一同读取，在操作文件时需使用之。
             if (mSearchFile != null && !string.IsNullOrWhiteSpace(mSearchFile.UserId))
             {
                 //判断请求用户是否有权限(必须对该文件所属计划有读取权限)
@@ -64,14 +66,15 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(PlanFile Entity,string FileId)
+        public async Task<int> AddAsync(PlanFile PEntity, string FileId)
         {
-            if (Entity == null || Entity.Id!=null)
+            if (PEntity == null || PEntity.Id != null)
             {
                 return -2;
             }
-            Entity.Id = FileId;
-            _GhDbContext.dsPlanFiles.Add(Entity);
+            PEntity.Id = FileId;
+            PEntity.UpDateTime = DateTime.Now;
+            _GhDbContext.dsPlanFiles.Add(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -80,9 +83,11 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(PlanFile Entity)
+        public async Task<int> UpdateAsync(PlanFile PEntity)
         {
-            _GhDbContext.dsPlanFiles.Update(Entity);
+            if (PEntity == null) { return 0; }
+            PEntity.UpDateTime = DateTime.Now;
+            _GhDbContext.dsPlanFiles.Update(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -93,7 +98,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<int> DeleteAsync(string Id)
         {
-
+            if (Id == null) { return 0; }
             PlanFile tempPlan = _GhDbContext.dsPlanFiles.Find(Id);
             _GhDbContext.dsPlanFiles.Remove(tempPlan);
 

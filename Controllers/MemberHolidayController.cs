@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
@@ -13,20 +12,20 @@ namespace Office.Work.Platform.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class MemberPrizePunishController : ControllerBase
+    public class MemberHolidayController : ControllerBase
     {
-        private readonly MemberPrizePunishRepository _DataRepository;
+        private readonly MemberHolidayRepository _DataRepository;
 
-        public MemberPrizePunishController(GHDbContext ghDbContet)
+        public MemberHolidayController(GHDbContext ghDbContet)
         {
-            _DataRepository = new MemberPrizePunishRepository(ghDbContet);
+            _DataRepository = new MemberHolidayRepository(ghDbContet);
         }
         /// <summary>
         /// 返回所有记录
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<MemberPrizePunish>> GetAsync()
+        public async Task<IEnumerable<MemberHoliday>> GetAsync()
         {
             return await _DataRepository.GetAllAsync().ConfigureAwait(false);
         }
@@ -37,7 +36,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<MemberPrizePunish> GetAsync(string Id)
+        public async Task<MemberHoliday> GetAsync(string Id)
         {
             return await _DataRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -47,7 +46,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="SearchCondition"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberPrizePunish>> GetAsync([FromQuery]MemberPrizePunishSearch SearchCondition)
+        public async Task<IEnumerable<MemberHoliday>> GetAsync([FromQuery]MemberHolidaySearch SearchCondition)
         {
             return await _DataRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
@@ -59,7 +58,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromBody]MemberPrizePunish PEntity)
+        public async Task<string> PostAsync([FromBody]MemberHoliday PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
@@ -78,7 +77,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]MemberPrizePunish PEntity)
+        public async Task<string> PutAsync([FromBody]MemberHoliday PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)

@@ -18,7 +18,7 @@ namespace Office.Work.Platform.Api.DataService
         public DbSet<Plan> dsPlans { get; set; }
         public DbSet<PlanFile> dsPlanFiles { get; set; }
         public DbSet<Member> dsMembers { get; set; }
-        public DbSet<MemberPayMonth> dsMemberPayMonth { get; set; }
+        public DbSet<MemberPayMonthOfficial> dsMemberPayMonthOfficial { get; set; }
         public DbSet<MemberPayMonthInsurance> dsMemberPayMonthInsurance { get; set; }
         public DbSet<MemberPayMonthUnofficial> dsMemberPayMonthUnofficial { get; set; }
         public DbSet<MemberPayTemp> dsMemberPayTemp { get; set; }
@@ -35,9 +35,9 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         public DbSet<MemberRelations> dsMemberRelations { get; set; }
         /// <summary>
-        /// 考勤情况
+        /// 休假信息
         /// </summary>
-        public DbSet<MemberAttendance> dsMemberAttendance { get; set; }
+        public DbSet<MemberHoliday> dsMemberHoliday { get; set; }
 
 
         public DbSet<MemberFile> dsMemberFiles { get; set; }
@@ -54,8 +54,6 @@ namespace Office.Work.Platform.Api.DataService
 
                 //modelBuilder.Entity<Plan>().HasKey(x => x.Id);
                 //modelBuilder.Entity<Plan>().Property("Caption").IsRequired().HasMaxLength(100);
-
-                //modelBuilder.Entity<PlanFile>().HasKey(x => x.Id);
                 //modelBuilder.Entity<PlanFile>().Property("Name").IsRequired().HasMaxLength(100);
 
                 //modelBuilder.Entity<Member>().HasKey(x => x.Id);

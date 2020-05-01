@@ -19,7 +19,7 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly PlanFileRepository _FileRepository;
         private readonly IConfiguration _configuration;
-        public PlanFileController(IConfiguration configuration, GHDbContext ghDbContext, ILogger<PlanFileController> logger)
+        public PlanFileController(IConfiguration configuration, GHDbContext ghDbContext)
         {
             _FileRepository = new PlanFileRepository(ghDbContext);
             _configuration = configuration;
@@ -61,55 +61,25 @@ namespace Office.Work.Platform.Api.Controllers
         /// <summary>
         /// 更新文件的描述信息
         /// </summary>
-        /// <param name="FileInfo"></param>
+        /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromForm]PlanFile FileInfo)
+        public async Task<string> PutAsync([FromBody]PlanFile PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (FileInfo != null && FileInfo.Id != null)
+            if (await _FileRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
             {
-                if (await _FileRepository.UpdateAsync(FileInfo).ConfigureAwait(false) > 0)
-                {
-                    actResult.SetValues(p_state: 0, p_msg: "文件信息更新成功", p_tag: FileInfo?.Id);
-                }
-                else
-                {
-                    actResult.SetValues(1, "文件信息更新失败!");
-                }
+                actResult.SetValues(p_state: 0, p_msg: "文件信息更新成功", p_tag: PEntity?.Id);
+            }
+            else
+            {
+                actResult.SetValues(1, "文件信息更新失败!");
             }
             return JsonConvert.SerializeObject(actResult);
         }
 
 
-        /// <summary>
-        /// 删除一个文件信息，包括磁盘上的具体文件。
-        /// </summary>
-        /// <param name="P_FileId"></param>
-        /// <param name="P_FileExtName"></param>
-        /// <returns></returns>
-        [HttpDelete]
-        public async Task<string> Delete(string FileId, string FileExtName)
-        {
-            ExcuteResult actResult = new ExcuteResult();
-            if (FileId != null)
-            {
-                if (await _FileRepository.DeleteAsync(FileId).ConfigureAwait(false) > 0)
-                {
-                    var fileName = _configuration["StaticFileDir"] + $"\\PlanFiles\\{FileId}{FileExtName}";
-                    if (System.IO.File.Exists(fileName))
-                    {
-                        System.IO.File.Delete(fileName);
-                    }
-                    actResult.SetValues(0, "删除成功!");
-                }
-                else
-                {
-                    actResult.SetValues(1, "删除失败!");
-                }
-            }
-            return JsonConvert.SerializeObject(actResult);
-        }
+       
 
         /// <summary>
         /// 新增一个文件信息，包括将文件内容保存到磁盘上。
@@ -126,7 +96,7 @@ namespace Office.Work.Platform.Api.Controllers
             {
                 try
                 {
-                    string FileId= AppCodes.AppStaticClass.GetIdOfDateTime(); 
+                    string FileId = AppCodes.AppStaticClass.GetIdOfDateTime();
                     string FilePath = Path.Combine(_configuration["StaticFileDir"], "PlanFiles");
                     if (!System.IO.Directory.Exists(FilePath))
                     {
@@ -199,6 +169,32 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return NotFound();
             */
+        }
+
+        /// <summary>
+        /// 删除一个文件信息，包括磁盘上的具体文件。
+        /// </summary>
+        /// <param name="P_FileId"></param>
+        /// <param name="P_FileExtName"></param>
+        /// <returns></returns>
+        [HttpDelete]
+        public async Task<string> Delete(string FileId, string FileExtName)
+        {
+            ExcuteResult actResult = new ExcuteResult();
+            if (await _FileRepository.DeleteAsync(FileId).ConfigureAwait(false) > 0)
+            {
+                var fileName = _configuration["StaticFileDir"] + $"\\PlanFiles\\{FileId}{FileExtName}";
+                if (System.IO.File.Exists(fileName))
+                {
+                    System.IO.File.Delete(fileName);
+                }
+                actResult.SetValues(0, "删除成功!");
+            }
+            else
+            {
+                actResult.SetValues(1, "删除失败!");
+            }
+            return JsonConvert.SerializeObject(actResult);
         }
     }
 }

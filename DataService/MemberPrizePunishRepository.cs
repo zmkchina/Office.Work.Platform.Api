@@ -75,27 +75,10 @@ namespace Office.Work.Platform.Api.DataService
                 return -2;
             }
             PEntity.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
+            PEntity.UpDateTime = DateTime.Now;
             _GhDbContext.dsMemberPrizePunish.Add(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
 
-        }
-
-        /// <summary>
-        /// 向数据库表添加一批记录。
-        /// </summary>
-        /// <param name="P_Entity"></param>
-        /// <returns></returns>
-        public async Task<int> AddRangeAsync(List<MemberPrizePunish> Entitys)
-        {
-            if (Entitys != null && Entitys.Count > 0)
-            {
-                _GhDbContext.dsMemberPrizePunish.AddRange(Entitys);
-                return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                return 0;
-            }
         }
 
         /// <summary>
@@ -103,9 +86,11 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(MemberPrizePunish Entity)
+        public async Task<int> UpdateAsync(MemberPrizePunish PEntity)
         {
-            _GhDbContext.dsMemberPrizePunish.Update(Entity);
+            if (PEntity == null) { return 0; }
+            PEntity.UpDateTime = DateTime.Now;
+            _GhDbContext.dsMemberPrizePunish.Update(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -116,6 +101,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<int> DeleteAsync(string Id)
         {
+            if (Id == null) { return 0; }
             MemberPrizePunish tempPlan = _GhDbContext.dsMemberPrizePunish.Find(Id);
             _GhDbContext.dsMemberPrizePunish.Remove(tempPlan);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);

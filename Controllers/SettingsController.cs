@@ -15,7 +15,7 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly SettingsRepository _DataSettingsRepository;
 
-        public SettingsController(GHDbContext ghDbContext, ILogger<User> logger)
+        public SettingsController(GHDbContext ghDbContext)
         {
             _DataSettingsRepository = new SettingsRepository(ghDbContext);
         }
@@ -23,23 +23,24 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpGet]
         public async Task<SettingServer> GetAsync()
         {
-            return await _DataSettingsRepository.ReadAsync().ConfigureAwait(false); 
+            return await _DataSettingsRepository.ReadAsync().ConfigureAwait(false);
         }
-
+        /// <summary>
+        /// 更新记录
+        /// </summary>
+        /// <param name="PEntity"></param>
+        /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromForm]SettingServer Entity)
+        public async Task<string> PutAsync([FromBody]SettingServer PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (Entity != null)
+            if (await _DataSettingsRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
             {
-                if (await _DataSettingsRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
-                {
-                    actResult.SetValues(0, "设置成功");
-                }
-                else
-                {
-                    actResult.SetValues(1, "设置失败");
-                }
+                actResult.SetValues(0, "设置成功");
+            }
+            else
+            {
+                actResult.SetValues(1, "设置失败");
             }
             return JsonConvert.SerializeObject(actResult);
         }

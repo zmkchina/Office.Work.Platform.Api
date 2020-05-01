@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
@@ -19,7 +16,7 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly PlanRepository _PlanRepository;
 
-        public PlanController( GHDbContext ghDbContet)
+        public PlanController(GHDbContext ghDbContet)
         {
             _PlanRepository = new PlanRepository(ghDbContet);
         }
@@ -49,47 +46,41 @@ namespace Office.Work.Platform.Api.Controllers
         }
 
         /// <summary>
-        /// 新增或更新计划
+        /// 新增计划，如相同编号的计划已经存在，则返回-2
         /// </summary>
-        /// <param name="FileInfo"></param>
+        /// <param name="Entity"></param>
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromForm]Plan Entity)
+        public async Task<string> PostAsync([FromBody]Plan Entity)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (Entity != null)
+
+            if (await _PlanRepository.AddAsync(Entity).ConfigureAwait(false) > 0)
             {
-                
-                if (await _PlanRepository.AddNewAsync(Entity).ConfigureAwait(false) > 0)
-                {
-                    actResult.SetValues(p_state: 0, p_msg: "保存成功", p_tag: Entity?.Id);
-                }
-                else
-                {
-                    actResult.SetValues(1, "保存失败");
-                }
+                actResult.SetValues(p_state: 0, p_msg: "保存成功", p_tag: Entity?.Id);
+            }
+            else
+            {
+                actResult.SetValues(1, "保存失败");
             }
             return JsonConvert.SerializeObject(actResult);
         }
         [HttpPut]
-        public async Task<string> PutAsync([FromForm]Plan Entity)
+        public async Task<string> PutAsync([FromBody]Plan PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (Entity != null)
+            if (PEntity != null && !PEntity.CurrectState.Equals(PlanStatus.WaitBegin, StringComparison.Ordinal))
             {
-                if (!Entity.CurrectState.Equals(PlanStatus.WaitBegin, StringComparison.Ordinal))
-                {
-                    Entity.FinishDate = DateTime.Now;
-                }
-                if (await _PlanRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
-                {
-                    actResult.SetValues(0, "更新成功");
-                }
-                else
-                {
-                    actResult.SetValues(1, "更新失败");
-                }
+                PEntity.FinishDate = DateTime.Now;
+            }
+            if (await _PlanRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
+            {
+                actResult.SetValues(0, "更新成功");
+            }
+            else
+            {
+                actResult.SetValues(1, "更新失败");
             }
             return JsonConvert.SerializeObject(actResult);
         }
@@ -98,16 +89,13 @@ namespace Office.Work.Platform.Api.Controllers
         public async Task<string> DeleteAsync(string Id)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (!string.IsNullOrEmpty(Id))
+            if (await _PlanRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
             {
-                if (await _PlanRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
-                {
-                    actResult.SetValues(0, "删除成功");
-                }
-                else
-                {
-                    actResult.SetValues(1, "删除失败");
-                }
+                actResult.SetValues(0, "删除成功");
+            }
+            else
+            {
+                actResult.SetValues(1, "删除失败");
             }
             return JsonConvert.SerializeObject(actResult);
         }

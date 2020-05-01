@@ -9,7 +9,7 @@ using Office.Work.Platform.Api.DataService;
 namespace Office.Work.Platform.Api.Migrations
 {
     [DbContext(typeof(GHDbContext))]
-    [Migration("20200430125852_initdb")]
+    [Migration("20200501143913_initdb")]
     partial class initdb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -120,44 +120,6 @@ namespace Office.Work.Platform.Api.Migrations
                     b.ToTable("dsMembers");
                 });
 
-            modelBuilder.Entity("Office.Work.Platform.Lib.MemberAttendance", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
-                    b.Property<DateTime>("BeginDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("HolidayReasion")
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<string>("HolidayType")
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("MemberId")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("Remark")
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<DateTime>("UpDateTime")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
-
-                    b.ToTable("dsMemberAttendance");
-                });
-
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberFile", b =>
                 {
                     b.Property<string>("Id")
@@ -202,44 +164,29 @@ namespace Office.Work.Platform.Api.Migrations
                     b.ToTable("dsMemberFiles");
                 });
 
-            modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonth", b =>
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberHoliday", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<float>("FoodAllowance")
-                        .HasColumnType("float(10,2)");
+                    b.Property<DateTime>("BeginDate")
+                        .HasColumnType("datetime(6)");
 
-                    b.Property<float>("IncentivePerformancePay")
-                        .HasColumnType("float(10,2)");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime(6)");
 
-                    b.Property<float>("LivingAllowance")
-                        .HasColumnType("float(10,2)");
+                    b.Property<string>("HolidayReasion")
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("HolidayType")
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("MemberId")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
 
-                    b.Property<int>("PayMonth")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PayYear")
-                        .HasColumnType("int");
-
-                    b.Property<float>("PostAllowance")
-                        .HasColumnType("float(10,2)");
-
-                    b.Property<float>("PostPay")
-                        .HasColumnType("float(10,2)");
-
                     b.Property<string>("Remark")
                         .HasColumnType("varchar(500)");
-
-                    b.Property<float>("ScalePay")
-                        .HasColumnType("float(10,2)");
-
-                    b.Property<float>("TrafficAllowance")
-                        .HasColumnType("float(10,2)");
 
                     b.Property<DateTime>("UpDateTime")
                         .HasColumnType("datetime(6)");
@@ -252,7 +199,7 @@ namespace Office.Work.Platform.Api.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("dsMemberPayMonth");
+                    b.ToTable("dsMemberHoliday");
                 });
 
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonthInsurance", b =>
@@ -306,6 +253,59 @@ namespace Office.Work.Platform.Api.Migrations
                     b.HasIndex("MemberId");
 
                     b.ToTable("dsMemberPayMonthInsurance");
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonthOfficial", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<float>("FoodAllowance")
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<float>("IncentivePerformancePay")
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<float>("LivingAllowance")
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int>("PayMonth")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PayYear")
+                        .HasColumnType("int");
+
+                    b.Property<float>("PostAllowance")
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<float>("PostPay")
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<string>("Remark")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<float>("ScalePay")
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<float>("TrafficAllowance")
+                        .HasColumnType("float(10,2)");
+
+                    b.Property<DateTime>("UpDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("dsMemberPayMonthOfficial");
                 });
 
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonthUnofficial", b =>
@@ -394,8 +394,8 @@ namespace Office.Work.Platform.Api.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
-                    b.Property<int>("GetScore")
-                        .HasColumnType("int");
+                    b.Property<float>("GetScore")
+                        .HasColumnType("float(10,2)");
 
                     b.Property<string>("MemberId")
                         .IsRequired()
@@ -443,9 +443,11 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("Relation")
+                        .IsRequired()
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("Remark")
@@ -588,6 +590,9 @@ namespace Office.Work.Platform.Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(50)");
 
+                    b.Property<DateTime>("UpDateTime")
+                        .HasColumnType("datetime(6)");
+
                     b.HasKey("Id");
 
                     b.ToTable("dsPlans");
@@ -611,6 +616,7 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("varchar(200)");
 
                     b.Property<string>("PlanId")
+                        .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.Property<DateTime>("UpDateTime")
@@ -688,15 +694,6 @@ namespace Office.Work.Platform.Api.Migrations
                     b.ToTable("dsUsers");
                 });
 
-            modelBuilder.Entity("Office.Work.Platform.Lib.MemberAttendance", b =>
-                {
-                    b.HasOne("Office.Work.Platform.Lib.Member", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberFile", b =>
                 {
                     b.HasOne("Office.Work.Platform.Lib.Member", "Member")
@@ -706,7 +703,7 @@ namespace Office.Work.Platform.Api.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonth", b =>
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberHoliday", b =>
                 {
                     b.HasOne("Office.Work.Platform.Lib.Member", "Member")
                         .WithMany()
@@ -716,6 +713,15 @@ namespace Office.Work.Platform.Api.Migrations
                 });
 
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonthInsurance", b =>
+                {
+                    b.HasOne("Office.Work.Platform.Lib.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberPayMonthOfficial", b =>
                 {
                     b.HasOne("Office.Work.Platform.Lib.Member", "Member")
                         .WithMany()
@@ -772,8 +778,10 @@ namespace Office.Work.Platform.Api.Migrations
             modelBuilder.Entity("Office.Work.Platform.Lib.PlanFile", b =>
                 {
                     b.HasOne("Office.Work.Platform.Lib.Plan", "Plan")
-                        .WithMany("Files")
-                        .HasForeignKey("PlanId");
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

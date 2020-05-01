@@ -7,20 +7,20 @@ using Office.Work.Platform.Lib;
 
 namespace Office.Work.Platform.Api.DataService
 {
-    public class MemberPayMonthRepository
+    public class MemberHolidayRepository
     {
-        private readonly GHDbContext _ghDbContext;
-        public MemberPayMonthRepository(GHDbContext ghDbContext)
+        private readonly GHDbContext _GhDbContext;
+        public MemberHolidayRepository(GHDbContext GhDbContext)
         {
-            _ghDbContext = ghDbContext;
+            _GhDbContext = GhDbContext;
         }
         /// <summary>
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberPayMonth>> GetAllAsync()
+        public async Task<IEnumerable<MemberHoliday>> GetAllAsync()
         {
-            return await _ghDbContext.dsMemberPayMonth.ToListAsync().ConfigureAwait(false);
+            return await _GhDbContext.dsMemberHoliday.ToListAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -28,18 +28,18 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<MemberPayMonth> GetOneByIdAsync(string Id)
+        public async Task<MemberHoliday> GetOneByIdAsync(string Id)
         {
-            return await _ghDbContext.dsMemberPayMonth.FindAsync(Id).ConfigureAwait(false);
+            return await _GhDbContext.dsMemberHoliday.FindAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 根据条件查询计划,返回查询的实体列表
         /// </summary>
         /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberPayMonth>> GetEntitiesAsync(MemberPayMonthSearch SearchCondition)
+        public async Task<IEnumerable<MemberHoliday>> GetEntitiesAsync(MemberHolidaySearch SearchCondition)
         {
-            IQueryable<MemberPayMonth> Items = _ghDbContext.dsMemberPayMonth as IQueryable<MemberPayMonth>;
+            IQueryable<MemberHoliday> Items = _GhDbContext.dsMemberHoliday as IQueryable<MemberHoliday>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
@@ -54,62 +54,41 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.Remark.Contains(SearchCondition.Remark, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
-                if (SearchCondition.PayYear > 0)
-                {
-                    Items = Items.Where(e => e.PayYear == SearchCondition.PayYear);
-                }
-                if (SearchCondition.PayMonth > 0)
-                {
-                    Items = Items.Where(e => e.PayMonth == SearchCondition.PayMonth);
-                }
+                
                 return await Items.ToListAsync().ConfigureAwait(false);
             }
-            return new List<MemberPayMonth>();
+            return new List<MemberHoliday>();
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(MemberPayMonth PEntity)
+        public async Task<int> AddAsync(MemberHoliday PEntity)
         {
             if (PEntity == null || PEntity.Id != null)
             {
                 return -2;
             }
             PEntity.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
-            _ghDbContext.dsMemberPayMonth.Add(PEntity);
-            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
+            PEntity.UpDateTime = DateTime.Now;
+            _GhDbContext.dsMemberHoliday.Add(PEntity);
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
 
         }
 
-        /// <summary>
-        /// 向数据库表添加一批记录。
-        /// </summary>
-        /// <param name="P_Entity"></param>
-        /// <returns></returns>
-        public async Task<int> AddRangeAsync(List<MemberPayMonth> Entitys)
-        {
-            if (Entitys != null && Entitys.Count > 0)
-            {
-                _ghDbContext.dsMemberPayMonth.AddRange(Entitys);
-                return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                return 0;
-            }
-        }
 
         /// <summary>
         /// 更新一个实体信息
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(MemberPayMonth Entity)
+        public async Task<int> UpdateAsync(MemberHoliday PEntity)
         {
-            _ghDbContext.dsMemberPayMonth.Update(Entity);
-            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
+            if (PEntity == null) { return 0; }
+            PEntity.UpDateTime = DateTime.Now;
+            _GhDbContext.dsMemberHoliday.Update(PEntity);
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
         // <summary>
@@ -119,9 +98,10 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<int> DeleteAsync(string Id)
         {
-            MemberPayMonth tempPlan = _ghDbContext.dsMemberPayMonth.Find(Id);
-            _ghDbContext.dsMemberPayMonth.Remove(tempPlan);
-            return await _ghDbContext.SaveChangesAsync().ConfigureAwait(false);
+            if (Id == null) { return 0; }
+            MemberHoliday tempPlan = _GhDbContext.dsMemberHoliday.Find(Id);
+            _GhDbContext.dsMemberHoliday.Remove(tempPlan);
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

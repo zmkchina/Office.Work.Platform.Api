@@ -13,20 +13,20 @@ namespace Office.Work.Platform.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class MemberPayMonthController : ControllerBase
+    public class MemberPayMonthOfficialController : ControllerBase
     {
-        private readonly MemberPayMonthRepository _PayRepository;
+        private readonly MemberPayMonthOfficialRepository _PayRepository;
 
-        public MemberPayMonthController( GHDbContext ghDbContet, ILogger<User> logger)
+        public MemberPayMonthOfficialController(GHDbContext ghDbContet)
         {
-            _PayRepository = new MemberPayMonthRepository(ghDbContet);
+            _PayRepository = new MemberPayMonthOfficialRepository(ghDbContet);
         }
         /// <summary>
         /// 返回所有记录
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<MemberPayMonth>> GetAsync()
+        public async Task<IEnumerable<MemberPayMonthOfficial>> GetAsync()
         {
             return await _PayRepository.GetAllAsync().ConfigureAwait(false);
         }
@@ -37,7 +37,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<MemberPayMonth> GetAsync(string Id)
+        public async Task<MemberPayMonthOfficial> GetAsync(string Id)
         {
             return await _PayRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -48,7 +48,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberPayMonth>> GetAsync([FromQuery]MemberPayMonthSearch SearchCondition)
+        public async Task<IEnumerable<MemberPayMonthOfficial>> GetAsync([FromQuery]MemberPayMonthOfficialSearch SearchCondition)
         {
             return await _PayRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
@@ -60,12 +60,12 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromForm]MemberPayMonth EntityInfo)
+        public async Task<string> PostAsync([FromBody]MemberPayMonthOfficial PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (await _PayRepository.AddAsync(EntityInfo).ConfigureAwait(false) > 0)
+            if (await _PayRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
             {
-                actResult.SetValues(p_state: 0, p_msg: "保存成功", p_tag: EntityInfo?.Id);
+                actResult.SetValues(p_state: 0, p_msg: "保存成功", p_tag: PEntity?.Id);
             }
             else
             {
@@ -74,19 +74,16 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         [HttpPut]
-        public async Task<string> PutAsync([FromForm]MemberPayMonth Entity)
+        public async Task<string> PutAsync([FromBody]MemberPayMonthOfficial PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (Entity != null)
+            if (await _PayRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
             {
-                if (await _PayRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
-                {
-                    actResult.SetValues(0, "更新成功");
-                }
-                else
-                {
-                    actResult.SetValues(1, "更新失败");
-                }
+                actResult.SetValues(0, "更新成功");
+            }
+            else
+            {
+                actResult.SetValues(1, "更新失败");
             }
             return JsonConvert.SerializeObject(actResult);
         }
@@ -94,16 +91,13 @@ namespace Office.Work.Platform.Api.Controllers
         public async Task<string> DeleteAsync(string Id)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (!string.IsNullOrEmpty(Id))
+            if (await _PayRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
             {
-                if (await _PayRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
-                {
-                    actResult.SetValues(0, "删除成功");
-                }
-                else
-                {
-                    actResult.SetValues(1, "删除失败");
-                }
+                actResult.SetValues(0, "删除成功");
+            }
+            else
+            {
+                actResult.SetValues(1, "删除失败");
             }
             return JsonConvert.SerializeObject(actResult);
         }

@@ -17,7 +17,7 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly MemberRelationsRepository _DataRepository;
 
-        public MemberRelationsController(GHDbContext ghDbContet, ILogger<User> logger)
+        public MemberRelationsController(GHDbContext ghDbContet)
         {
             _DataRepository = new MemberRelationsRepository(ghDbContet);
         }
@@ -59,12 +59,12 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromForm]MemberRelations EntityInfo)
+        public async Task<string> PostAsync([FromBody]MemberRelations PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (await _DataRepository.AddAsync(EntityInfo).ConfigureAwait(false) > 0)
+            if (await _DataRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
             {
-                actResult.SetValues(p_state: 0, p_msg: "保存成功", p_tag: EntityInfo?.Id);
+                actResult.SetValues(p_state: 0, p_msg: "保存成功", p_tag: PEntity?.Id);
             }
             else
             {
@@ -75,22 +75,19 @@ namespace Office.Work.Platform.Api.Controllers
         /// <summary>
         /// 更新记录
         /// </summary>
-        /// <param name="Entity"></param>
+        /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromForm]MemberRelations Entity)
+        public async Task<string> PutAsync([FromBody]MemberRelations PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (Entity != null)
+            if (await _DataRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
             {
-                if (await _DataRepository.UpdateAsync(Entity).ConfigureAwait(false) > 0)
-                {
-                    actResult.SetValues(0, "更新成功");
-                }
-                else
-                {
-                    actResult.SetValues(1, "更新失败");
-                }
+                actResult.SetValues(0, "更新成功");
+            }
+            else
+            {
+                actResult.SetValues(1, "更新失败");
             }
             return JsonConvert.SerializeObject(actResult);
         }
@@ -103,16 +100,13 @@ namespace Office.Work.Platform.Api.Controllers
         public async Task<string> DeleteAsync(string Id)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (!string.IsNullOrEmpty(Id))
+            if (await _DataRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
             {
-                if (await _DataRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
-                {
-                    actResult.SetValues(0, "删除成功");
-                }
-                else
-                {
-                    actResult.SetValues(1, "删除失败");
-                }
+                actResult.SetValues(0, "删除成功");
+            }
+            else
+            {
+                actResult.SetValues(1, "删除失败");
             }
             return JsonConvert.SerializeObject(actResult);
         }

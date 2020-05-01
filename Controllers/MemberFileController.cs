@@ -19,7 +19,7 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly MemberFileRepository _FileRepository;
         private readonly IConfiguration _configuration;
-        public MemberFileController(IConfiguration configuration, GHDbContext ghDbContext, ILogger<MemberFileController> logger)
+        public MemberFileController(IConfiguration configuration, GHDbContext ghDbContext)
         {
             _FileRepository = new MemberFileRepository(ghDbContext);
             _configuration = configuration;
@@ -80,15 +80,13 @@ namespace Office.Work.Platform.Api.Controllers
         /// <summary>
         /// 更新文件的描述信息
         /// </summary>
-        /// <param name="FileInfo"></param>
+        /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> Put([FromForm]MemberFile FileInfo)
+        public async Task<string> Put([FromBody]MemberFile PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (FileInfo != null && FileInfo.Id != null)
-            {
-                if (await _FileRepository.UpdateAsync(FileInfo).ConfigureAwait(false) > 0)
+                if (await _FileRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
                 {
                     actResult.SetValues(0, "文件信息更新成功!");
                 }
@@ -96,7 +94,6 @@ namespace Office.Work.Platform.Api.Controllers
                 {
                     actResult.SetValues(1, "文件信息更新失败!");
                 }
-            }
             return JsonConvert.SerializeObject(actResult);
         }
 
@@ -133,15 +130,15 @@ namespace Office.Work.Platform.Api.Controllers
         /// <summary>
         /// 新增一个文件信息，包括将文件内容保存到磁盘上。
         /// </summary>
-        /// <param name="PFile">上传的文件描述信息</param>
+        /// <param name="PEntity">上传的文件描述信息</param>
         /// <returns></returns>
         [HttpPost("UpLoadFile")]
         [DisableRequestSizeLimit]
-        public async Task<string> PostUpLoadFileAsync([FromForm]MemberFile PFile)
+        public async Task<string> PostUpLoadFileAsync([FromForm]MemberFile PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
 
-            if (Request.Form.Files.Count > 0 && PFile != null)
+            if (Request.Form.Files.Count > 0 && PEntity != null)
             {
                 try
                 {
@@ -151,7 +148,7 @@ namespace Office.Work.Platform.Api.Controllers
                     {
                         System.IO.Directory.CreateDirectory(FilePath);
                     }
-                    string FileName = Path.Combine(FilePath, $"{FileId}{PFile.ExtendName}");
+                    string FileName = Path.Combine(FilePath, $"{FileId}{PEntity.ExtendName}");
                     using (FileStream fs = System.IO.File.Create(FileName))
                     {
                         await Request.Form.Files[0].CopyToAsync(fs).ConfigureAwait(false);
@@ -160,12 +157,12 @@ namespace Office.Work.Platform.Api.Controllers
                     if (System.IO.File.Exists(FileName))
                     {
                         //文件写入成功后，再保存文件信息到数据表
-                        PFile.UpDateTime = DateTime.Now;
-                        await _FileRepository.AddAsync(PFile, FileId).ConfigureAwait(false);
+                        PEntity.UpDateTime = DateTime.Now;
+                        await _FileRepository.AddAsync(PEntity, FileId).ConfigureAwait(false);
                     }
                     actResult.SetValues(0, "上传成功");
                 }
-                catch (System.Exception err)
+                catch (SystemException err)
                 {
                     actResult.SetValues(1, err.Message);
                 }

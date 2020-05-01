@@ -48,7 +48,7 @@ namespace Office.Work.Platform.Api.Controllers
                 };
                 foreach (User item in SysUsers)
                 {
-                    await _UserRepository.AddNew(item).ConfigureAwait(false);
+                    await _UserRepository.AddAsync(item).ConfigureAwait(false);
 
                 }
                 //以下代码报错：在上一个操作完成之前，在此上下文上启动的第二个操作。 这通常是由使用同一个 DbContext 实例的不同线程引起的，但不保证实例成员是线程安全的。
