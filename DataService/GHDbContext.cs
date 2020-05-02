@@ -16,7 +16,7 @@ namespace Office.Work.Platform.Api.DataService
         public DbSet<Note> dsNotes { get; set; }
 
         public DbSet<Plan> dsPlans { get; set; }
-        public DbSet<PlanFile> dsPlanFiles { get; set; }
+        public DbSet<FileDoc> dsFileDocs { get; set; }
         public DbSet<Member> dsMembers { get; set; }
         public DbSet<MemberPayMonthOfficial> dsMemberPayMonthOfficial { get; set; }
         public DbSet<MemberPayMonthInsurance> dsMemberPayMonthInsurance { get; set; }
@@ -38,9 +38,6 @@ namespace Office.Work.Platform.Api.DataService
         /// 休假信息
         /// </summary>
         public DbSet<MemberHoliday> dsMemberHoliday { get; set; }
-
-
-        public DbSet<MemberFile> dsMemberFiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

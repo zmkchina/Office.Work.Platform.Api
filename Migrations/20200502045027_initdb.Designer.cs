@@ -9,7 +9,7 @@ using Office.Work.Platform.Api.DataService;
 namespace Office.Work.Platform.Api.Migrations
 {
     [DbContext(typeof(GHDbContext))]
-    [Migration("20200501143913_initdb")]
+    [Migration("20200502045027_initdb")]
     partial class initdb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,6 +18,56 @@ namespace Office.Work.Platform.Api.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.FileDoc", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("CanReadUserIds")
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("ContentType")
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Describe")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("DispatchUnit")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("ExtendName")
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<string>("FileNumber")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<long>("Length")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("OwnerType")
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<DateTime>("Pubdate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("UpDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("dsFileDocs");
+                });
 
             modelBuilder.Entity("Office.Work.Platform.Lib.Member", b =>
                 {
@@ -118,50 +168,6 @@ namespace Office.Work.Platform.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("dsMembers");
-                });
-
-            modelBuilder.Entity("Office.Work.Platform.Lib.MemberFile", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
-                    b.Property<string>("Describe")
-                        .HasColumnType("varchar(1000)");
-
-                    b.Property<string>("ExtendName")
-                        .IsRequired()
-                        .HasColumnType("varchar(10)");
-
-                    b.Property<string>("FileType")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<long>("Length")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("MemberId")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<string>("OtherRecordId")
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<DateTime>("UpDateTime")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
-
-                    b.ToTable("dsMemberFiles");
                 });
 
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberHoliday", b =>
@@ -557,6 +563,10 @@ namespace Office.Work.Platform.Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(2000)");
 
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
+
                     b.Property<string>("CreateUserId")
                         .HasColumnType("varchar(20)");
 
@@ -579,10 +589,6 @@ namespace Office.Work.Platform.Api.Migrations
                     b.Property<string>("Helpers")
                         .HasColumnType("varchar(500)");
 
-                    b.Property<string>("PlanType")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)");
-
                     b.Property<string>("ReadGrant")
                         .HasColumnType("varchar(1000)");
 
@@ -596,40 +602,6 @@ namespace Office.Work.Platform.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("dsPlans");
-                });
-
-            modelBuilder.Entity("Office.Work.Platform.Lib.PlanFile", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
-                    b.Property<string>("Describe")
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<string>("ExtendName")
-                        .HasColumnType("varchar(10)");
-
-                    b.Property<long>("Length")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<string>("PlanId")
-                        .IsRequired()
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<DateTime>("UpDateTime")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlanId");
-
-                    b.ToTable("dsPlanFiles");
                 });
 
             modelBuilder.Entity("Office.Work.Platform.Lib.SettingServer", b =>
@@ -692,15 +664,6 @@ namespace Office.Work.Platform.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("dsUsers");
-                });
-
-            modelBuilder.Entity("Office.Work.Platform.Lib.MemberFile", b =>
-                {
-                    b.HasOne("Office.Work.Platform.Lib.Member", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberHoliday", b =>
@@ -771,15 +734,6 @@ namespace Office.Work.Platform.Api.Migrations
                     b.HasOne("Office.Work.Platform.Lib.Member", "Member")
                         .WithMany()
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Office.Work.Platform.Lib.PlanFile", b =>
-                {
-                    b.HasOne("Office.Work.Platform.Lib.Plan", "Plan")
-                        .WithMany()
-                        .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

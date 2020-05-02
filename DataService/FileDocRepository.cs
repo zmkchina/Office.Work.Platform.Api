@@ -7,10 +7,10 @@ using Office.Work.Platform.Lib;
 
 namespace Office.Work.Platform.Api.DataService
 {
-    public class PlanFileRepository
+    public class FileDocRepository
     {
         private readonly GHDbContext _GhDbContext;
-        public PlanFileRepository(GHDbContext GhDbContext)
+        public FileDocRepository(GHDbContext GhDbContext)
         {
             _GhDbContext = GhDbContext;
         }
@@ -18,39 +18,50 @@ namespace Office.Work.Platform.Api.DataService
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<PlanFile>> GetAllAsync()
+        public async Task<IEnumerable<FileDoc>> GetAllAsync()
         {
-            return await _GhDbContext.dsPlanFiles.ToListAsync().ConfigureAwait(false);
+            return await _GhDbContext.dsFileDocs.ToListAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 根据Id获取一个对象
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<PlanFile> GetOneByIdAsync(string Id)
+        public async Task<FileDoc> GetOneByIdAsync(string Id)
         {
-            return await _GhDbContext.dsPlanFiles.FindAsync(Id).ConfigureAwait(false);
+            return await _GhDbContext.dsFileDocs.FindAsync(Id).ConfigureAwait(false);
         }
-
         /// <summary>
         /// 按指定的条件查询数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<PlanFile>> GetEntitiesAsync(PlanFileSearch mSearchFile)
+        public async Task<IEnumerable<FileDoc>> GetEntitiesAsync(FileDocSearch mSearchFile)
         {
-            IQueryable<PlanFile> Items = _GhDbContext.dsPlanFiles.Include(x => x.Plan) as IQueryable<PlanFile>;
+            IQueryable<FileDoc> Items = _GhDbContext.dsFileDocs as IQueryable<FileDoc>;
             //需要连同该文件的Plan信息一同读取，在操作文件时需使用之。
             if (mSearchFile != null && !string.IsNullOrWhiteSpace(mSearchFile.UserId))
             {
                 //判断请求用户是否有权限(必须对该文件所属计划有读取权限)
-                Items = Items.Where(e => e.Plan.ReadGrant == null || e.Plan.ReadGrant.Contains(mSearchFile.UserId, System.StringComparison.Ordinal));
-                if (!string.IsNullOrWhiteSpace(mSearchFile.PlanId))
+                Items = Items.Where(e => e.CanReadUserIds == null || e.UserId.Equals(mSearchFile.UserId, System.StringComparison.Ordinal) || e.CanReadUserIds.Contains(mSearchFile.UserId, System.StringComparison.Ordinal));
+                if (!string.IsNullOrWhiteSpace(mSearchFile.Id))
                 {
-                    Items = Items.Where(e => e.PlanId.Equals(mSearchFile.PlanId, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.Id.Equals(mSearchFile.Id, System.StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchFile.OwnerId))
+                {
+                    Items = Items.Where(e => e.OwnerId.Equals(mSearchFile.OwnerId, System.StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchFile.OwnerType))
+                {
+                    Items = Items.Where(e => e.OwnerType.Equals(mSearchFile.OwnerType, System.StringComparison.Ordinal));
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchFile.ContentType))
                 {
-                    Items = Items.Where(e => e.Plan.PlanType.Equals(mSearchFile.ContentType, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.ContentType.Equals(mSearchFile.ContentType, System.StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchFile.DispatchUnit))
+                {
+                    Items = Items.Where(e => e.DispatchUnit.Contains(mSearchFile.DispatchUnit, System.StringComparison.Ordinal));
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchFile.SearchNameOrDesc))
                 {
@@ -58,7 +69,7 @@ namespace Office.Work.Platform.Api.DataService
                 }
                 return await Items.ToListAsync().ConfigureAwait(false);
             }
-            return new List<PlanFile>();
+            return new List<FileDoc>();
         }
 
         /// <summary>
@@ -66,7 +77,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(PlanFile PEntity, string FileId)
+        public async Task<int> AddAsync(FileDoc PEntity, string FileId)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -74,7 +85,7 @@ namespace Office.Work.Platform.Api.DataService
             }
             PEntity.Id = FileId;
             PEntity.UpDateTime = DateTime.Now;
-            _GhDbContext.dsPlanFiles.Add(PEntity);
+            _GhDbContext.dsFileDocs.Add(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -83,11 +94,11 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(PlanFile PEntity)
+        public async Task<int> UpdateAsync(FileDoc PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
-            _GhDbContext.dsPlanFiles.Update(PEntity);
+            _GhDbContext.dsFileDocs.Update(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -99,8 +110,8 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<int> DeleteAsync(string Id)
         {
             if (Id == null) { return 0; }
-            PlanFile tempPlan = _GhDbContext.dsPlanFiles.Find(Id);
-            _GhDbContext.dsPlanFiles.Remove(tempPlan);
+            FileDoc tempPlan = _GhDbContext.dsFileDocs.Find(Id);
+            _GhDbContext.dsFileDocs.Remove(tempPlan);
 
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }

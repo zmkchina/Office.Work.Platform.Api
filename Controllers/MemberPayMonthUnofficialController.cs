@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.Controllers
 {
@@ -52,6 +50,8 @@ namespace Office.Work.Platform.Api.Controllers
         {
             return await _PayRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
+
+     
 
         /// <summary>
         /// 新增记录
@@ -101,5 +101,6 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
+
     }
 }

@@ -9,6 +9,30 @@ namespace Office.Work.Platform.Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "dsFileDocs",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    OwnerType = table.Column<string>(type: "varchar(10)", nullable: true),
+                    OwnerId = table.Column<string>(type: "varchar(20)", nullable: false),
+                    ContentType = table.Column<string>(type: "varchar(200)", nullable: true),
+                    Name = table.Column<string>(type: "varchar(200)", nullable: true),
+                    DispatchUnit = table.Column<string>(type: "varchar(500)", nullable: true),
+                    CanReadUserIds = table.Column<string>(type: "varchar(1000)", nullable: true),
+                    FileNumber = table.Column<string>(type: "varchar(500)", nullable: true),
+                    Pubdate = table.Column<DateTime>(nullable: false),
+                    ExtendName = table.Column<string>(type: "varchar(10)", nullable: true),
+                    Length = table.Column<long>(type: "bigint", nullable: false),
+                    UserId = table.Column<string>(type: "varchar(20)", nullable: true),
+                    UpDateTime = table.Column<DateTime>(nullable: false),
+                    Describe = table.Column<string>(type: "varchar(500)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dsFileDocs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "dsMembers",
                 columns: table => new
                 {
@@ -74,7 +98,7 @@ namespace Office.Work.Platform.Api.Migrations
                     Caption = table.Column<string>(type: "varchar(100)", nullable: false),
                     Content = table.Column<string>(type: "varchar(2000)", nullable: false),
                     FinishNote = table.Column<string>(type: "varchar(500)", nullable: true),
-                    PlanType = table.Column<string>(type: "varchar(50)", nullable: false),
+                    ContentType = table.Column<string>(type: "varchar(50)", nullable: false),
                     Department = table.Column<string>(type: "varchar(50)", nullable: false),
                     ResponsiblePerson = table.Column<string>(type: "varchar(50)", nullable: false),
                     Helpers = table.Column<string>(type: "varchar(500)", nullable: true),
@@ -123,32 +147,6 @@ namespace Office.Work.Platform.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_dsUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "dsMemberFiles",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
-                    FileType = table.Column<string>(type: "varchar(20)", nullable: false),
-                    OtherRecordId = table.Column<string>(type: "varchar(20)", nullable: true),
-                    Name = table.Column<string>(type: "varchar(200)", nullable: false),
-                    ExtendName = table.Column<string>(type: "varchar(10)", nullable: false),
-                    Length = table.Column<long>(type: "bigint", nullable: false),
-                    UserId = table.Column<string>(type: "varchar(20)", nullable: false),
-                    UpDateTime = table.Column<DateTime>(nullable: false),
-                    Describe = table.Column<string>(type: "varchar(1000)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_dsMemberFiles", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_dsMemberFiles_dsMembers_MemberId",
-                        column: x => x.MemberId,
-                        principalTable: "dsMembers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -363,35 +361,6 @@ namespace Office.Work.Platform.Api.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "dsPlanFiles",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    PlanId = table.Column<string>(type: "varchar(20)", nullable: false),
-                    Name = table.Column<string>(type: "varchar(200)", nullable: true),
-                    ExtendName = table.Column<string>(type: "varchar(10)", nullable: true),
-                    Length = table.Column<long>(type: "bigint", nullable: false),
-                    UserId = table.Column<string>(type: "varchar(20)", nullable: true),
-                    UpDateTime = table.Column<DateTime>(nullable: false),
-                    Describe = table.Column<string>(type: "varchar(500)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_dsPlanFiles", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_dsPlanFiles_dsPlans_PlanId",
-                        column: x => x.PlanId,
-                        principalTable: "dsPlans",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_dsMemberFiles_MemberId",
-                table: "dsMemberFiles",
-                column: "MemberId");
-
             migrationBuilder.CreateIndex(
                 name: "IX_dsMemberHoliday_MemberId",
                 table: "dsMemberHoliday",
@@ -431,17 +400,12 @@ namespace Office.Work.Platform.Api.Migrations
                 name: "IX_dsMemberResume_MemberId",
                 table: "dsMemberResume",
                 column: "MemberId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_dsPlanFiles_PlanId",
-                table: "dsPlanFiles",
-                column: "PlanId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "dsMemberFiles");
+                name: "dsFileDocs");
 
             migrationBuilder.DropTable(
                 name: "dsMemberHoliday");
@@ -471,7 +435,7 @@ namespace Office.Work.Platform.Api.Migrations
                 name: "dsNotes");
 
             migrationBuilder.DropTable(
-                name: "dsPlanFiles");
+                name: "dsPlans");
 
             migrationBuilder.DropTable(
                 name: "dsServerSetting");
@@ -481,9 +445,6 @@ namespace Office.Work.Platform.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "dsMembers");
-
-            migrationBuilder.DropTable(
-                name: "dsPlans");
         }
     }
 }

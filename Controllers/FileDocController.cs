@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
@@ -15,13 +14,13 @@ namespace Office.Work.Platform.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class PlanFileController : ControllerBase
+    public class FileDocController : ControllerBase
     {
-        private readonly PlanFileRepository _FileRepository;
+        private readonly FileDocRepository _FileRepository;
         private readonly IConfiguration _configuration;
-        public PlanFileController(IConfiguration configuration, GHDbContext ghDbContext)
+        public FileDocController(IConfiguration configuration, GHDbContext ghDbContext)
         {
-            _FileRepository = new PlanFileRepository(ghDbContext);
+            _FileRepository = new FileDocRepository(ghDbContext);
             _configuration = configuration;
         }
 
@@ -30,7 +29,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<PlanFile>> GetAsync()
+        public async Task<IEnumerable<FileDoc>> GetAsync()
         {
             return await _FileRepository.GetAllAsync().ConfigureAwait(false);
         }
@@ -42,7 +41,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<PlanFile> GetAsync(string Id)
+        public async Task<FileDoc> GetAsync(string Id)
         {
             return await _FileRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -53,7 +52,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchFile"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<PlanFile>> GetPlanFilesAsync([FromQuery]PlanFileSearch mSearchFile)
+        public async Task<IEnumerable<FileDoc>> GetPlanFilesAsync([FromQuery]FileDocSearch mSearchFile)
         {
             return await _FileRepository.GetEntitiesAsync(mSearchFile).ConfigureAwait(false);
         }
@@ -64,7 +63,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]PlanFile PEntity)
+        public async Task<string> PutAsync([FromBody]FileDoc PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _FileRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
@@ -78,9 +77,6 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
 
-
-       
-
         /// <summary>
         /// 新增一个文件信息，包括将文件内容保存到磁盘上。
         /// </summary>
@@ -88,7 +84,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost("UpLoadFile")]
         [DisableRequestSizeLimit]
-        public async Task<string> PostUpLoadFileAsync([FromForm]PlanFile PFile)
+        public async Task<string> PostUpLoadFileAsync([FromForm]FileDoc PFile)
         {
             ExcuteResult actResult = new ExcuteResult();
 
@@ -112,9 +108,19 @@ namespace Office.Work.Platform.Api.Controllers
                     {
                         //文件写入成功后，再保存文件信息到数据表
                         PFile.UpDateTime = DateTime.Now;
-                        await _FileRepository.AddAsync(PFile, FileId).ConfigureAwait(false);
+                        if (await _FileRepository.AddAsync(PFile, FileId).ConfigureAwait(false) > 0)
+                        {
+                            actResult.SetValues(0, "上传成功", p_tag: FileId);
+                        }
+                        else
+                        {
+                            actResult.SetValues(-3, "文件保存到服务器数据库时出错。");
+                        }
                     }
-                    actResult.SetValues(0, "上传成功");
+                    else
+                    {
+                        actResult.SetValues(-1, "文件保存到服务器磁盘时出错。");
+                    }
                 }
                 catch (System.Exception err)
                 {
@@ -133,7 +139,7 @@ namespace Office.Work.Platform.Api.Controllers
         [Route("DownLoadFile/{FileId}")]
         public async Task<ActionResult> GetDownLoadFileAsync(string FileId)
         {
-            PlanFile FileInfo = await _FileRepository.GetOneByIdAsync(FileId).ConfigureAwait(false);
+            FileDoc FileInfo = await _FileRepository.GetOneByIdAsync(FileId).ConfigureAwait(false);
             if (FileInfo != null)
             {
                 string FileName = $"{FileInfo.Name}({FileInfo.Id}){FileInfo.ExtendName}";
