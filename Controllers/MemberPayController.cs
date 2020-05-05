@@ -1,32 +1,30 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.Controllers
 {
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class MemberPayMonthInsuranceController : ControllerBase
+    public class MemberPayController : ControllerBase
     {
-        private readonly MemberPayMonthInsuranceRepository _PayRepository;
+        private readonly MemberPayRepository _PayRepository;
 
-        public MemberPayMonthInsuranceController(GHDbContext ghDbContet)
+        public MemberPayController(GHDbContext ghDbContet)
         {
-            _PayRepository = new MemberPayMonthInsuranceRepository(ghDbContet);
+            _PayRepository = new MemberPayRepository(ghDbContet);
         }
         /// <summary>
         /// 返回所有记录
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<MemberPayMonthInsurance>> GetAsync()
+        public async Task<IEnumerable<MemberPay>> GetAsync()
         {
             return await _PayRepository.GetAllAsync().ConfigureAwait(false);
         }
@@ -37,7 +35,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<MemberPayMonthInsurance> GetAsync(string Id)
+        public async Task<MemberPay> GetAsync(string Id)
         {
             return await _PayRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -48,7 +46,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberPayMonthInsurance>> GetAsync([FromQuery]MemberPayMonthInsuranceSearch SearchCondition)
+        public async Task<IEnumerable<MemberPay>> GetAsync([FromQuery]MemberPaySearch SearchCondition)
         {
             return await _PayRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
@@ -60,7 +58,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromBody]MemberPayMonthInsurance PEntity)
+        public async Task<string> PostAsync([FromBody]MemberPay PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _PayRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
@@ -74,7 +72,7 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]MemberPayMonthInsurance PEntity)
+        public async Task<string> PutAsync([FromBody]MemberPay PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _PayRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)

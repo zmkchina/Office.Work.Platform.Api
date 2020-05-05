@@ -18,10 +18,9 @@ namespace Office.Work.Platform.Api.DataService
         public DbSet<Plan> dsPlans { get; set; }
         public DbSet<FileDoc> dsFileDocs { get; set; }
         public DbSet<Member> dsMembers { get; set; }
-        public DbSet<MemberPayMonthOfficial> dsMemberPayMonthOfficial { get; set; }
-        public DbSet<MemberPayMonthInsurance> dsMemberPayMonthInsurance { get; set; }
-        public DbSet<MemberPayMonthUnofficial> dsMemberPayMonthUnofficial { get; set; }
-        public DbSet<MemberPayTemp> dsMemberPayTemp { get; set; }
+        public DbSet<MemberPay> dsMemberPay { get; set; }
+        public DbSet<MemberPayItem> dsMemberPayItem { get; set; }
+        public DbSet<MemberPaySet> dsMemberPaySet { get; set; }
         /// <summary>
         /// 个人简历
         /// </summary>

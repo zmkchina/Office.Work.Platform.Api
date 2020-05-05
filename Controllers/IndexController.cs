@@ -12,11 +12,13 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly SettingsRepository _SettingsRepository;
         private readonly UserRepository _UserRepository;
+        private readonly MemberPayItemRepository _PayItemRepository;
 
         public IndexController(GHDbContext ghDbContext)
         {
             _SettingsRepository = new SettingsRepository(ghDbContext);
             _UserRepository = new UserRepository(ghDbContext);
+            _PayItemRepository = new MemberPayItemRepository(ghDbContext);
 
         }
         [HttpGet]
@@ -57,6 +59,32 @@ namespace Office.Work.Platform.Api.Controllers
                 //{
                 //    await _UserRepository.AddNew(u).ConfigureAwait(true);
                 //});
+                List<MemberPayItem> PayItems = new List<MemberPayItem>()
+                {
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="岗位工资",AddOrCut="增加",InCardinality="是",InTableType="月度工资表", UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="薪级工资",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="岗位津贴",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="生活补贴",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="奖励绩效(月)",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="养老保险",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="职业年金",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="住房公积金",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="失业保险",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="医疗保险",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="工会费",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="个税",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="伙食补助",AddOrCut="增加",InCardinality="是",InTableType="月度补贴表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="住房补贴",AddOrCut="增加",InCardinality="是",InTableType="月度补贴表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="交通补助",AddOrCut="增加",InCardinality="是",InTableType="月度补贴表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="奖励绩效(年)",AddOrCut="增加",InCardinality="是",InTableType="其他待遇表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="绩效考核奖",AddOrCut="增加",InCardinality="是",InTableType="其他待遇表",UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="护理费",AddOrCut="增加",InCardinality="是",InTableType="其他待遇表",UserId="zmk"}
+                };
+                foreach (MemberPayItem item in PayItems)
+                {
+                    await _PayItemRepository.AddAsync(item).ConfigureAwait(false);
+
+                }
                 return "Data added ok.";
             }
             return "password is error!";
