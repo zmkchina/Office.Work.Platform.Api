@@ -50,6 +50,7 @@ namespace Office.Work.Platform.Api.DataService
                 PayUnitName = x.PayUnitName,
                 MemberId = x.MemberId,
                 MemberName = k.Name,
+                MemberType=k.MemberType,
                 OrderIndex =k.OrderIndex,
                 MemberUnitName = k.UnitName,
                 PayItemNames = x.PayItemNames,

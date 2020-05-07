@@ -36,7 +36,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetMemberPaySheet")]
-        public async Task<string> GetMemberPaySheet([FromBody]MemberPaySheetSearch sc)
+        public async Task<string> GetMemberPaySheet([FromQuery]MemberPaySheetSearch sc)
         {
             JArray JResult = new JArray();
             //1.读取所有符合条件的发放记录
@@ -44,6 +44,7 @@ namespace Office.Work.Platform.Api.Controllers
             List<MemberPay> MemberPayList = new List<MemberPay>();
             MemberPayList = await _GhDbContext.dsMemberPay.Where(x => x.PayYear == sc.PayYear && x.PayMonth == sc.PayMonth
               && x.PayUnitName.Equals(sc.PayUnitName, System.StringComparison.Ordinal)
+              && x.MemberType.Equals(sc.MemberType, System.StringComparison.Ordinal)
               && x.InTableType.Equals(sc.PayTableType, System.StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
 
             //2.获得不重复且排序后的人员姓名数组
@@ -86,7 +87,7 @@ namespace Office.Work.Platform.Api.Controllers
             ExcuteResult excuteResult = new ExcuteResult();
             //await Task.Run(() =>
             //{
-            //    List<Member> members = _GhDbContext.dsMembers.Where(e => e.EmploymentType.Equals("聘用合同制", System.StringComparison.Ordinal)).ToList();
+            //    List<Member> members = _GhDbContext.dsMembers.Where(e => e.MemberType.Equals("聘用合同制", System.StringComparison.Ordinal)).ToList();
             //    foreach (Member mitem in members)
             //    {
             //        bool AddMem = false;

@@ -38,6 +38,8 @@ namespace Office.Work.Platform.Api.Migrations
                 {
                     Id = table.Column<string>(nullable: false),
                     MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
+                    MemberName = table.Column<string>(type: "varchar(20)", nullable: false),
+                    MemberType = table.Column<string>(type: "varchar(20)", nullable: false),
                     PayName = table.Column<string>(type: "varchar(30)", nullable: false),
                     InCardinality = table.Column<string>(type: "varchar(10)", nullable: false),
                     InTableType = table.Column<string>(type: "varchar(20)", nullable: false),
@@ -103,7 +105,7 @@ namespace Office.Work.Platform.Api.Migrations
                     MobileCode = table.Column<string>(type: "varchar(50)", nullable: true),
                     BeginWork = table.Column<DateTime>(nullable: false),
                     EnterOrganization = table.Column<DateTime>(nullable: false),
-                    EmploymentType = table.Column<string>(type: "varchar(20)", nullable: true),
+                    MemberType = table.Column<string>(type: "varchar(20)", nullable: true),
                     JoinCPC = table.Column<DateTime>(nullable: false),
                     PoliticalStatus = table.Column<string>(type: "varchar(20)", nullable: true),
                     EducationDays = table.Column<string>(type: "varchar(20)", nullable: true),

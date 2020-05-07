@@ -9,7 +9,7 @@ using Office.Work.Platform.Api.DataService;
 namespace Office.Work.Platform.Api.Migrations
 {
     [DbContext(typeof(GHDbContext))]
-    [Migration("20200507131504_initdb")]
+    [Migration("20200507153051_initdb")]
     partial class initdb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -95,9 +95,6 @@ namespace Office.Work.Platform.Api.Migrations
                     b.Property<string>("EmployTitle")
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("EmploymentType")
-                        .HasColumnType("varchar(20)");
-
                     b.Property<DateTime>("EnterOrganization")
                         .HasColumnType("datetime(6)");
 
@@ -130,6 +127,9 @@ namespace Office.Work.Platform.Api.Migrations
 
                     b.Property<string>("MajorTop")
                         .HasColumnType("varchar(50)");
+
+                    b.Property<string>("MemberType")
+                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("MobileCode")
                         .HasColumnType("varchar(50)");
@@ -237,6 +237,14 @@ namespace Office.Work.Platform.Api.Migrations
 
                     b.Property<int>("MemberIndex")
                         .HasColumnType("int");
+
+                    b.Property<string>("MemberName")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("MemberType")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
 
                     b.Property<int>("OrderIndex")
                         .HasColumnType("int");
