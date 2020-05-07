@@ -44,7 +44,7 @@ namespace Office.Work.Platform.Api.DataService
             {
                 if (!string.IsNullOrWhiteSpace(mSearchMember.Id))
                 {
-                    Items = Items.Where(e => e.Id.Equals(mSearchMember.Id, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => e.Id.Trim().Equals(mSearchMember.Id, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchMember.Name))
                 {

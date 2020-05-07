@@ -13,79 +13,66 @@ namespace Office.Work.Platform.Api.Controllers
     //[Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class MemberCombiningController : ControllerBase
+    public class MemberPaySheetController : ControllerBase
     {
         private readonly GHDbContext _GhDbContext;
 
-        public MemberCombiningController(GHDbContext ghDbContet)
+        public MemberPaySheetController(GHDbContext ghDbContet)
         {
             _GhDbContext = ghDbContet;
+        }
+        /// <summary>
+        /// 获取所有待遇表类型
+        /// </summary>
+        /// <param name="SearchCondition"></param>
+        /// <returns></returns>
+        [HttpGet("GetPayTableTypes")]
+        public async Task<string[]> GetPayTableTypes()
+        {
+            return await _GhDbContext.dsMemberPay.Select(x => x.InTableType).Distinct().ToArrayAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 获取正式人员月度工资表
         /// </summary>
         /// <returns></returns>
-        [HttpGet("GetPingYongMemberMonthPaySheet/{PayYear}/{PayMonth}")]
-        public async Task<string> GetAsync(int PayYear, int PayMonth)
+        [HttpGet("GetMemberPaySheet")]
+        public async Task<string> GetMemberPaySheet([FromBody]MemberPaySheetSearch sc)
         {
             JArray JResult = new JArray();
-            //1.查询聘用合同制人员列表
-            List<Member> members = _GhDbContext.dsMembers.Where(e => e.EmploymentType.Equals("聘用合同制", System.StringComparison.Ordinal)).ToList();
+            //1.读取所有符合条件的发放记录
 
-            ////2.查询放在聘用合同制人员+需要放入月度工资表的项目的 Name+Id
-            //List<MemberPayItem> payItems = await _GhDbContext.dsMemberPayItem
-            //    .Where(x => x.InTableTypeList.Equals("月度工资表") && x.MemberType.Contains("聘用合同制", System.StringComparison.Ordinal))
-            //    .ToListAsync().ConfigureAwait(false);
-            //string[] payItemIds = payItems.Select(x => x.Id).ToArray();
+            List<MemberPay> MemberPayList = new List<MemberPay>();
+            MemberPayList = await _GhDbContext.dsMemberPay.Where(x => x.PayYear == sc.PayYear && x.PayMonth == sc.PayMonth
+              && x.PayUnitName.Equals(sc.PayUnitName, System.StringComparison.Ordinal)
+              && x.InTableType.Equals(sc.PayTableType, System.StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
 
-            //3.搜索用户待遇表。
-            foreach (Member item in members)
+            //2.获得不重复且排序后的人员姓名数组
+            string[] PayMemberIdArr = MemberPayList.OrderBy(x => x.MemberIndex).Select(x => x.MemberId).Distinct().ToArray();
+
+            //3.获取所有排序后的已发放项目列表
+            string[] PayItemNameArr = MemberPayList.OrderBy(x => x.OrderIndex).Select(x => x.PayName).Distinct().ToArray();
+
+            //4.添加数据
+            for (int i = 0; i < PayMemberIdArr.Length; i++)
             {
-                //(1)查询了某个聘用合同制人员需要放入“月度工资表”中的所有待遇信息
-
-                List<MemberPay> mpList = await _GhDbContext.dsMemberPay
-                    .Where(x => x.PayDate.Year == PayYear && x.PayDate.Month == PayMonth && x.MemberId.Equals(item.Id, System.StringComparison.Ordinal)
-                    && x.InTableType.Equals("月度工资表", System.StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
-                JObject jObject = new JObject();
-                jObject["姓名"] = item.Name;
-                jObject["年份"] = PayYear;
-                jObject["月份"] = PayMonth;
-                foreach (MemberPay iPay in mpList)
+                JObject TempJobj = new JObject();
+                List<MemberPay> TempPayList = MemberPayList.Where(x => x.MemberId.Equals(PayMemberIdArr[i], System.StringComparison.Ordinal)).ToList();
+                for (int j = 0; j < PayItemNameArr.Length; j++)
                 {
-                    jObject[iPay.PayName] = iPay.Amount;
+                    MemberPay TempPay = TempPayList.Where(y => y.PayName.Equals(PayItemNameArr[j], System.StringComparison.Ordinal)).FirstOrDefault();
+                    if (TempPay != null)
+                    {
+                        TempJobj.Add(PayItemNameArr[j], TempPay.Amount);
+                    }
+                    else
+                    {
+                        TempJobj.Add(PayItemNameArr[j], "");
+                    }
                 }
-                JResult.Add(jObject);
+                JResult.Add(TempJobj);
             }
             string jsonStr = JsonConvert.SerializeObject(JResult);
             return jsonStr;
-
-            //return await _GhDbContext.dsMemberPayMonthOfficial.Join(_GhDbContext.dsMembers, p => p.MemberId, k => k.Id, (p, k) => new
-            //{
-            //    k.OrderIndex,
-            //    MemberName = k.Name,
-            //    pm = p
-            //}).Join(_GhDbContext.dsMemberPayMonthInsurance, pet => pet.pm.MemberId, per => per.MemberId, (pet, per) =>
-            //new MemberPayMonthOfficialSheet
-            //{
-            //    OrderIndex = pet.OrderIndex,
-            //    MemberName = pet.MemberName,
-            //    PayYear = pet.pm.PayYear,
-            //    PayMonth = pet.pm.PayMonth,
-            //    MemberId = pet.pm.MemberId,
-            //    PostPay = pet.pm.PostPay,
-            //    PostAllowance = pet.pm.PostAllowance,
-            //    ScalePay = pet.pm.ScalePay,
-            //    LivingAllowance = pet.pm.LivingAllowance,
-            //    HousingFund = per.HousingFund,
-            //    OccupationalPension = per.OccupationalPension,
-            //    PensionInsurance = per.PensionInsurance,
-            //    UnemploymentInsurance = per.UnemploymentInsurance,
-            //    MedicalInsurance = per.MedicalInsurance,
-            //    UnionFees = per.UnionFees,
-            //    Tax = per.Tax,
-            //    Remark = $"{pet.pm.Remark} {per.Remark}"
-
-            //}).Where(e => e.PayYear == PayYear && e.PayMonth == PayMonth).Distinct().ToListAsync().ConfigureAwait(false);
         }
         /// <summary>
         ///为正式人员月度工资表，生成数据。

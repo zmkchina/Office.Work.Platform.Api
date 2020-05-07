@@ -47,10 +47,12 @@ namespace Office.Work.Platform.Api.DataService
         {
             IQueryable<MemberPaySet> Items = _GhDbContext.dsMemberPaySet.Join(_GhDbContext.dsMembers, x => x.MemberId, k => k.Id, (x, k) => new MemberPaySet
             {
+                PayUnitName = x.PayUnitName,
                 MemberId = x.MemberId,
                 MemberName = k.Name,
+                OrderIndex =k.OrderIndex,
+                MemberUnitName = k.UnitName,
                 PayItemNames = x.PayItemNames,
-                UnitName = x.UnitName,
                 UserId = x.UserId,
                 UpDateTime = x.UpDateTime
             }) as IQueryable<MemberPaySet>;
@@ -61,7 +63,7 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.MemberId.Equals(SearchCondition.MemberId, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
-                if (!string.IsNullOrWhiteSpace(SearchCondition.UnitName))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.PayUnitName))
                 {
                     //return await _GhDbContext.dsMemberPaySet.Join(_GhDbContext.dsMembers, x => x.MemberId, k => k.Id, (x, k) => new
                     //MemberPaySet
@@ -74,7 +76,7 @@ namespace Office.Work.Platform.Api.DataService
                     //    UpDateTime = x.UpDateTime
                     //}).Where(e => e.UnitName.Equals(SearchCondition.UnitName, StringComparison.Ordinal)).Distinct().ToListAsync().ConfigureAwait(false);
 
-                    Items = Items.Where(e => e.UnitName.Equals(SearchCondition.UnitName, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => e.PayUnitName.Equals(SearchCondition.PayUnitName, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
                 return await Items.Distinct().ToListAsync().ConfigureAwait(false);
             }

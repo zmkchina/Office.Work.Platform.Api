@@ -42,25 +42,34 @@ namespace Office.Work.Platform.Api.DataService
             IQueryable<MemberPay> Items = _GhDbContext.dsMemberPay as IQueryable<MemberPay>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
+                if (SearchCondition.PayYear > 0)
+                {
+                    Items = Items.Where(e => e.PayYear == SearchCondition.PayYear);
+                }
+                if (SearchCondition.PayMonth > 0)
+                {
+                    Items = Items.Where(e => e.PayMonth == SearchCondition.PayMonth);
+                }
+
+                if (!string.IsNullOrWhiteSpace(SearchCondition.PayName))
+                {
+                    Items = Items.Where(e => e.PayName.Equals(SearchCondition.PayName, StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(SearchCondition.PayUnitName))
+                {
+                    Items = Items.Where(e => e.PayUnitName.Equals(SearchCondition.PayUnitName, StringComparison.Ordinal));//查询发放单位。
+                }
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
                 {
                     Items = Items.Where(e => e.Id.Equals(SearchCondition.Id, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
                 if (!string.IsNullOrWhiteSpace(SearchCondition.MemberId))
                 {
-                    Items = Items.Where(e => e.MemberId.Equals(SearchCondition.MemberId, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => e.MemberId.Equals(SearchCondition.MemberId, StringComparison.Ordinal));//查询职工身份证号。
                 }
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Remark))
                 {
                     Items = Items.Where(e => e.Remark.Contains(SearchCondition.Remark, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
-                }
-                if (SearchCondition.PayYear > 0)
-                {
-                    Items = Items.Where(e => e.PayDate.Year == SearchCondition.PayYear);
-                }
-                if (SearchCondition.PayMonth > 0)
-                {
-                    Items = Items.Where(e => e.PayDate.Month == SearchCondition.PayMonth);
                 }
                 return await Items.ToListAsync().ConfigureAwait(false);
             }
