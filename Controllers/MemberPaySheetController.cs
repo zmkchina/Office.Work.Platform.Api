@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +48,7 @@ namespace Office.Work.Platform.Api.Controllers
               && x.MemberType.Equals(sc.MemberType, System.StringComparison.Ordinal)
               && x.InTableType.Equals(sc.PayTableType, System.StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
 
-            //2.获得不重复且排序后的人员姓名数组
+            //2.获得不重复且排序后的人员身份证号数组
             string[] PayMemberIdArr = MemberPayList.OrderBy(x => x.MemberIndex).Select(x => x.MemberId).Distinct().ToArray();
 
             //3.获取所有排序后的已发放项目列表
@@ -57,7 +58,9 @@ namespace Office.Work.Platform.Api.Controllers
             for (int i = 0; i < PayMemberIdArr.Length; i++)
             {
                 JObject TempJobj = new JObject();
+                //获取该人员的所有发放记录。
                 List<MemberPay> TempPayList = MemberPayList.Where(x => x.MemberId.Equals(PayMemberIdArr[i], System.StringComparison.Ordinal)).ToList();
+                TempJobj.Add("姓名", TempPayList[0].MemberName);
                 for (int j = 0; j < PayItemNameArr.Length; j++)
                 {
                     MemberPay TempPay = TempPayList.Where(y => y.PayName.Equals(PayItemNameArr[j], System.StringComparison.Ordinal)).FirstOrDefault();
@@ -75,66 +78,112 @@ namespace Office.Work.Platform.Api.Controllers
             string jsonStr = JsonConvert.SerializeObject(JResult);
             return jsonStr;
         }
+
+
         /// <summary>
-        ///为正式人员月度工资表，生成数据。
+        ///快速生成工资发放记录（将符合条件人员的指定月份的工资从上月开始拷贝）。
         /// </summary>
         /// <returns></returns>
-        [HttpGet("PostMemberPayMonthOfficialSheet/{PayYear}/{PayMonth}")]
-        public async Task<ExcuteResult> PostAsync(int PayYear, int PayMonth)
+        [HttpPost("PostMemberPaySheet")]
+        public async Task<ExcuteResult> PostMemberPaySheet([FromBody]MemberPayFastByPaySet PayFastInfo)
         {
-            int AddMemberCount = 0;
-            int AddRecordCount = 0;
-            ExcuteResult excuteResult = new ExcuteResult();
-            //await Task.Run(() =>
-            //{
-            //    List<Member> members = _GhDbContext.dsMembers.Where(e => e.MemberType.Equals("聘用合同制", System.StringComparison.Ordinal)).ToList();
-            //    foreach (Member mitem in members)
-            //    {
-            //        bool AddMem = false;
-            //        //1.新增发放记录
-            //        MemberPayMonthOfficial PmoPrevMonth = _GhDbContext.dsMemberPayMonthOfficial.Where(x =>
-            //        x.MemberId.Equals(mitem.Id, System.StringComparison.Ordinal) && x.PayYear == PayYear && x.PayMonth == PayMonth - 1).FirstOrDefault();
-            //        if (PmoPrevMonth != null)
-            //        {
-            //            //说明该职工上个月有工资数据。
+            if (PayFastInfo == null || PayFastInfo.PayYear == 0 || PayFastInfo.PayMonth == 0 || string.IsNullOrWhiteSpace(PayFastInfo.PayUnitName))
+            {
+                return new ExcuteResult(0, "参数传递不正确！");
+            }
+            //1.查询所有需要快速发放工资的人员及需拷贝的发放项目信息
+            List<MemberPaySet> MemberPaySetList = new List<MemberPaySet>();
 
-            //            if (!_GhDbContext.dsMemberPayMonthOfficial.Any(x => x.MemberId.Equals(mitem.Id, System.StringComparison.Ordinal) && x.PayYear == PayYear && x.PayMonth == PayMonth))
-            //            {
-            //                //说明本月没有记录，则新增之。
-            //                PmoPrevMonth.Id = AppStaticClass.GetIdOfDateTime();
-            //                PmoPrevMonth.PayYear = PayYear;
-            //                PmoPrevMonth.PayMonth = PayMonth;
-            //                _GhDbContext.dsMemberPayMonthOfficial.Add(PmoPrevMonth);
-            //                AddMem = true;
-            //            }
-            //        }
+            IQueryable<MemberPaySet> Items = _GhDbContext.dsMemberPaySet.Join(_GhDbContext.dsMembers, x => x.MemberId, k => k.Id, (x, k) => new MemberPaySet
+            {
+                PayUnitName = x.PayUnitName,
+                MemberId = x.MemberId,
+                MemberName = k.Name,
+                MemberType = k.MemberType,
+                OrderIndex = k.OrderIndex,
+                MemberUnitName = k.UnitName,
+                PayItemNames = x.PayItemNames,
+                UserId = x.UserId,
+                UpDateTime = x.UpDateTime
+            }) as IQueryable<MemberPaySet>;
 
-            //        //2.新增扣款记录
-            //        MemberPayMonthInsurance PmiPrevMonth = _GhDbContext.dsMemberPayMonthInsurance.Where(x =>
-            //            x.MemberId.Equals(mitem.Id, System.StringComparison.Ordinal) && x.PayYear == PayYear && x.PayMonth == PayMonth - 1).FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(PayFastInfo.PayUnitName))
+            {
+                Items = Items.Where(e => e.PayUnitName.Equals(PayFastInfo.PayUnitName, StringComparison.Ordinal));
+            }
+            if (!string.IsNullOrWhiteSpace(PayFastInfo.MemberType))
+            {
+                Items = Items.Where(e => e.MemberType.Equals(PayFastInfo.MemberType, StringComparison.Ordinal));
+            }
+            if (!string.IsNullOrWhiteSpace(PayFastInfo.MemberId))
+            {
 
-            //        if (PmiPrevMonth != null)
-            //        {
-            //            //说明该职工上个月有扣款数据。
+                Items = Items.Where(e => e.MemberId.Equals(PayFastInfo.MemberId, StringComparison.Ordinal));
+            }
 
-            //            if (!_GhDbContext.dsMemberPayMonthInsurance.Any(x => x.MemberId.Equals(mitem.Id, System.StringComparison.Ordinal) && x.PayYear == PayYear && x.PayMonth == PayMonth))
-            //            {
-            //                //说明本月没有记录，则新增之。
-            //                PmiPrevMonth.Id = AppStaticClass.GetIdOfDateTime();
-            //                PmiPrevMonth.PayYear = PayYear;
-            //                PmiPrevMonth.PayMonth = PayMonth;
-            //                _GhDbContext.dsMemberPayMonthInsurance.Add(PmiPrevMonth);
-            //                AddMem = true;
-            //            }
-            //        }
-            //        if (AddMem) { AddMemberCount++; }
-            //    }
-            //    AddRecordCount = _GhDbContext.SaveChanges();
+            MemberPaySetList = await Items.ToListAsync().ConfigureAwait(false);
 
-            //}).ConfigureAwait(false);
+            if (MemberPaySetList == null || MemberPaySetList.Count < 1)
+            {
+                return new ExcuteResult(0, "请先配置需要快速发放待遇的人员信息！");
+            }
 
-            //excuteResult = new ExcuteResult(0, $"共为{AddMemberCount}名职工，新增了{AddRecordCount}记录数据！");
-            return excuteResult;
+            //2.查询所有可发放项目信息数据，待使用。
+            List<MemberPayItem> AllPayItems = await _GhDbContext.dsMemberPayItem.ToListAsync().ConfigureAwait(false);
+
+            //3.处理、年和月。对所有需要快速发放待遇的人员，进行逐一遍历。
+            int PrePayYear = PayFastInfo.PayYear;
+            int PrePayMonth = PayFastInfo.PayMonth;
+            if (PrePayMonth == 1)
+            {
+                PrePayYear -= 1;
+                PrePayMonth = 12;
+            }
+            else
+            {
+                PrePayMonth -= 1;
+            }
+            //4.对所有需要快速发放待遇的人员，进行逐一遍历。
+            foreach (MemberPaySet item in MemberPaySetList)
+            {
+                
+                //查询指定人员、所有已配置的需要快速发放的项目的上月发放记录。
+                List<MemberPay> OneMemberPayList = await _GhDbContext.dsMemberPay.Where(x => item.PayItemNames.Contains(x.PayName, StringComparison.Ordinal) &&
+                x.MemberId.Equals(item.MemberId, StringComparison.Ordinal) && x.PayYear == PrePayYear && x.PayMonth == PrePayMonth).ToListAsync().ConfigureAwait(false);
+
+                foreach (MemberPay CurPayInfo in OneMemberPayList)
+                {
+                    MemberPayItem CurPayItem = AllPayItems.Where(x => x.Name.Equals(CurPayInfo.PayName, StringComparison.Ordinal)).FirstOrDefault();
+                    if (CurPayItem == null)
+                    {
+                        //如果最新的项目配置信息中，该项目已经不存在，则跳过之不再拷贝。
+                        continue;
+                    }
+                    //检查将要拷贝的月份数据，指定的项目是否已经发放过（比如已通过程序手动发放）。
+                    bool hasPayed = await _GhDbContext.dsMemberPay.AnyAsync(x => x.MemberId == item.MemberId && x.PayName.Equals(CurPayInfo.PayName, StringComparison.Ordinal)
+                    && x.PayYear == PayFastInfo.PayYear && x.PayMonth == PayFastInfo.PayMonth).ConfigureAwait(false);
+                    if (!hasPayed)
+                    {
+                        //将该发放项目相关信息更新为与最新设置同步。
+                        CurPayInfo.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
+                        CurPayInfo.PayYear = PayFastInfo.PayYear;
+                        CurPayInfo.PayMonth = PayFastInfo.PayMonth;
+                        CurPayInfo.AddOrCut = CurPayItem.AddOrCut;
+                        CurPayInfo.InCardinality = CurPayItem.InCardinality;
+                        CurPayInfo.InTableType = CurPayItem.InTableType;
+                        CurPayInfo.OrderIndex = CurPayItem.OrderIndex;
+                        CurPayInfo.PayUnitName = item.PayUnitName;
+                        CurPayInfo.MemberName = item.MemberName;
+                        CurPayInfo.MemberType = item.MemberType;
+                        CurPayInfo.MemberIndex = item.OrderIndex;
+                        CurPayInfo.UpDateTime = DateTime.Now;
+                        CurPayInfo.UserId = PayFastInfo.UserId;
+                        await _GhDbContext.dsMemberPay.AddAsync(CurPayInfo).ConfigureAwait(false);
+                    }
+                }
+            }
+            int AddCount = await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
+            return new ExcuteResult(0, $"待遇快速发放成功，共发放{AddCount}条记录");
         }
     }
 }

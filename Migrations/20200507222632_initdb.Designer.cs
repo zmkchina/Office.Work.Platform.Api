@@ -9,7 +9,7 @@ using Office.Work.Platform.Api.DataService;
 namespace Office.Work.Platform.Api.Migrations
 {
     [DbContext(typeof(GHDbContext))]
-    [Migration("20200507153051_initdb")]
+    [Migration("20200507222632_initdb")]
     partial class initdb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -50,8 +50,8 @@ namespace Office.Work.Platform.Api.DataService
                 PayUnitName = x.PayUnitName,
                 MemberId = x.MemberId,
                 MemberName = k.Name,
-                MemberType=k.MemberType,
-                OrderIndex =k.OrderIndex,
+                MemberType = k.MemberType,
+                OrderIndex = k.OrderIndex,
                 MemberUnitName = k.UnitName,
                 PayItemNames = x.PayItemNames,
                 UserId = x.UserId,
@@ -66,20 +66,11 @@ namespace Office.Work.Platform.Api.DataService
                 }
                 if (!string.IsNullOrWhiteSpace(SearchCondition.PayUnitName))
                 {
-                    //return await _GhDbContext.dsMemberPaySet.Join(_GhDbContext.dsMembers, x => x.MemberId, k => k.Id, (x, k) => new
-                    //MemberPaySet
-                    //{
-                    //    MemberId = x.MemberId,
-                    //    MemberName = k.Name,
-                    //    PayItemNames = x.PayItemNames,
-                    //    UnitName = x.UnitName,
-                    //    UserId = x.UserId,
-                    //    UpDateTime = x.UpDateTime
-                    //}).Where(e => e.UnitName.Equals(SearchCondition.UnitName, StringComparison.Ordinal)).Distinct().ToListAsync().ConfigureAwait(false);
 
                     Items = Items.Where(e => e.PayUnitName.Equals(SearchCondition.PayUnitName, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
-                return await Items.Distinct().ToListAsync().ConfigureAwait(false);
+                List<MemberPaySet> tempMpaySetList = await Items.Distinct().OrderBy(x=>x.OrderIndex).ToListAsync().ConfigureAwait(false);
+                return tempMpaySetList;
             }
             return new List<MemberPaySet>();
         }

@@ -61,24 +61,24 @@ namespace Office.Work.Platform.Api.Controllers
                 //});
                 List<MemberPayItem> PayItems = new List<MemberPayItem>()
                 {
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="岗位工资",AddOrCut="增加",InCardinality="是",InTableType="月度工资表", UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="薪级工资",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="岗位津贴",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="生活补贴",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="奖励绩效(月)",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="养老保险",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="职业年金",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="住房公积金",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="失业保险",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="医疗保险",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="工会费",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="个税",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="伙食补助",AddOrCut="增加",InCardinality="是",InTableType="月度补贴表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="住房补贴",AddOrCut="增加",InCardinality="是",InTableType="月度补贴表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="交通补助",AddOrCut="增加",InCardinality="是",InTableType="月度补贴表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="奖励绩效(年)",AddOrCut="增加",InCardinality="是",InTableType="其他待遇表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="绩效考核奖",AddOrCut="增加",InCardinality="是",InTableType="其他待遇表",UserId="zmk"},
-                    new MemberPayItem{UnitName="市港航事业发展中心",Name="护理费",AddOrCut="增加",InCardinality="是",InTableType="其他待遇表",UserId="zmk"}
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="岗位工资",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",OrderIndex=0, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="薪级工资",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",OrderIndex=1, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="岗位津贴",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",OrderIndex=2, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="生活补贴",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",OrderIndex=3, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="奖励绩效(月)",AddOrCut="增加",InCardinality="是",InTableType="月度工资表",OrderIndex=4, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="养老保险",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",OrderIndex=5, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="职业年金",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",OrderIndex=6, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="住房公积金",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",OrderIndex=7, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="失业保险",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",OrderIndex=8, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="医疗保险",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",OrderIndex=9, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="工会费",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",OrderIndex=10, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="个税",AddOrCut="减少",InCardinality="是",InTableType="月度工资表",OrderIndex=11, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="伙食补助",AddOrCut="增加",InCardinality="是",InTableType="月度补贴表",OrderIndex=20, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="住房补贴",AddOrCut="增加",InCardinality="是",InTableType="月度补贴表",OrderIndex=21, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="交通补助",AddOrCut="增加",InCardinality="是",InTableType="月度补贴表",OrderIndex=22, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="奖励绩效(年)",AddOrCut="增加",InCardinality="是",InTableType="其他待遇表",OrderIndex=30, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="绩效考核奖",AddOrCut="增加",InCardinality="是",InTableType="其他待遇表",OrderIndex=31, UserId="zmk"},
+                    new MemberPayItem{UnitName="市港航事业发展中心",Name="护理费",AddOrCut="增加",InCardinality="是",InTableType="其他待遇表",OrderIndex=32, UserId="zmk"}
                 };
                 foreach (MemberPayItem item in PayItems)
                 {
