@@ -46,9 +46,9 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.Name.Equals(SearchCondition.Name, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
-                if (!string.IsNullOrWhiteSpace(SearchCondition.UnitName))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.PayUnitName))
                 {
-                    Items = Items.Where(e => e.UnitName.Equals(SearchCondition.UnitName, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => e.UnitName.Equals(SearchCondition.PayUnitName, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
                
                 if (!string.IsNullOrWhiteSpace(SearchCondition.InTableType))

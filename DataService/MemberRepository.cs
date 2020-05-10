@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Office.Work.Platform.Lib;
 
 namespace Office.Work.Platform.Api.DataService
@@ -32,6 +33,7 @@ namespace Office.Work.Platform.Api.DataService
         {
             return await _GhDbContext.dsMembers.FindAsync(Id).ConfigureAwait(false);
         }
+
         /// <summary>
         /// 根据条件查询计划,返回查询的实体列表
         /// </summary>
@@ -45,6 +47,10 @@ namespace Office.Work.Platform.Api.DataService
                 if (!string.IsNullOrWhiteSpace(mSearchMember.Id))
                 {
                     Items = Items.Where(e => e.Id.Trim().Equals(mSearchMember.Id, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchMember.Name))
+                {
+                    Items = Items.Where(e => e.Name.Contains(mSearchMember.Name, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchMember.Name))
                 {
@@ -68,6 +74,10 @@ namespace Office.Work.Platform.Api.DataService
                 if (!string.IsNullOrWhiteSpace(mSearchMember.TechnicalTitle))
                 {
                     Items = Items.Where(e => e.TechnicalTitle.Contains(mSearchMember.TechnicalTitle, StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchMember.PoliticalStatus))
+                {
+                    Items = Items.Where(e => e.PoliticalStatus.Contains(mSearchMember.PoliticalStatus, StringComparison.Ordinal));
                 }
                 return await Items.ToListAsync().ConfigureAwait(false);
             }
