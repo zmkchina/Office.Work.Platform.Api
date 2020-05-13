@@ -15,6 +15,7 @@ namespace Office.Work.Platform.Api
             return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();
+                //webBuilder.UseUrls("http://*:9898").UseStartup<Startup>();
             });
         }
     }

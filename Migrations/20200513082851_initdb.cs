@@ -140,9 +140,9 @@ namespace Office.Work.Platform.Api.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
-                    Type = table.Column<string>(type: "varchar(50)", nullable: false),
                     Caption = table.Column<string>(type: "varchar(100)", nullable: false),
-                    Content = table.Column<byte[]>(type: "blob", nullable: false),
+                    Content = table.Column<byte[]>(type: "mediumblob", nullable: false),
+                    TextContent = table.Column<string>(type: "mediumtext", nullable: true),
                     UserId = table.Column<string>(type: "varchar(20)", nullable: false),
                     CanReadUserIds = table.Column<string>(type: "varchar(1000)", nullable: false),
                     UpDateTime = table.Column<DateTime>(nullable: false)

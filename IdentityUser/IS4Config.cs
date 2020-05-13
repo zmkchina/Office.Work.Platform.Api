@@ -1,5 +1,6 @@
 ﻿using IdentityServer4;
 using IdentityServer4.Models;
+using Microsoft.AspNetCore.HttpsPolicy;
 using System.Collections.Generic;
 
 namespace Office.Work.Platform.Api.IdentityUser

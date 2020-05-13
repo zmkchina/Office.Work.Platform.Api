@@ -20,13 +20,14 @@ namespace Office.Work.Platform.Api.Controllers
             _DataRepository = new NoteRepository(ghDbContet);
         }
         /// <summary>
-        /// 读取所有记录
+        /// 查询指定条件的数据
         /// </summary>
+        /// <param name="mSearchPlan"></param>
         /// <returns></returns>
-        [HttpGet]
-        public async Task<IEnumerable<Note>> GetAsync()
+        [HttpGet("Search")]
+        public async Task<IEnumerable<Lib.Note>> GetRecordsAsync([FromQuery]NoteSearch SearchCondition)
         {
-            return await _DataRepository.GetAllAsync().ConfigureAwait(false);
+            return await _DataRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
         /// <summary>
         /// 根据ID读取记录

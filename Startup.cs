@@ -46,12 +46,12 @@ namespace Office.Work.Platform.Api
             //注册验证（*用于被保护的API资源，与IS4无关* ） 
             services.AddAuthentication("Bearer").AddJwtBearer(r =>
             {
-                //认证服务地址
-                r.Authority = "http://localhost:5000";
-                //权限标识
-                r.Audience = "Apis";
                 //是否必需HTTPS
                 r.RequireHttpsMetadata = false;
+                //认证服务地址(由于本项目APi资源与IS4服务器均在一起，故地址相同)
+                r.Authority = "http://172.16.0.9:9898";
+                //权限标识
+                r.Audience = "Apis";
             });
 
             services.AddControllers().AddNewtonsoftJson(options =>

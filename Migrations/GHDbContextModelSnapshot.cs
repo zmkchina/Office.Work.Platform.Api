@@ -473,11 +473,10 @@ namespace Office.Work.Platform.Api.Migrations
 
                     b.Property<byte[]>("Content")
                         .IsRequired()
-                        .HasColumnType("blob");
+                        .HasColumnType("mediumblob");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)");
+                    b.Property<string>("TextContent")
+                        .HasColumnType("mediumtext");
 
                     b.Property<DateTime>("UpDateTime")
                         .HasColumnType("datetime(6)");

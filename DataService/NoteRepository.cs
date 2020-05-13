@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.DataService
 {
+    /// <summary>
+    /// 用户备忘信息查询类
+    /// </summary>
     public class NoteRepository
     {
         private readonly GHDbContext _GhDbContext;
@@ -45,17 +48,17 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.Id.Equals(SearchCondition.Id, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
-                if (!string.IsNullOrWhiteSpace(SearchCondition.UserId))
+                if (SearchCondition.IsMySelft.Equals("Yes", StringComparison.Ordinal))
                 {
                     Items = Items.Where(e => e.UserId.Equals(SearchCondition.UserId, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
-                if (!string.IsNullOrWhiteSpace(SearchCondition.Type))
+                else
                 {
-                    Items = Items.Where(e => e.Type.Equals(SearchCondition.Type, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => e.CanReadUserIds.Contains(SearchCondition.UserId, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
                 if (!string.IsNullOrWhiteSpace(SearchCondition.KeysInMultiple))
                 {
-                    Items = Items.Where(e => e.Caption.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal)|| e.Content.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => e.Caption.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal) || e.TextContent.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
 
                 return await Items.ToListAsync().ConfigureAwait(false);

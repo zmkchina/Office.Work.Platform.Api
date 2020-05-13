@@ -33,6 +33,16 @@ namespace Office.Work.Platform.Api.Controllers
             return await _GhDbContext.dsMemberPay.Select(x => x.InTableType).Distinct().ToArrayAsync().ConfigureAwait(false);
         }
         /// <summary>
+        /// 获取所有已生成的待遇表中人员的类型
+        /// </summary>
+        /// <param name="SearchCondition"></param>
+        /// <returns></returns>
+        [HttpGet("GetPayTableMemberTypes")]
+        public async Task<string[]> GetPayTableMemberTypes()
+        {
+            return await _GhDbContext.dsMemberPay.Select(x => x.MemberType).Distinct().ToArrayAsync().ConfigureAwait(false);
+        }
+        /// <summary>
         /// 获取正式人员月度工资表
         /// </summary>
         /// <returns></returns>
