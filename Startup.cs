@@ -44,12 +44,13 @@ namespace Office.Work.Platform.Api
 
 
             //注册验证（*用于被保护的API资源，与IS4无关* ） 
+            string ProtectApiUrl = Configuration["ProtectApiUrl"];
             services.AddAuthentication("Bearer").AddJwtBearer(r =>
             {
                 //是否必需HTTPS
                 r.RequireHttpsMetadata = false;
                 //认证服务地址(由于本项目APi资源与IS4服务器均在一起，故地址相同)
-                r.Authority = "http://172.16.0.9:9898";
+                r.Authority = ProtectApiUrl;
                 //权限标识
                 r.Audience = "Apis";
             });

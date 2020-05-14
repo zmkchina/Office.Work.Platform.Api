@@ -1,7 +1,6 @@
-﻿using IdentityServer4;
+﻿using System.Collections.Generic;
+using IdentityServer4;
 using IdentityServer4.Models;
-using Microsoft.AspNetCore.HttpsPolicy;
-using System.Collections.Generic;
 
 namespace Office.Work.Platform.Api.IdentityUser
 {
@@ -40,7 +39,7 @@ namespace Office.Work.Platform.Api.IdentityUser
         {
             return new Client[] {
                 new Client(){
-                    //一个客户端支持两种验证模式
+                    //让客户端支持两种验证模式
                     ClientId="WorkPlatformClient",
                     AllowedGrantTypes={
                         GrantType.ClientCredentials,  //客户端模式
