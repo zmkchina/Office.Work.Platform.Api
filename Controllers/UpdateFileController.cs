@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -42,6 +43,20 @@ namespace Office.Work.Platform.Api.Controllers
                 });
             }
             return UpFileList;
+        }
+        /// <summary>
+        /// 下载新文件
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("DownFile")]
+        public ActionResult GetDownLoadFile(string PDownFileName)
+        {
+            string fileFullName = System.IO.Path.Combine(_configuration["StaticFileDir"], "UpdateFiles", PDownFileName);
+            if (System.IO.File.Exists(fileFullName))
+            {
+                return PhysicalFile(fileFullName, "application/octet-stream", PDownFileName);
+            }
+            return NotFound();
         }
     }
 }
