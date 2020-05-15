@@ -55,15 +55,6 @@ namespace Office.Work.Platform.Api.DataService
                 //modelBuilder.Entity<Member>().HasKey(x => x.Id);
                 //modelBuilder.Entity<Member>().Property("Name").IsRequired().HasMaxLength(50);
 
-                //modelBuilder.Entity<MemberPayMonth>().HasKey(x => x.Id);
-
-                //modelBuilder.Entity<MemberPayMonthUnofficial>().HasKey(x => x.Id);
-
-                //modelBuilder.Entity<MemberPayTemp>().HasKey(x => x.Id);
-                //modelBuilder.Entity<MemberPayTemp>().Property("PayName").IsRequired().HasMaxLength(50);
-
-                //modelBuilder.Entity<MemberFile>().HasKey(x => x.Id);
-                //modelBuilder.Entity<MemberFile>().Property("Name").IsRequired().HasMaxLength(50);
             }
         }
     }
