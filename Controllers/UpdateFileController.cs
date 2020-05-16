@@ -31,7 +31,6 @@ namespace Office.Work.Platform.Api.Controllers
             string UpdateFileDir = System.IO.Path.Combine(_configuration["StaticFileDir"], "UpdateFiles");
             if (!System.IO.Directory.Exists(UpdateFileDir))
             {
-                System.IO.Directory.CreateDirectory(UpdateFileDir);
                 return new AppUpdateInfo();
             }
             string UpdateFileName = System.IO.Path.Combine(UpdateFileDir, "UpdateInfo.json");
