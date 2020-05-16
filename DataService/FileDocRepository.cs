@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -107,13 +108,50 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<int> DeleteAsync(string Id)
+        public async Task<int> DeleteByIdAsync(string FileBaseDir, string Id)
         {
+            int DelCount = 0;
             if (Id == null) { return 0; }
-            FileDoc tempPlan = _GhDbContext.dsFileDocs.Find(Id);
-            _GhDbContext.dsFileDocs.Remove(tempPlan);
-
-            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
+            FileDoc CurFile = _GhDbContext.dsFileDocs.Find(Id);
+            _GhDbContext.dsFileDocs.Remove(CurFile);
+            DelCount = await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
+            if (DelCount > 0)
+            {
+                //删除硬盘上的文件
+                var fileName = Path.Combine(FileBaseDir, $"{CurFile.Id}{CurFile.ExtendName}");
+                if (System.IO.File.Exists(fileName))
+                {
+                    System.IO.File.Delete(fileName);
+                }
+            }
+            return DelCount;
+        }
+        /// <summary>
+        /// 根据该文件的拥有者Id删除所有文件。
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public async Task<int> DeleteByOwnerIdAsync(string FileBaseDir, string OwnerId)
+        {
+            if (OwnerId == null) { return 0; }
+            int DelCount = 0;
+            List<FileDoc> PlanFiles = await _GhDbContext.dsFileDocs.Where(x => x.OwnerId.Equals(OwnerId, StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
+            for (int i = 0; i < PlanFiles.Count; i++)
+            {
+                _GhDbContext.dsFileDocs.Remove(PlanFiles[i]);
+                int DelFlag = await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
+                if (DelFlag > 0)
+                {
+                    //删除硬盘上的文件
+                    var fileName = Path.Combine(FileBaseDir, $"{PlanFiles[i].Id}{PlanFiles[i].ExtendName}");
+                    if (System.IO.File.Exists(fileName))
+                    {
+                        System.IO.File.Delete(fileName);
+                    }
+                    DelCount++;
+                }
+            }
+            return DelCount;
         }
     }
 }

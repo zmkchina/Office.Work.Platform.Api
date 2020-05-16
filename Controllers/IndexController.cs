@@ -42,11 +42,11 @@ namespace Office.Work.Platform.Api.Controllers
                 }).ConfigureAwait(false);
                 List<User> SysUsers = new List<User>()
                 {
-                    new User{Id="admin", PassWord="admin1155",Name="管理员", UnitName="市港航事业发展中心",  OrderIndex=0, Department="工作平台",Post="管理员",Grants="AllGrants"},
-                    new User{Id="zmk", PassWord="123",Name="翟明科",UnitName="市港航事业发展中心", OrderIndex=1, Department="政工科",Post="部门负责人",Grants="PlanFileDele,PlanDele,PlanFileAdd,PlanResetState"},
-                    new User{Id="wt", PassWord="123", Name="吴  桐",UnitName="市港航事业发展中心",  OrderIndex=2, Department="政工科",Post="办事员",Grants="PlanFileDele,PlanDele,PlanFileAdd"},
-                    new User{Id="gyq", PassWord="123",Name="高亚琼",UnitName="市港航事业发展中心",  OrderIndex=3, Department="政工科",Post="办事员",Grants="PlanFileDele,PlanDele,PlanFileAdd"},
-                    new User{Id="zhr", PassWord="123",Name="钟浩然",UnitName="市港航事业发展中心",  OrderIndex=4, Department="政工科",Post="办事员",Grants="PlanFileDele,PlanDele,PlanFileAdd"}
+                    new User{Id="admin", PassWord="admin1155",Name="管理员", UnitName="市港航事业发展中心", UnitShortName="市港航中心",  OrderIndex=0, Department="工作平台",Post="管理员",Grants="AllGrants"},
+                    new User{Id="zmk", PassWord="123",Name="翟明科",UnitName="市港航事业发展中心", UnitShortName="市港航中心", OrderIndex=1, Department="政工科",Post="部门负责人",Grants="PlanFileDele,PlanDele,PlanFileAdd,PlanResetState"},
+                    new User{Id="wt", PassWord="123", Name="吴  桐",UnitName="市港航事业发展中心", UnitShortName="市港航中心",  OrderIndex=2, Department="政工科",Post="办事员",Grants="PlanFileDele,PlanDele,PlanFileAdd"},
+                    new User{Id="gyq", PassWord="123",Name="高亚琼",UnitName="市港航事业发展中心", UnitShortName="市港航中心",  OrderIndex=3, Department="政工科",Post="办事员",Grants="PlanFileDele,PlanDele,PlanFileAdd"},
+                    new User{Id="zhr", PassWord="123",Name="钟浩然",UnitName="市港航事业发展中心", UnitShortName="市港航中心",  OrderIndex=4, Department="政工科",Post="办事员",Grants="PlanFileDele,PlanDele,PlanFileAdd"}
                 };
                 foreach (User item in SysUsers)
                 {

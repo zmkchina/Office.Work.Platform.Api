@@ -40,9 +40,21 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.CreateUserId.Equals(mSearchPlan.CreateUserId, StringComparison.Ordinal));
                 }
+                if (!string.IsNullOrWhiteSpace(mSearchPlan.UnitName))
+                {
+                    Items = Items.Where(e => e.UnitName.Equals(mSearchPlan.UnitName, StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchPlan.ResponsiblePerson))
+                {
+                    Items = Items.Where(e => e.ResponsiblePerson.Equals(mSearchPlan.ResponsiblePerson, StringComparison.Ordinal));
+                }
                 if (!string.IsNullOrWhiteSpace(mSearchPlan.CurrectState))
                 {
                     Items = Items.Where(e => mSearchPlan.CurrectState.Contains(e.CurrectState, StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchPlan.Helpers))
+                {
+                    Items = Items.Where(e => e.Helpers.Contains(mSearchPlan.Helpers, StringComparison.Ordinal));
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchPlan.KeysInMultiple))
                 {

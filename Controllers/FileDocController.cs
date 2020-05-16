@@ -181,19 +181,14 @@ namespace Office.Work.Platform.Api.Controllers
         /// 删除一个文件信息，包括磁盘上的具体文件。
         /// </summary>
         /// <param name="P_FileId"></param>
-        /// <param name="P_FileExtName"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<string> Delete(string FileId, string FileExtName)
+        public async Task<string> Delete(string FileId)
         {
             ExcuteResult actResult = new ExcuteResult();
-            if (await _FileRepository.DeleteAsync(FileId).ConfigureAwait(false) > 0)
+            string FileBaseDir = Path.Combine(_configuration["StaticFileDir"], "WorkFiles");
+            if (await _FileRepository.DeleteByIdAsync(FileBaseDir,FileId).ConfigureAwait(false) > 0)
             {
-                var fileName = _configuration["StaticFileDir"] + $"\\WorkFiles\\{FileId}{FileExtName}";
-                if (System.IO.File.Exists(fileName))
-                {
-                    System.IO.File.Delete(fileName);
-                }
                 actResult.SetValues(0, "删除成功!");
             }
             else

@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.Controllers
@@ -15,10 +17,14 @@ namespace Office.Work.Platform.Api.Controllers
     public class PlanController : ControllerBase
     {
         private readonly PlanRepository _PlanRepository;
+        private readonly FileDocRepository _FileRepository;
+        private readonly IConfiguration _configuration;
 
-        public PlanController(GHDbContext ghDbContet)
+        public PlanController(IConfiguration configuration, GHDbContext ghDbContext)
         {
-            _PlanRepository = new PlanRepository(ghDbContet);
+            _PlanRepository = new PlanRepository(ghDbContext);
+            _FileRepository = new FileDocRepository(ghDbContext);
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -91,6 +97,8 @@ namespace Office.Work.Platform.Api.Controllers
             ExcuteResult actResult = new ExcuteResult();
             if (await _PlanRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
             {
+                string FileBaseDir = Path.Combine(_configuration["StaticFileDir"], "WorkFiles");
+                await _FileRepository.DeleteByOwnerIdAsync(FileBaseDir, Id).ConfigureAwait(false);
                 actResult.SetValues(0, "删除成功");
             }
             else
