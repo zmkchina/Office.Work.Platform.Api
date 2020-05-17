@@ -52,7 +52,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchFile"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberFile>> GetPlanFilesAsync([FromQuery]MemberFileSearch mSearchFile)
+        public async Task<IEnumerable<MemberFile>> GetFilesAsync([FromQuery]MemberFileSearch mSearchFile)
         {
             return await _FileRepository.GetEntitiesAsync(mSearchFile).ConfigureAwait(false);
         }
@@ -93,7 +93,7 @@ namespace Office.Work.Platform.Api.Controllers
                 try
                 {
                     string FileId = AppCodes.AppStaticClass.GetIdOfDateTime();
-                    string FilePath = Path.Combine(_configuration["StaticFileDir"], "PlanFiles");
+                    string FilePath = Path.Combine(_configuration["StaticFileDir"], "MemberFiles");
                     if (!System.IO.Directory.Exists(FilePath))
                     {
                         System.IO.Directory.CreateDirectory(FilePath);
@@ -143,38 +143,13 @@ namespace Office.Work.Platform.Api.Controllers
             if (FileInfo != null)
             {
                 string FileName = $"{FileInfo.Name}({FileInfo.Id}){FileInfo.ExtendName}";
-                string fileFullName = Path.Combine(_configuration["StaticFileDir"], "PlanFiles", $"{FileInfo.Id}{FileInfo.ExtendName}");
+                string fileFullName = Path.Combine(_configuration["StaticFileDir"], "MemberFiles", $"{FileInfo.Id}{FileInfo.ExtendName}");
                 if (System.IO.File.Exists(fileFullName))
                 {
                     return PhysicalFile(fileFullName, "application/octet-stream", FileName);
                 }
             }
             return NotFound();
-            /*
-            if (FileInfo != null)
-            {
-                string FileName = $"{FileInfo.Name}({FileInfo.Id}){FileInfo.ExtendName}";
-                FileStream downFileStream = null;
-
-                await Task.Run(() =>
-                {
-                    if (FileInfo != null)
-                    {
-                        string fileFullName = Path.Combine(_configuration["StaticFileDir"], "WorkFiles", $"{FileInfo.Id}{FileInfo.ExtendName}");
-                        if (System.IO.File.Exists(fileFullName))
-                        {
-                            downFileStream = new FileStream(fileFullName, FileMode.Open);
-                        }
-                    }
-                }).ConfigureAwait(false);
-
-                if (downFileStream != null)
-                {
-                    return File(downFileStream, "application/octet-stream", FileName);
-                }
-            }
-            return NotFound();
-            */
         }
 
         /// <summary>
@@ -186,7 +161,7 @@ namespace Office.Work.Platform.Api.Controllers
         public async Task<string> Delete(string FileId)
         {
             ExcuteResult actResult = new ExcuteResult();
-            string FileBaseDir = Path.Combine(_configuration["StaticFileDir"], "PlanFiles");
+            string FileBaseDir = Path.Combine(_configuration["StaticFileDir"], "MemberFiles");
             if (await _FileRepository.DeleteByIdAsync(FileBaseDir,FileId).ConfigureAwait(false) > 0)
             {
                 actResult.SetValues(0, "删除成功!");

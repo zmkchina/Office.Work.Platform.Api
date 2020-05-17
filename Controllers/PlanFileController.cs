@@ -52,7 +52,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchFile"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<PlanFile>> GetPlanFilesAsync([FromQuery]PlanFileSearch mSearchFile)
+        public async Task<IEnumerable<PlanFile>> GetFilesAsync([FromQuery]PlanFileSearch mSearchFile)
         {
             return await _FileRepository.GetEntitiesAsync(mSearchFile).ConfigureAwait(false);
         }
@@ -150,31 +150,6 @@ namespace Office.Work.Platform.Api.Controllers
                 }
             }
             return NotFound();
-            /*
-            if (FileInfo != null)
-            {
-                string FileName = $"{FileInfo.Name}({FileInfo.Id}){FileInfo.ExtendName}";
-                FileStream downFileStream = null;
-
-                await Task.Run(() =>
-                {
-                    if (FileInfo != null)
-                    {
-                        string fileFullName = Path.Combine(_configuration["StaticFileDir"], "WorkFiles", $"{FileInfo.Id}{FileInfo.ExtendName}");
-                        if (System.IO.File.Exists(fileFullName))
-                        {
-                            downFileStream = new FileStream(fileFullName, FileMode.Open);
-                        }
-                    }
-                }).ConfigureAwait(false);
-
-                if (downFileStream != null)
-                {
-                    return File(downFileStream, "application/octet-stream", FileName);
-                }
-            }
-            return NotFound();
-            */
         }
 
         /// <summary>

@@ -50,11 +50,11 @@ namespace Office.Work.Platform.Api.Controllers
         {
             return await _PaySetRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
-       
-        // <summary>
-        /// 单个新增或者更新数据信息（如数据库中没有则新增之，如有则更新之）
+
+        /// <summary>
+        /// 批量新增或者更新数据信息（如数据库中没有则新增之，如有则更新之）
         /// </summary>
-        /// <param name="FileInfo"></param>
+        /// <param name="PaySetList"></param>
         /// <returns></returns>
         [HttpPost("AddOrUpdate")]
         [DisableRequestSizeLimit]
@@ -73,7 +73,7 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         /// <summary>
-        /// 新增记录
+        /// 新增单条记录
         /// </summary>
         /// <param name="FileInfo"></param>
         /// <returns></returns>

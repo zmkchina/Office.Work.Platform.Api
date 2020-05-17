@@ -9,57 +9,6 @@ namespace Office.Work.Platform.Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "dsFileDocs",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    OwnerType = table.Column<string>(type: "varchar(10)", nullable: true),
-                    OwnerId = table.Column<string>(type: "varchar(20)", nullable: false),
-                    ContentType = table.Column<string>(type: "varchar(200)", nullable: true),
-                    Name = table.Column<string>(type: "varchar(200)", nullable: true),
-                    DispatchUnit = table.Column<string>(type: "varchar(500)", nullable: true),
-                    CanReadUserIds = table.Column<string>(type: "varchar(1000)", nullable: true),
-                    FileNumber = table.Column<string>(type: "varchar(500)", nullable: true),
-                    Pubdate = table.Column<DateTime>(nullable: false),
-                    ExtendName = table.Column<string>(type: "varchar(10)", nullable: true),
-                    Length = table.Column<long>(type: "bigint", nullable: false),
-                    UserId = table.Column<string>(type: "varchar(20)", nullable: true),
-                    UpDateTime = table.Column<DateTime>(nullable: false),
-                    Describe = table.Column<string>(type: "varchar(500)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_dsFileDocs", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "dsMemberPay",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
-                    MemberName = table.Column<string>(type: "varchar(20)", nullable: false),
-                    MemberType = table.Column<string>(type: "varchar(20)", nullable: false),
-                    PayName = table.Column<string>(type: "varchar(30)", nullable: false),
-                    InCardinality = table.Column<string>(type: "varchar(10)", nullable: false),
-                    InTableType = table.Column<string>(type: "varchar(20)", nullable: false),
-                    AddOrCut = table.Column<string>(type: "varchar(10)", nullable: false),
-                    Amount = table.Column<float>(type: "float(10,2)", nullable: false),
-                    PayYear = table.Column<int>(nullable: false),
-                    PayMonth = table.Column<int>(nullable: false),
-                    PayUnitName = table.Column<string>(nullable: true),
-                    MemberIndex = table.Column<int>(nullable: false),
-                    OrderIndex = table.Column<int>(nullable: false),
-                    UpDateTime = table.Column<DateTime>(nullable: false),
-                    UserId = table.Column<string>(type: "varchar(20)", nullable: false),
-                    Remark = table.Column<string>(type: "varchar(300)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_dsMemberPay", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "dsMemberPayItem",
                 columns: table => new
                 {
@@ -76,21 +25,6 @@ namespace Office.Work.Platform.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_dsMemberPayItem", x => x.Name);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "dsMemberPaySet",
-                columns: table => new
-                {
-                    MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
-                    PayUnitName = table.Column<string>(type: "varchar(50)", nullable: false),
-                    PayItemNames = table.Column<string>(type: "varchar(2000)", nullable: true),
-                    UpDateTime = table.Column<DateTime>(nullable: false),
-                    UserId = table.Column<string>(type: "varchar(20)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_dsMemberPaySet", x => x.MemberId);
                 });
 
             migrationBuilder.CreateTable(
@@ -244,6 +178,35 @@ namespace Office.Work.Platform.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "dsMemberFiles",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
+                    ContentType = table.Column<string>(type: "varchar(200)", nullable: true),
+                    Name = table.Column<string>(type: "varchar(200)", nullable: true),
+                    DispatchUnit = table.Column<string>(type: "varchar(500)", nullable: true),
+                    CanReadUserIds = table.Column<string>(type: "varchar(1000)", nullable: true),
+                    FileNumber = table.Column<string>(type: "varchar(500)", nullable: true),
+                    Pubdate = table.Column<DateTime>(nullable: false),
+                    ExtendName = table.Column<string>(type: "varchar(10)", nullable: true),
+                    Length = table.Column<long>(type: "bigint", nullable: false),
+                    UserId = table.Column<string>(type: "varchar(20)", nullable: true),
+                    UpDateTime = table.Column<DateTime>(nullable: false),
+                    Describe = table.Column<string>(type: "varchar(500)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dsMemberFiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dsMemberFiles_dsMembers_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "dsMembers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "dsMemberHoliday",
                 columns: table => new
                 {
@@ -262,6 +225,61 @@ namespace Office.Work.Platform.Api.Migrations
                     table.PrimaryKey("PK_dsMemberHoliday", x => x.Id);
                     table.ForeignKey(
                         name: "FK_dsMemberHoliday_dsMembers_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "dsMembers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "dsMemberPay",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
+                    MemberName = table.Column<string>(type: "varchar(20)", nullable: false),
+                    MemberType = table.Column<string>(type: "varchar(20)", nullable: false),
+                    PayName = table.Column<string>(type: "varchar(30)", nullable: false),
+                    InCardinality = table.Column<string>(type: "varchar(10)", nullable: false),
+                    InTableType = table.Column<string>(type: "varchar(20)", nullable: false),
+                    AddOrCut = table.Column<string>(type: "varchar(10)", nullable: false),
+                    Amount = table.Column<float>(type: "float(10,2)", nullable: false),
+                    PayYear = table.Column<int>(nullable: false),
+                    PayMonth = table.Column<int>(nullable: false),
+                    PayUnitName = table.Column<string>(nullable: true),
+                    MemberIndex = table.Column<int>(nullable: false),
+                    OrderIndex = table.Column<int>(nullable: false),
+                    UpDateTime = table.Column<DateTime>(nullable: false),
+                    UserId = table.Column<string>(type: "varchar(20)", nullable: false),
+                    Remark = table.Column<string>(type: "varchar(300)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dsMemberPay", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dsMemberPay_dsMembers_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "dsMembers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "dsMemberPaySet",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
+                    PayUnitName = table.Column<string>(type: "varchar(50)", nullable: false),
+                    PayItemNames = table.Column<string>(type: "varchar(2000)", nullable: true),
+                    UpDateTime = table.Column<DateTime>(nullable: false),
+                    UserId = table.Column<string>(type: "varchar(20)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dsMemberPaySet", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dsMemberPaySet_dsMembers_MemberId",
                         column: x => x.MemberId,
                         principalTable: "dsMembers",
                         principalColumn: "Id",
@@ -345,14 +363,58 @@ namespace Office.Work.Platform.Api.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "dsPlanFiles",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    PlanId = table.Column<string>(type: "varchar(20)", nullable: false),
+                    ContentType = table.Column<string>(type: "varchar(200)", nullable: true),
+                    Name = table.Column<string>(type: "varchar(200)", nullable: true),
+                    DispatchUnit = table.Column<string>(type: "varchar(500)", nullable: true),
+                    CanReadUserIds = table.Column<string>(type: "varchar(1000)", nullable: true),
+                    FileNumber = table.Column<string>(type: "varchar(500)", nullable: true),
+                    Pubdate = table.Column<DateTime>(nullable: false),
+                    ExtendName = table.Column<string>(type: "varchar(10)", nullable: true),
+                    Length = table.Column<long>(type: "bigint", nullable: false),
+                    UserId = table.Column<string>(type: "varchar(20)", nullable: true),
+                    UpDateTime = table.Column<DateTime>(nullable: false),
+                    Describe = table.Column<string>(type: "varchar(500)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dsPlanFiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dsPlanFiles_dsPlans_PlanId",
+                        column: x => x.PlanId,
+                        principalTable: "dsPlans",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_dsMemberAppraise_MemberId",
                 table: "dsMemberAppraise",
                 column: "MemberId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_dsMemberFiles_MemberId",
+                table: "dsMemberFiles",
+                column: "MemberId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_dsMemberHoliday_MemberId",
                 table: "dsMemberHoliday",
+                column: "MemberId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_dsMemberPay_MemberId",
+                table: "dsMemberPay",
+                column: "MemberId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_dsMemberPaySet_MemberId",
+                table: "dsMemberPaySet",
                 column: "MemberId");
 
             migrationBuilder.CreateIndex(
@@ -369,15 +431,20 @@ namespace Office.Work.Platform.Api.Migrations
                 name: "IX_dsMemberResume_MemberId",
                 table: "dsMemberResume",
                 column: "MemberId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_dsPlanFiles_PlanId",
+                table: "dsPlanFiles",
+                column: "PlanId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "dsFileDocs");
+                name: "dsMemberAppraise");
 
             migrationBuilder.DropTable(
-                name: "dsMemberAppraise");
+                name: "dsMemberFiles");
 
             migrationBuilder.DropTable(
                 name: "dsMemberHoliday");
@@ -404,7 +471,7 @@ namespace Office.Work.Platform.Api.Migrations
                 name: "dsNotes");
 
             migrationBuilder.DropTable(
-                name: "dsPlans");
+                name: "dsPlanFiles");
 
             migrationBuilder.DropTable(
                 name: "dsServerSetting");
@@ -414,6 +481,9 @@ namespace Office.Work.Platform.Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "dsMembers");
+
+            migrationBuilder.DropTable(
+                name: "dsPlans");
         }
     }
 }

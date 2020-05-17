@@ -91,6 +91,8 @@ namespace Office.Work.Platform.Api.DataService
                     }
                     else
                     {
+                        item.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
+                        item.UpDateTime = DateTime.Now;
                         _GhDbContext.dsMemberPaySet.Add(item);
                     }
                     item.UpDateTime = DateTime.Now;
@@ -112,6 +114,7 @@ namespace Office.Work.Platform.Api.DataService
             {
                 return -2;
             }
+            PEntity.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
             PEntity.UpDateTime = DateTime.Now;
             _GhDbContext.dsMemberPaySet.Add(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);

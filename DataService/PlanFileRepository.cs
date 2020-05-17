@@ -40,10 +40,11 @@ namespace Office.Work.Platform.Api.DataService
         {
             IQueryable<PlanFile> Items = _GhDbContext.dsPlanFiles as IQueryable<PlanFile>;
             //需要连同该文件的Plan信息一同读取，在操作文件时需使用之。
-            if (mSearchFile != null && !string.IsNullOrWhiteSpace(mSearchFile.UserId))
+            if (mSearchFile != null &&  !string.IsNullOrWhiteSpace(mSearchFile.UserId))
             {
                 //判断请求用户是否有权限(必须对该文件所属计划有读取权限)
                 Items = Items.Where(e => e.CanReadUserIds == null || e.UserId.Equals(mSearchFile.UserId, System.StringComparison.Ordinal) || e.CanReadUserIds.Contains(mSearchFile.UserId, System.StringComparison.Ordinal));
+
                 if (!string.IsNullOrWhiteSpace(mSearchFile.Id))
                 {
                     Items = Items.Where(e => e.Id.Equals(mSearchFile.Id, System.StringComparison.Ordinal));
