@@ -30,6 +30,10 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         public DbSet<MemberPrizePunish> dsMemberPrizePunish { get; set; }
         /// <summary>
+        /// 考核情况
+        /// </summary>
+        public DbSet<MemberAppraise> dsMemberAppraise { get; set; }
+        /// <summary>
         /// 社会关系
         /// </summary>
         public DbSet<MemberRelations> dsMemberRelations { get; set; }

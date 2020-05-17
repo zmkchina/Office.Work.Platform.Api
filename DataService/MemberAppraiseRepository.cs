@@ -7,10 +7,10 @@ using Office.Work.Platform.Lib;
 
 namespace Office.Work.Platform.Api.DataService
 {
-    public class MemberPrizePunishRepository
+    public class MemberAppraiseRepository
     {
         private readonly GHDbContext _GhDbContext;
-        public MemberPrizePunishRepository(GHDbContext GhDbContext)
+        public MemberAppraiseRepository(GHDbContext GhDbContext)
         {
             _GhDbContext = GhDbContext;
         }
@@ -18,9 +18,9 @@ namespace Office.Work.Platform.Api.DataService
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberPrizePunish>> GetAllAsync()
+        public async Task<IEnumerable<MemberAppraise>> GetAllAsync()
         {
-            return await _GhDbContext.dsMemberPrizePunish.ToListAsync().ConfigureAwait(false);
+            return await _GhDbContext.dsMemberAppraise.ToListAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -28,18 +28,18 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<MemberPrizePunish> GetOneByIdAsync(string Id)
+        public async Task<MemberAppraise> GetOneByIdAsync(string Id)
         {
-            return await _GhDbContext.dsMemberPrizePunish.FindAsync(Id).ConfigureAwait(false);
+            return await _GhDbContext.dsMemberAppraise.FindAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 根据条件查询计划,返回查询的实体列表
         /// </summary>
         /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberPrizePunish>> GetEntitiesAsync(MemberPrizePunishSearch SearchCondition)
+        public async Task<IEnumerable<MemberAppraise>> GetEntitiesAsync(MemberAppraiseSearch SearchCondition)
         {
-            IQueryable<MemberPrizePunish> Items = _GhDbContext.dsMemberPrizePunish as IQueryable<MemberPrizePunish>;
+            IQueryable<MemberAppraise> Items = _GhDbContext.dsMemberAppraise as IQueryable<MemberAppraise>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
@@ -50,25 +50,29 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.MemberId.Equals(SearchCondition.MemberId, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
-                if (!string.IsNullOrWhiteSpace(SearchCondition.PrizrOrPunishType))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.Year))
                 {
-                    Items = Items.Where(e => SearchCondition.PrizrOrPunishType.Contains(e.PrizrOrPunishType, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => SearchCondition.Year.Equals(e.Year, StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(SearchCondition.Result))
+                {
+                    Items = Items.Where(e => SearchCondition.Result.Contains(e.Result, StringComparison.Ordinal));
                 }
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Remark))
                 {
                     Items = Items.Where(e => e.Remark.Contains(SearchCondition.Remark, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
-
+                
                 return await Items.ToListAsync().ConfigureAwait(false);
             }
-            return new List<MemberPrizePunish>();
+            return new List<MemberAppraise>();
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(MemberPrizePunish PEntity)
+        public async Task<int> AddAsync(MemberAppraise PEntity)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -76,7 +80,7 @@ namespace Office.Work.Platform.Api.DataService
             }
             PEntity.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
             PEntity.UpDateTime = DateTime.Now;
-            _GhDbContext.dsMemberPrizePunish.Add(PEntity);
+            _GhDbContext.dsMemberAppraise.Add(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
 
         }
@@ -86,11 +90,11 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(MemberPrizePunish PEntity)
+        public async Task<int> UpdateAsync(MemberAppraise PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
-            _GhDbContext.dsMemberPrizePunish.Update(PEntity);
+            _GhDbContext.dsMemberAppraise.Update(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -102,8 +106,8 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<int> DeleteAsync(string Id)
         {
             if (Id == null) { return 0; }
-            MemberPrizePunish tempPlan = _GhDbContext.dsMemberPrizePunish.Find(Id);
-            _GhDbContext.dsMemberPrizePunish.Remove(tempPlan);
+            MemberAppraise tempPlan = _GhDbContext.dsMemberAppraise.Find(Id);
+            _GhDbContext.dsMemberAppraise.Remove(tempPlan);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }

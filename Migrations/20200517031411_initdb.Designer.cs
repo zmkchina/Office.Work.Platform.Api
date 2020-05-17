@@ -9,7 +9,7 @@ using Office.Work.Platform.Api.DataService;
 namespace Office.Work.Platform.Api.Migrations
 {
     [DbContext(typeof(GHDbContext))]
-    [Migration("20200516132544_initdb")]
+    [Migration("20200517031411_initdb")]
     partial class initdb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,6 +84,9 @@ namespace Office.Work.Platform.Api.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Birthplace")
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("DegreeDays")
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("DegreeTop")
@@ -189,6 +192,40 @@ namespace Office.Work.Platform.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("dsMembers");
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberAppraise", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Remark")
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime>("UpDateTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Year")
+                        .IsRequired()
+                        .HasColumnType("varchar(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("dsMemberAppraise");
                 });
 
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberHoliday", b =>
@@ -416,6 +453,9 @@ namespace Office.Work.Platform.Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(20)");
 
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("int");
+
                     b.Property<string>("Relation")
                         .IsRequired()
                         .HasColumnType("varchar(50)");
@@ -637,6 +677,15 @@ namespace Office.Work.Platform.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("dsUsers");
+                });
+
+            modelBuilder.Entity("Office.Work.Platform.Lib.MemberAppraise", b =>
+                {
+                    b.HasOne("Office.Work.Platform.Lib.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Office.Work.Platform.Lib.MemberHoliday", b =>

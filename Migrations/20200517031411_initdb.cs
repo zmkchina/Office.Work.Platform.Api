@@ -122,6 +122,7 @@ namespace Office.Work.Platform.Api.Migrations
                     GraduationSchoolTop = table.Column<string>(type: "varchar(50)", nullable: true),
                     GraduationDateTop = table.Column<DateTime>(nullable: false),
                     MajorTop = table.Column<string>(type: "varchar(50)", nullable: true),
+                    DegreeDays = table.Column<string>(type: "varchar(20)", nullable: true),
                     DegreeTop = table.Column<string>(type: "varchar(20)", nullable: true),
                     TechnicalTitle = table.Column<string>(type: "varchar(20)", nullable: true),
                     EmployTitle = table.Column<string>(type: "varchar(20)", nullable: true),
@@ -220,6 +221,29 @@ namespace Office.Work.Platform.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "dsMemberAppraise",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    MemberId = table.Column<string>(type: "varchar(20)", nullable: false),
+                    Year = table.Column<string>(type: "varchar(10)", nullable: false),
+                    Result = table.Column<string>(type: "varchar(20)", nullable: false),
+                    UpDateTime = table.Column<DateTime>(nullable: false),
+                    UserId = table.Column<string>(type: "varchar(20)", nullable: false),
+                    Remark = table.Column<string>(type: "varchar(500)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_dsMemberAppraise", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_dsMemberAppraise_dsMembers_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "dsMembers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "dsMemberHoliday",
                 columns: table => new
                 {
@@ -281,6 +305,7 @@ namespace Office.Work.Platform.Api.Migrations
                     Relation = table.Column<string>(type: "varchar(50)", nullable: false),
                     UnitName = table.Column<string>(type: "varchar(50)", nullable: true),
                     Role = table.Column<string>(type: "varchar(50)", nullable: true),
+                    OrderIndex = table.Column<int>(nullable: false),
                     UpDateTime = table.Column<DateTime>(nullable: false),
                     UserId = table.Column<string>(type: "varchar(20)", nullable: false),
                     Remark = table.Column<string>(type: "varchar(500)", nullable: true)
@@ -321,6 +346,11 @@ namespace Office.Work.Platform.Api.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_dsMemberAppraise_MemberId",
+                table: "dsMemberAppraise",
+                column: "MemberId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_dsMemberHoliday_MemberId",
                 table: "dsMemberHoliday",
                 column: "MemberId");
@@ -345,6 +375,9 @@ namespace Office.Work.Platform.Api.Migrations
         {
             migrationBuilder.DropTable(
                 name: "dsFileDocs");
+
+            migrationBuilder.DropTable(
+                name: "dsMemberAppraise");
 
             migrationBuilder.DropTable(
                 name: "dsMemberHoliday");
