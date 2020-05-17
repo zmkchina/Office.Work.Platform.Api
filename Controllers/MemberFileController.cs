@@ -14,13 +14,13 @@ namespace Office.Work.Platform.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class FileDocController : ControllerBase
+    public class MemberFileController : ControllerBase
     {
-        private readonly FileDocRepository _FileRepository;
+        private readonly MemberFileRepository _FileRepository;
         private readonly IConfiguration _configuration;
-        public FileDocController(IConfiguration configuration, GHDbContext ghDbContext)
+        public MemberFileController(IConfiguration configuration, GHDbContext ghDbContext)
         {
-            _FileRepository = new FileDocRepository(ghDbContext);
+            _FileRepository = new MemberFileRepository(ghDbContext);
             _configuration = configuration;
         }
 
@@ -29,7 +29,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<FileDoc>> GetAsync()
+        public async Task<IEnumerable<MemberFile>> GetAsync()
         {
             return await _FileRepository.GetAllAsync().ConfigureAwait(false);
         }
@@ -41,7 +41,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<FileDoc> GetAsync(string Id)
+        public async Task<MemberFile> GetAsync(string Id)
         {
             return await _FileRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -52,7 +52,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchFile"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<FileDoc>> GetPlanFilesAsync([FromQuery]FileDocSearch mSearchFile)
+        public async Task<IEnumerable<MemberFile>> GetPlanFilesAsync([FromQuery]MemberFileSearch mSearchFile)
         {
             return await _FileRepository.GetEntitiesAsync(mSearchFile).ConfigureAwait(false);
         }
@@ -63,7 +63,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]FileDoc PEntity)
+        public async Task<string> PutAsync([FromBody]MemberFile PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _FileRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
@@ -84,7 +84,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost("UpLoadFile")]
         [DisableRequestSizeLimit]
-        public async Task<string> PostUpLoadFileAsync([FromForm]FileDoc PFile)
+        public async Task<string> PostUpLoadFileAsync([FromForm]MemberFile PFile)
         {
             ExcuteResult actResult = new ExcuteResult();
 
@@ -93,7 +93,7 @@ namespace Office.Work.Platform.Api.Controllers
                 try
                 {
                     string FileId = AppCodes.AppStaticClass.GetIdOfDateTime();
-                    string FilePath = Path.Combine(_configuration["StaticFileDir"], "WorkFiles");
+                    string FilePath = Path.Combine(_configuration["StaticFileDir"], "PlanFiles");
                     if (!System.IO.Directory.Exists(FilePath))
                     {
                         System.IO.Directory.CreateDirectory(FilePath);
@@ -139,11 +139,11 @@ namespace Office.Work.Platform.Api.Controllers
         [Route("DownLoadFile/{FileId}")]
         public async Task<ActionResult> GetDownLoadFileAsync(string FileId)
         {
-            FileDoc FileInfo = await _FileRepository.GetOneByIdAsync(FileId).ConfigureAwait(false);
+            MemberFile FileInfo = await _FileRepository.GetOneByIdAsync(FileId).ConfigureAwait(false);
             if (FileInfo != null)
             {
                 string FileName = $"{FileInfo.Name}({FileInfo.Id}){FileInfo.ExtendName}";
-                string fileFullName = Path.Combine(_configuration["StaticFileDir"], "WorkFiles", $"{FileInfo.Id}{FileInfo.ExtendName}");
+                string fileFullName = Path.Combine(_configuration["StaticFileDir"], "PlanFiles", $"{FileInfo.Id}{FileInfo.ExtendName}");
                 if (System.IO.File.Exists(fileFullName))
                 {
                     return PhysicalFile(fileFullName, "application/octet-stream", FileName);
@@ -186,7 +186,7 @@ namespace Office.Work.Platform.Api.Controllers
         public async Task<string> Delete(string FileId)
         {
             ExcuteResult actResult = new ExcuteResult();
-            string FileBaseDir = Path.Combine(_configuration["StaticFileDir"], "WorkFiles");
+            string FileBaseDir = Path.Combine(_configuration["StaticFileDir"], "PlanFiles");
             if (await _FileRepository.DeleteByIdAsync(FileBaseDir,FileId).ConfigureAwait(false) > 0)
             {
                 actResult.SetValues(0, "删除成功!");

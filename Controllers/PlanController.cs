@@ -17,13 +17,13 @@ namespace Office.Work.Platform.Api.Controllers
     public class PlanController : ControllerBase
     {
         private readonly PlanRepository _PlanRepository;
-        private readonly FileDocRepository _FileRepository;
+        private readonly PlanFileRepository _FileRepository;
         private readonly IConfiguration _configuration;
 
         public PlanController(IConfiguration configuration, GHDbContext ghDbContext)
         {
             _PlanRepository = new PlanRepository(ghDbContext);
-            _FileRepository = new FileDocRepository(ghDbContext);
+            _FileRepository = new PlanFileRepository(ghDbContext);
             _configuration = configuration;
         }
 

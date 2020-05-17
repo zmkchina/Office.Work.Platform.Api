@@ -16,7 +16,8 @@ namespace Office.Work.Platform.Api.DataService
         public DbSet<Note> dsNotes { get; set; }
 
         public DbSet<Plan> dsPlans { get; set; }
-        public DbSet<FileDoc> dsFileDocs { get; set; }
+        public DbSet<PlanFile> dsPlanFiles { get; set; }
+        public DbSet<MemberFile> dsMemberFiles { get; set; }
         public DbSet<Member> dsMembers { get; set; }
         public DbSet<MemberPay> dsMemberPay { get; set; }
         public DbSet<MemberPayItem> dsMemberPayItem { get; set; }

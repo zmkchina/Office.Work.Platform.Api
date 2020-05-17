@@ -8,10 +8,10 @@ using Office.Work.Platform.Lib;
 
 namespace Office.Work.Platform.Api.DataService
 {
-    public class FileDocRepository
+    public class MemberFileRepository
     {
         private readonly GHDbContext _GhDbContext;
-        public FileDocRepository(GHDbContext GhDbContext)
+        public MemberFileRepository(GHDbContext GhDbContext)
         {
             _GhDbContext = GhDbContext;
         }
@@ -19,26 +19,26 @@ namespace Office.Work.Platform.Api.DataService
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<FileDoc>> GetAllAsync()
+        public async Task<IEnumerable<MemberFile>> GetAllAsync()
         {
-            return await _GhDbContext.dsFileDocs.ToListAsync().ConfigureAwait(false);
+            return await _GhDbContext.dsMemberFiles.ToListAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 根据Id获取一个对象
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<FileDoc> GetOneByIdAsync(string Id)
+        public async Task<MemberFile> GetOneByIdAsync(string Id)
         {
-            return await _GhDbContext.dsFileDocs.FindAsync(Id).ConfigureAwait(false);
+            return await _GhDbContext.dsMemberFiles.FindAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 按指定的条件查询数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<FileDoc>> GetEntitiesAsync(FileDocSearch mSearchFile)
+        public async Task<IEnumerable<MemberFile>> GetEntitiesAsync(MemberFileSearch mSearchFile)
         {
-            IQueryable<FileDoc> Items = _GhDbContext.dsFileDocs as IQueryable<FileDoc>;
+            IQueryable<MemberFile> Items = _GhDbContext.dsMemberFiles as IQueryable<MemberFile>;
             //需要连同该文件的Plan信息一同读取，在操作文件时需使用之。
             if (mSearchFile != null && !string.IsNullOrWhiteSpace(mSearchFile.UserId))
             {
@@ -48,13 +48,9 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.Id.Equals(mSearchFile.Id, System.StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchFile.OwnerId))
+                if (!string.IsNullOrWhiteSpace(mSearchFile.MemberId))
                 {
-                    Items = Items.Where(e => e.OwnerId.Equals(mSearchFile.OwnerId, System.StringComparison.Ordinal));
-                }
-                if (!string.IsNullOrWhiteSpace(mSearchFile.OwnerType))
-                {
-                    Items = Items.Where(e => e.OwnerType.Equals(mSearchFile.OwnerType, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.MemberId.Equals(mSearchFile.MemberId, System.StringComparison.Ordinal));
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchFile.ContentType))
                 {
@@ -70,7 +66,7 @@ namespace Office.Work.Platform.Api.DataService
                 }
                 return await Items.ToListAsync().ConfigureAwait(false);
             }
-            return new List<FileDoc>();
+            return new List<MemberFile>();
         }
 
         /// <summary>
@@ -78,7 +74,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(FileDoc PEntity, string FileId)
+        public async Task<int> AddAsync(MemberFile PEntity, string FileId)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -86,7 +82,7 @@ namespace Office.Work.Platform.Api.DataService
             }
             PEntity.Id = FileId;
             PEntity.UpDateTime = DateTime.Now;
-            _GhDbContext.dsFileDocs.Add(PEntity);
+            _GhDbContext.dsMemberFiles.Add(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -95,11 +91,11 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(FileDoc PEntity)
+        public async Task<int> UpdateAsync(MemberFile PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
-            _GhDbContext.dsFileDocs.Update(PEntity);
+            _GhDbContext.dsMemberFiles.Update(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -112,8 +108,8 @@ namespace Office.Work.Platform.Api.DataService
         {
             int DelCount = 0;
             if (Id == null) { return 0; }
-            FileDoc CurFile = _GhDbContext.dsFileDocs.Find(Id);
-            _GhDbContext.dsFileDocs.Remove(CurFile);
+            MemberFile CurFile = _GhDbContext.dsMemberFiles.Find(Id);
+            _GhDbContext.dsMemberFiles.Remove(CurFile);
             DelCount = await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
             if (DelCount > 0)
             {
@@ -131,14 +127,14 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<int> DeleteByOwnerIdAsync(string FileBaseDir, string OwnerId)
+        public async Task<int> DeleteByOwnerIdAsync(string FileBaseDir, string MemberId)
         {
-            if (OwnerId == null) { return 0; }
+            if (MemberId == null) { return 0; }
             int DelCount = 0;
-            List<FileDoc> PlanFiles = await _GhDbContext.dsFileDocs.Where(x => x.OwnerId.Equals(OwnerId, StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
+            List<MemberFile> PlanFiles = await _GhDbContext.dsMemberFiles.Where(x => x.MemberId.Equals(MemberId, StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
             for (int i = 0; i < PlanFiles.Count; i++)
             {
-                _GhDbContext.dsFileDocs.Remove(PlanFiles[i]);
+                _GhDbContext.dsMemberFiles.Remove(PlanFiles[i]);
                 int DelFlag = await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
                 if (DelFlag > 0)
                 {
