@@ -16,15 +16,18 @@ namespace Office.Work.Platform.Api.Controllers
     [Route("Api/[controller]")]
     public class PlanController : ControllerBase
     {
+        private readonly string _FileBaseDir;
         private readonly PlanRepository _PlanRepository;
         private readonly PlanFileRepository _FileRepository;
-        private readonly IConfiguration _configuration;
 
         public PlanController(IConfiguration configuration, GHDbContext ghDbContext)
         {
             _PlanRepository = new PlanRepository(ghDbContext);
             _FileRepository = new PlanFileRepository(ghDbContext);
-            _configuration = configuration;
+            if (configuration != null)
+            {
+                _FileBaseDir = Path.Combine(configuration["StaticFileDir"], "PlanFiles");
+            }
         }
 
         [HttpGet]
@@ -97,8 +100,7 @@ namespace Office.Work.Platform.Api.Controllers
             ExcuteResult actResult = new ExcuteResult();
             if (await _PlanRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
             {
-                string FileBaseDir = Path.Combine(_configuration["StaticFileDir"], "WorkFiles");
-                await _FileRepository.DeleteByOwnerIdAsync(FileBaseDir, Id).ConfigureAwait(false);
+                await _FileRepository.DeleteByOwnerIdAsync(_FileBaseDir, Id).ConfigureAwait(false);
                 actResult.SetValues(0, "删除成功");
             }
             else

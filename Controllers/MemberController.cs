@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.Controllers
@@ -15,13 +17,18 @@ namespace Office.Work.Platform.Api.Controllers
     [Route("Api/[controller]")]
     public class MemberController : ControllerBase
     {
+        private readonly string _FileBaseDir;
+        private readonly MemberFileRepository _FileRepository;
         private readonly MemberRepository _MemberRepository;
-
-        public MemberController(GHDbContext ghDbContext)
+        public MemberController(IConfiguration configuration, GHDbContext ghDbContext)
         {
             _MemberRepository = new MemberRepository(ghDbContext);
+            _FileRepository = new MemberFileRepository(ghDbContext);
+            if (configuration != null)
+            {
+                _FileBaseDir = Path.Combine(configuration["StaticFileDir"], "MemberFiles");
+            }
         }
-
         [HttpGet]
         public async Task<IEnumerable<Member>> GetAsync()
         {
@@ -96,6 +103,7 @@ namespace Office.Work.Platform.Api.Controllers
             ExcuteResult actResult = new ExcuteResult();
             if (await _MemberRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
             {
+                await _FileRepository.DeleteByOwnerIdAsync(_FileBaseDir, Id).ConfigureAwait(false);
                 actResult.SetValues(0, "删除成功");
             }
             else

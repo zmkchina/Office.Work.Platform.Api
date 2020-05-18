@@ -16,12 +16,15 @@ namespace Office.Work.Platform.Api.Controllers
     [Route("Api/[controller]")]
     public class PlanFileController : ControllerBase
     {
+        private readonly string _FileBaseDir;
         private readonly PlanFileRepository _FileRepository;
-        private readonly IConfiguration _configuration;
         public PlanFileController(IConfiguration configuration, GHDbContext ghDbContext)
         {
             _FileRepository = new PlanFileRepository(ghDbContext);
-            _configuration = configuration;
+            if (configuration != null)
+            {
+                _FileBaseDir = Path.Combine(configuration["StaticFileDir"], "PlanFiles");
+            }
         }
 
         /// <summary>
@@ -93,12 +96,11 @@ namespace Office.Work.Platform.Api.Controllers
                 try
                 {
                     string FileId = AppCodes.AppStaticClass.GetIdOfDateTime();
-                    string FilePath = Path.Combine(_configuration["StaticFileDir"], "PlanFiles");
-                    if (!System.IO.Directory.Exists(FilePath))
+                    if (!System.IO.Directory.Exists(_FileBaseDir))
                     {
-                        System.IO.Directory.CreateDirectory(FilePath);
+                        System.IO.Directory.CreateDirectory(_FileBaseDir);
                     }
-                    string FileName = Path.Combine(FilePath, $"{FileId}{PFile.ExtendName}");// _configuration["StaticFileDir"] + $"\\WorkFiles\\{pfile.Id}{pfile.ExtendName}";
+                    string FileName = Path.Combine(_FileBaseDir, $"{FileId}{PFile.ExtendName}");// _configuration["StaticFileDir"] + $"\\WorkFiles\\{pfile.Id}{pfile.ExtendName}";
                     using (FileStream fs = System.IO.File.Create(FileName))
                     {
                         await Request.Form.Files[0].CopyToAsync(fs).ConfigureAwait(false);
@@ -143,7 +145,7 @@ namespace Office.Work.Platform.Api.Controllers
             if (FileInfo != null)
             {
                 string FileName = $"{FileInfo.Name}({FileInfo.Id}){FileInfo.ExtendName}";
-                string fileFullName = Path.Combine(_configuration["StaticFileDir"], "PlanFiles", $"{FileInfo.Id}{FileInfo.ExtendName}");
+                string fileFullName = Path.Combine(_FileBaseDir, $"{FileInfo.Id}{FileInfo.ExtendName}");
                 if (System.IO.File.Exists(fileFullName))
                 {
                     return PhysicalFile(fileFullName, "application/octet-stream", FileName);
@@ -161,8 +163,7 @@ namespace Office.Work.Platform.Api.Controllers
         public async Task<string> Delete(string FileId)
         {
             ExcuteResult actResult = new ExcuteResult();
-            string FileBaseDir = Path.Combine(_configuration["StaticFileDir"], "PlanFiles");
-            if (await _FileRepository.DeleteByIdAsync(FileBaseDir,FileId).ConfigureAwait(false) > 0)
+            if (await _FileRepository.DeleteByIdAsync(_FileBaseDir, FileId).ConfigureAwait(false) > 0)
             {
                 actResult.SetValues(0, "删除成功!");
             }

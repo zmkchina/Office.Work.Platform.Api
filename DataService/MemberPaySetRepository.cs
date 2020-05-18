@@ -29,15 +29,11 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<MemberPaySet> GetOneByIdAsync(string MemberId)
+        public async Task<MemberPaySet> GetOneByIdAsync(string P_Id)
         {
-            return await _GhDbContext.dsMemberPaySet.FindAsync(MemberId).ConfigureAwait(false);
+            return await _GhDbContext.dsMemberPaySet.FindAsync(P_Id).ConfigureAwait(false);
         }
-        private MemberPaySet GetPaySet(MemberPaySet x, Member y)
-        {
-            x.MemberName = y.Name;//拷贝名称
-            return x;
-        }
+       
         /// <summary>
         /// 根据条件查询计划,返回查询的实体列表
         /// </summary>
@@ -47,6 +43,7 @@ namespace Office.Work.Platform.Api.DataService
         {
             IQueryable<MemberPaySet> Items = _GhDbContext.dsMemberPaySet.Join(_GhDbContext.dsMembers, x => x.MemberId, k => k.Id, (x, k) => new MemberPaySet
             {
+                Id=x.Id,
                 PayUnitName = x.PayUnitName,
                 MemberId = x.MemberId,
                 MemberName = k.Name,
@@ -87,11 +84,11 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     if (await _GhDbContext.dsMemberPaySet.AnyAsync(x => x.MemberId == item.MemberId).ConfigureAwait(false))
                     {
+                        item.UpDateTime = DateTime.Now;
                         _GhDbContext.dsMemberPaySet.Update(item);
                     }
                     else
                     {
-                        item.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
                         item.UpDateTime = DateTime.Now;
                         _GhDbContext.dsMemberPaySet.Add(item);
                     }
@@ -114,7 +111,6 @@ namespace Office.Work.Platform.Api.DataService
             {
                 return -2;
             }
-            PEntity.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
             PEntity.UpDateTime = DateTime.Now;
             _GhDbContext.dsMemberPaySet.Add(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
@@ -140,9 +136,9 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<int> DeleteAsync(string MemberId)
+        public async Task<int> DeleteAsync(string Id)
         {
-            MemberPaySet tempPlan = _GhDbContext.dsMemberPaySet.Find(MemberId);
+            MemberPaySet tempPlan = _GhDbContext.dsMemberPaySet.Find(Id);
             _GhDbContext.dsMemberPaySet.Remove(tempPlan);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
