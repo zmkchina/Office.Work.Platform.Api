@@ -61,7 +61,7 @@ namespace Office.Work.Platform.Api.DataService
                     Items = Items.Where(e => e.Caption.Contains(mSearchPlan.KeysInMultiple, StringComparison.Ordinal) || e.Content.Contains(mSearchPlan.KeysInMultiple, StringComparison.Ordinal));
                 }
             }
-            return await Items.ToListAsync().ConfigureAwait(false);
+            return await Items.OrderByDescending(x=>x.EndDate).ToListAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2。

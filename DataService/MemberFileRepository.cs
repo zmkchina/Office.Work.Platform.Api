@@ -48,6 +48,10 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.Id.Equals(mSearchFile.Id, System.StringComparison.Ordinal));
                 }
+                if (!string.IsNullOrWhiteSpace(mSearchFile.Name))
+                {
+                    Items = Items.Where(e => e.Name.Equals(mSearchFile.Name, System.StringComparison.Ordinal));
+                }
                 if (!string.IsNullOrWhiteSpace(mSearchFile.MemberId))
                 {
                     Items = Items.Where(e => e.MemberId.Equals(mSearchFile.MemberId, System.StringComparison.Ordinal));
@@ -59,6 +63,10 @@ namespace Office.Work.Platform.Api.DataService
                 if (!string.IsNullOrWhiteSpace(mSearchFile.DispatchUnit))
                 {
                     Items = Items.Where(e => e.DispatchUnit.Contains(mSearchFile.DispatchUnit, System.StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchFile.FileNumber))
+                {
+                    Items = Items.Where(e => e.FileNumber.Contains(mSearchFile.FileNumber, System.StringComparison.Ordinal));
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchFile.SearchNameOrDesc))
                 {

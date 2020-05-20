@@ -53,6 +53,14 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.PlanId.Equals(mSearchFile.PlanId, System.StringComparison.Ordinal));
                 }
+                if (!string.IsNullOrWhiteSpace(mSearchFile.Name))
+                {
+                    Items = Items.Where(e => e.Name.Equals(mSearchFile.Name, System.StringComparison.Ordinal));
+                }
+                if (!string.IsNullOrWhiteSpace(mSearchFile.FileNumber))
+                {
+                    Items = Items.Where(e => e.FileNumber.Equals(mSearchFile.FileNumber, System.StringComparison.Ordinal));
+                }
                 if (!string.IsNullOrWhiteSpace(mSearchFile.ContentType))
                 {
                     Items = Items.Where(e => e.ContentType.Equals(mSearchFile.ContentType, System.StringComparison.Ordinal));
@@ -63,9 +71,9 @@ namespace Office.Work.Platform.Api.DataService
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchFile.SearchNameOrDesc))
                 {
-                    Items = Items.Where(e => e.Name.Contains(mSearchFile.SearchNameOrDesc, System.StringComparison.Ordinal) || e.Describe.Contains(mSearchFile.SearchNameOrDesc, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.Name.Contains(mSearchFile.SearchNameOrDesc, System.StringComparison.Ordinal) || e.FileNumber.Contains(mSearchFile.SearchNameOrDesc, System.StringComparison.Ordinal) || e.Describe.Contains(mSearchFile.SearchNameOrDesc, System.StringComparison.Ordinal));
                 }
-                return await Items.ToListAsync().ConfigureAwait(false);
+                return await Items.OrderByDescending(x=>x.UpDateTime).ToListAsync().ConfigureAwait(false);
             }
             return new List<PlanFile>();
         }
