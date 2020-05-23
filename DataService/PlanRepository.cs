@@ -29,39 +29,42 @@ namespace Office.Work.Platform.Api.DataService
         /// <summary>
         /// 根据条件查询计划,返回查询的实体列表
         /// </summary>
-        /// <param name="mSearchPlan">计划查询类对象</param>
+        /// <param name="SearchCondition">计划查询类对象</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Plan>> GetEntitiesAsync(PlanSearch mSearchPlan)
+        public async Task<PlanSearchResult> GetEntitiesAsync(PlanSearch SearchCondition)
         {
+            PlanSearchResult SearchResult = new PlanSearchResult();
             IQueryable<Plan> Items = _GhDbContext.dsPlans as IQueryable<Plan>;
-            if (mSearchPlan != null)
+            if (SearchCondition != null)
             {
-                if (!string.IsNullOrWhiteSpace(mSearchPlan.CreateUserId))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.CreateUserId))
                 {
-                    Items = Items.Where(e => e.CreateUserId.Equals(mSearchPlan.CreateUserId, StringComparison.Ordinal));
+                    Items = Items.Where(e => e.CreateUserId.Equals(SearchCondition.CreateUserId, StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchPlan.UnitName))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.UnitName))
                 {
-                    Items = Items.Where(e => e.UnitName.Equals(mSearchPlan.UnitName, StringComparison.Ordinal));
+                    Items = Items.Where(e => e.UnitName.Equals(SearchCondition.UnitName, StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchPlan.ResponsiblePerson))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.ResponsiblePerson))
                 {
-                    Items = Items.Where(e => e.ResponsiblePerson.Equals(mSearchPlan.ResponsiblePerson, StringComparison.Ordinal));
+                    Items = Items.Where(e => e.ResponsiblePerson.Equals(SearchCondition.ResponsiblePerson, StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchPlan.CurrectState))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.CurrectState))
                 {
-                    Items = Items.Where(e => mSearchPlan.CurrectState.Contains(e.CurrectState, StringComparison.Ordinal));
+                    Items = Items.Where(e => SearchCondition.CurrectState.Contains(e.CurrectState, StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchPlan.Helpers))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.Helpers))
                 {
-                    Items = Items.Where(e => e.Helpers.Contains(mSearchPlan.Helpers, StringComparison.Ordinal));
+                    Items = Items.Where(e => e.Helpers.Contains(SearchCondition.Helpers, StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchPlan.KeysInMultiple))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.KeysInMultiple))
                 {
-                    Items = Items.Where(e => e.Caption.Contains(mSearchPlan.KeysInMultiple, StringComparison.Ordinal) || e.Content.Contains(mSearchPlan.KeysInMultiple, StringComparison.Ordinal));
+                    Items = Items.Where(e => e.Caption.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal) || e.Content.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal));
                 }
+                SearchResult.SearchCondition.RecordCount = await Items.CountAsync().ConfigureAwait(false);
+                SearchResult.RecordList = await Items.OrderByDescending(x => x.UpDateTime).Skip((SearchCondition.PageIndex - 1) * SearchCondition.PageSize).Take(SearchCondition.PageSize).ToListAsync().ConfigureAwait(false);
             }
-            return await Items.OrderByDescending(x=>x.EndDate).ToListAsync().ConfigureAwait(false);
+            return SearchResult;
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2。

@@ -55,7 +55,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchFile"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<PlanFile>> GetFilesAsync([FromQuery]PlanFileSearch mSearchFile)
+        public async Task<PlanFileSearchResult> GetFilesAsync([FromQuery]PlanFileSearch mSearchFile)
         {
             return await _FileRepository.GetEntitiesAsync(mSearchFile).ConfigureAwait(false);
         }

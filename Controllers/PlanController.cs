@@ -49,7 +49,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<Plan>> GetAsync([FromQuery]PlanSearch mSearchPlan)
+        public async Task<PlanSearchResult> GetAsync([FromQuery]PlanSearch mSearchPlan)
         {
             return await _PlanRepository.GetEntitiesAsync(mSearchPlan).ConfigureAwait(false);
         }

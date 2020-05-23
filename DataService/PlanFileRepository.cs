@@ -36,46 +36,49 @@ namespace Office.Work.Platform.Api.DataService
         /// 按指定的条件查询数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<PlanFile>> GetEntitiesAsync(PlanFileSearch mSearchFile)
+        public async Task<PlanFileSearchResult> GetEntitiesAsync(PlanFileSearch SearchCondition)
         {
+            PlanFileSearchResult SearchResult = new PlanFileSearchResult();
             IQueryable<PlanFile> Items = _GhDbContext.dsPlanFiles as IQueryable<PlanFile>;
             //需要连同该文件的Plan信息一同读取，在操作文件时需使用之。
-            if (mSearchFile != null &&  !string.IsNullOrWhiteSpace(mSearchFile.UserId))
+            if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 //判断请求用户是否有权限(必须对该文件所属计划有读取权限)
-                Items = Items.Where(e => e.CanReadUserIds == null || e.UserId.Equals(mSearchFile.UserId, System.StringComparison.Ordinal) || e.CanReadUserIds.Contains(mSearchFile.UserId, System.StringComparison.Ordinal));
+                Items = Items.Where(e => e.CanReadUserIds == null || e.UserId.Equals(SearchCondition.UserId, System.StringComparison.Ordinal) || e.CanReadUserIds.Contains(SearchCondition.UserId, System.StringComparison.Ordinal));
 
-                if (!string.IsNullOrWhiteSpace(mSearchFile.Id))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
                 {
-                    Items = Items.Where(e => e.Id.Equals(mSearchFile.Id, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.Id.Equals(SearchCondition.Id, System.StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchFile.PlanId))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.PlanId))
                 {
-                    Items = Items.Where(e => e.PlanId.Equals(mSearchFile.PlanId, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.PlanId.Equals(SearchCondition.PlanId, System.StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchFile.Name))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.Name))
                 {
-                    Items = Items.Where(e => e.Name.Equals(mSearchFile.Name, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.Name.Equals(SearchCondition.Name, System.StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchFile.FileNumber))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.FileNumber))
                 {
-                    Items = Items.Where(e => e.FileNumber.Equals(mSearchFile.FileNumber, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.FileNumber.Equals(SearchCondition.FileNumber, System.StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchFile.ContentType))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.ContentType))
                 {
-                    Items = Items.Where(e => e.ContentType.Equals(mSearchFile.ContentType, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.ContentType.Equals(SearchCondition.ContentType, System.StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchFile.DispatchUnit))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.DispatchUnit))
                 {
-                    Items = Items.Where(e => e.DispatchUnit.Contains(mSearchFile.DispatchUnit, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.DispatchUnit.Contains(SearchCondition.DispatchUnit, System.StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(mSearchFile.SearchNameOrDesc))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.SearchNameOrDesc))
                 {
-                    Items = Items.Where(e => e.Name.Contains(mSearchFile.SearchNameOrDesc, System.StringComparison.Ordinal) || e.FileNumber.Contains(mSearchFile.SearchNameOrDesc, System.StringComparison.Ordinal) || e.Describe.Contains(mSearchFile.SearchNameOrDesc, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.Name.Contains(SearchCondition.SearchNameOrDesc, System.StringComparison.Ordinal) || e.FileNumber.Contains(SearchCondition.SearchNameOrDesc, System.StringComparison.Ordinal) || e.Describe.Contains(SearchCondition.SearchNameOrDesc, System.StringComparison.Ordinal));
                 }
-                return await Items.OrderByDescending(x=>x.UpDateTime).ToListAsync().ConfigureAwait(false);
+
+                SearchResult.SearchCondition.RecordCount = await Items.CountAsync().ConfigureAwait(false);
+                SearchResult.RecordList = await Items.OrderByDescending(x => x.UpDateTime).Skip((SearchCondition.PageIndex - 1) * SearchCondition.PageSize).Take(SearchCondition.PageSize).ToListAsync().ConfigureAwait(false);
             }
-            return new List<PlanFile>();
+            return SearchResult;
         }
 
         /// <summary>

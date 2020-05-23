@@ -25,7 +25,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<Lib.Note>> GetRecordsAsync([FromQuery]NoteSearch SearchCondition)
+        public async Task<NoteSearchResult> GetRecordsAsync([FromQuery]NoteSearch SearchCondition)
         {
             return await _DataRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }

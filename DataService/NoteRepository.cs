@@ -39,8 +39,9 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Note>> GetEntitiesAsync(NoteSearch SearchCondition)
+        public async Task<NoteSearchResult> GetEntitiesAsync(NoteSearch SearchCondition)
         {
+            NoteSearchResult SearchResult = new NoteSearchResult();
             IQueryable<Note> Items = _GhDbContext.dsNotes as IQueryable<Note>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
@@ -60,10 +61,10 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.Caption.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal) || e.TextContent.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
-
-                return await Items.ToListAsync().ConfigureAwait(false);
+                SearchResult.SearchCondition.RecordCount = await Items.CountAsync().ConfigureAwait(false);
+                SearchResult.RecordList = await Items.OrderByDescending(x => x.UpDateTime).Skip((SearchCondition.PageIndex - 1) * SearchCondition.PageSize).Take(SearchCondition.PageSize).ToListAsync().ConfigureAwait(false);
             }
-            return new List<Note>();
+            return SearchResult;
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2
