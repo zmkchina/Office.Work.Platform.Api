@@ -34,7 +34,7 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<PlanSearchResult> GetEntitiesAsync(PlanSearch SearchCondition)
         {
             PlanSearchResult SearchResult = new PlanSearchResult();
-            IQueryable<Plan> Items = _GhDbContext.dsPlans as IQueryable<Plan>;
+            IQueryable<Plan> Items = _GhDbContext.dsPlans.AsNoTracking() as IQueryable<Plan>;
             if (SearchCondition != null)
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.CreateUserId))

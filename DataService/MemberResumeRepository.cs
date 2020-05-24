@@ -39,7 +39,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<MemberResume>> GetEntitiesAsync(MemberResumeSearch SearchCondition)
         {
-            IQueryable<MemberResume> Items = _GhDbContext.dsMemberResume as IQueryable<MemberResume>;
+            IQueryable<MemberResume> Items = _GhDbContext.dsMemberResume.AsNoTracking() as IQueryable<MemberResume>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))

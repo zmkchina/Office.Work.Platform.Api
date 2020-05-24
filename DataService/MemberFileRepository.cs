@@ -38,7 +38,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<MemberFile>> GetEntitiesAsync(MemberFileSearch mSearchFile)
         {
-            IQueryable<MemberFile> Items = _GhDbContext.dsMemberFiles as IQueryable<MemberFile>;
+            IQueryable<MemberFile> Items = _GhDbContext.dsMemberFiles.AsNoTracking() as IQueryable<MemberFile>;
             //需要连同该文件的Plan信息一同读取，在操作文件时需使用之。
             if (mSearchFile != null && !string.IsNullOrWhiteSpace(mSearchFile.UserId))
             {

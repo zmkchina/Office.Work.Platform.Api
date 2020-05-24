@@ -39,7 +39,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<MemberPrizePunish>> GetEntitiesAsync(MemberPrizePunishSearch SearchCondition)
         {
-            IQueryable<MemberPrizePunish> Items = _GhDbContext.dsMemberPrizePunish as IQueryable<MemberPrizePunish>;
+            IQueryable<MemberPrizePunish> Items = _GhDbContext.dsMemberPrizePunish.AsNoTracking() as IQueryable<MemberPrizePunish>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))

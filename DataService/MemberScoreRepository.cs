@@ -10,10 +10,10 @@ namespace Office.Work.Platform.Api.DataService
     /// <summary>
     /// 用户备忘信息查询类
     /// </summary>
-    public class NoteRepository
+    public class MemberScoreRepository
     {
         private readonly GHDbContext _GhDbContext;
-        public NoteRepository(GHDbContext ghDbContext)
+        public MemberScoreRepository(GHDbContext ghDbContext)
         {
             _GhDbContext = ghDbContext;
         }
@@ -21,57 +21,65 @@ namespace Office.Work.Platform.Api.DataService
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Note>> GetAllAsync()
+        public async Task<IEnumerable<MemberScore>> GetAllAsync()
         {
-            return await _GhDbContext.dsNotes.ToListAsync().ConfigureAwait(false);
+            return await _GhDbContext.dsMemberScores.ToListAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 根据Id查询用户信息
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<Note> GetOneByIdAsync(string Id)
+        public async Task<MemberScore> GetOneByIdAsync(string Id)
         {
-            return await _GhDbContext.dsNotes.FindAsync(Id).ConfigureAwait(false);
+            return await _GhDbContext.dsMemberScores.FindAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 根据条件查询计划,返回查询的实体列表
         /// </summary>
         /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<NoteSearchResult> GetEntitiesAsync(NoteSearch SearchCondition)
+        public async Task<List<MemberScore>> GetEntitiesAsync(MemberScoreSearch SearchCondition)
         {
-            NoteSearchResult SearchResult = new NoteSearchResult();
-            IQueryable<Note> Items = _GhDbContext.dsNotes.AsNoTracking() as IQueryable<Note>;
+            List<MemberScore> RecordList = new List<MemberScore>();
+            IQueryable<MemberScore> Items = _GhDbContext.dsMemberScores.AsNoTracking() as IQueryable<MemberScore>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
                 {
                     Items = Items.Where(e => e.Id.Equals(SearchCondition.Id, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
-                if (SearchCondition.IsMySelft.Equals("Yes", StringComparison.Ordinal))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.MemberId))
                 {
-                    Items = Items.Where(e => e.UserId.Equals(SearchCondition.UserId, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => e.MemberId.Equals(SearchCondition.MemberId, StringComparison.Ordinal));
                 }
-                else
+                if (!string.IsNullOrWhiteSpace(SearchCondition.ScoreType))
                 {
-                    Items = Items.Where(e => e.CanReadUserIds.Contains(SearchCondition.UserId, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => e.ScoreType.Equals(SearchCondition.ScoreType, StringComparison.Ordinal));
                 }
-                if (!string.IsNullOrWhiteSpace(SearchCondition.KeysInMultiple))
+                if (!string.IsNullOrWhiteSpace(SearchCondition.ScoreUnitName))
                 {
-                    Items = Items.Where(e => e.Caption.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal) || e.TextContent.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => e.ScoreUnitName.Equals(SearchCondition.ScoreUnitName, StringComparison.Ordinal));
                 }
-                SearchResult.SearchCondition.RecordCount = await Items.CountAsync().ConfigureAwait(false);
-                SearchResult.RecordList = await Items.OrderByDescending(x => x.UpDateTime).Skip((SearchCondition.PageIndex - 1) * SearchCondition.PageSize).Take(SearchCondition.PageSize).ToListAsync().ConfigureAwait(false);
+               
+                if (SearchCondition.OccurYear!=0)
+                {
+                    Items = Items.Where(e => e.OccurDate.Year.Equals(SearchCondition.OccurYear));
+                }
+                if (SearchCondition.OccurMonth != 0)
+                {
+                    Items = Items.Where(e => e.OccurDate.Month.Equals(SearchCondition.OccurMonth));
+                }
+                RecordList = await Items.OrderByDescending(x => x.UpDateTime).ToListAsync().ConfigureAwait(false);
             }
-            return SearchResult;
+            return RecordList;
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(Note PEntity)
+        public async Task<int> AddAsync(MemberScore PEntity)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -79,7 +87,7 @@ namespace Office.Work.Platform.Api.DataService
             }
             PEntity.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
             PEntity.UpDateTime = DateTime.Now;
-            _GhDbContext.dsNotes.Add(PEntity);
+            _GhDbContext.dsMemberScores.Add(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
 
         }
@@ -90,11 +98,11 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(Note PEntity)
+        public async Task<int> UpdateAsync(MemberScore PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
-            _GhDbContext.dsNotes.Update(PEntity);
+            _GhDbContext.dsMemberScores.Update(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -106,8 +114,8 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<int> DeleteAsync(string Id)
         {
             if (Id == null) { return 0; }
-            Note tempPlan = _GhDbContext.dsNotes.Find(Id);
-            _GhDbContext.dsNotes.Remove(tempPlan);
+            MemberScore tempRecord = _GhDbContext.dsMemberScores.Find(Id);
+            _GhDbContext.dsMemberScores.Remove(tempRecord);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }

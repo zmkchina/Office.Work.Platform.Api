@@ -53,7 +53,7 @@ namespace Office.Work.Platform.Api.DataService
                 PayItemNames = x.PayItemNames,
                 UserId = x.UserId,
                 UpDateTime = x.UpDateTime
-            }) as IQueryable<MemberPaySet>;
+            }).AsNoTracking() as IQueryable<MemberPaySet>;
 
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {

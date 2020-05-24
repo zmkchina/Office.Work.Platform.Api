@@ -39,7 +39,7 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<MemberPayItem>> GetEntitiesAsync(MemberPayItemSearch SearchCondition)
         {
-            IQueryable<MemberPayItem> Items = _GhDbContext.dsMemberPayItem as IQueryable<MemberPayItem>;
+            IQueryable<MemberPayItem> Items = _GhDbContext.dsMemberPayItem.AsNoTracking() as IQueryable<MemberPayItem>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Name))

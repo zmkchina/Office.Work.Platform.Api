@@ -31,15 +31,7 @@ namespace Office.Work.Platform.Api.Controllers
         {
             if (pwd != null && pwd.Equals("initdbdata", StringComparison.Ordinal))
             {
-                await _SettingsRepository.AddNew(new SettingServer()
-                {
-                    Id = 1,
-                    WorkContentType = "总支议事,党的建设,党风廉政,意识形态,组织人事,劳动工资,制度建设,绩效考核,其他类别",
-                    Deparmentts = "政工科,综合科,养护科等",
-                    IntervalOne = 20,
-                    IntervalTwo = 30
-
-                }).ConfigureAwait(false);
+                await _SettingsRepository.AddNew(new SettingServer()).ConfigureAwait(false);
                 List<User> SysUsers = new List<User>()
                 {
                     new User{Id="admin", PassWord="admin1155",Name="管理员", UnitName="市港航事业发展中心", UnitShortName="市港航中心",  OrderIndex=0, Department="工作平台",Post="管理员",Grants="AllGrants"},

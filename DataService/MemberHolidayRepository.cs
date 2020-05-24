@@ -39,12 +39,16 @@ namespace Office.Work.Platform.Api.DataService
         /// <returns></returns>
         public async Task<IEnumerable<MemberHoliday>> GetEntitiesAsync(MemberHolidaySearch SearchCondition)
         {
-            IQueryable<MemberHoliday> Items = _GhDbContext.dsMemberHoliday as IQueryable<MemberHoliday>;
+            IQueryable<MemberHoliday> Items = _GhDbContext.dsMemberHoliday.AsNoTracking() as IQueryable<MemberHoliday>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
                 {
                     Items = Items.Where(e => e.Id.Equals(SearchCondition.Id, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                }
+                if (SearchCondition.OccurYear!=0)
+                {
+                    Items = Items.Where(e => e.BeginDate.Year.Equals(SearchCondition.OccurYear));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
                 if (!string.IsNullOrWhiteSpace(SearchCondition.MemberId))
                 {

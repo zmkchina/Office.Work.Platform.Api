@@ -39,7 +39,7 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<PlanFileSearchResult> GetEntitiesAsync(PlanFileSearch SearchCondition)
         {
             PlanFileSearchResult SearchResult = new PlanFileSearchResult();
-            IQueryable<PlanFile> Items = _GhDbContext.dsPlanFiles as IQueryable<PlanFile>;
+            IQueryable<PlanFile> Items = _GhDbContext.dsPlanFiles.AsNoTracking() as IQueryable<PlanFile>;
             //需要连同该文件的Plan信息一同读取，在操作文件时需使用之。
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
@@ -72,7 +72,11 @@ namespace Office.Work.Platform.Api.DataService
                 }
                 if (!string.IsNullOrWhiteSpace(SearchCondition.SearchNameOrDesc))
                 {
-                    Items = Items.Where(e => e.Name.Contains(SearchCondition.SearchNameOrDesc, System.StringComparison.Ordinal) || e.FileNumber.Contains(SearchCondition.SearchNameOrDesc, System.StringComparison.Ordinal) || e.Describe.Contains(SearchCondition.SearchNameOrDesc, System.StringComparison.Ordinal));
+                    Items = Items.Where(e => e.Name.Contains(SearchCondition.SearchNameOrDesc, System.StringComparison.Ordinal) ||
+                    e.DispatchUnit.Contains(SearchCondition.SearchNameOrDesc, System.StringComparison.Ordinal) ||
+                    e.ContentType.Contains(SearchCondition.SearchNameOrDesc, System.StringComparison.Ordinal) ||
+                    e.FileNumber.Contains(SearchCondition.SearchNameOrDesc, System.StringComparison.Ordinal) ||
+                    e.Describe.Contains(SearchCondition.SearchNameOrDesc, System.StringComparison.Ordinal));
                 }
 
                 SearchResult.SearchCondition.RecordCount = await Items.CountAsync().ConfigureAwait(false);
