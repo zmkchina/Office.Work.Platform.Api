@@ -36,7 +36,6 @@ namespace Office.Work.Platform.Api.IdentityUser
                 }
                 else
                 {
-
                     context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "无效的用户名或密码");
                     return;
                 }

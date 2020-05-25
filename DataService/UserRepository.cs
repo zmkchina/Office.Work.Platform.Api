@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Office.Work.Platform.Lib;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Office.Work.Platform.Lib;
 
 namespace Office.Work.Platform.Api.DataService
 {

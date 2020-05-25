@@ -52,7 +52,7 @@ namespace Office.Work.Platform.Api
                 //认证服务地址(由于本项目APi资源与IS4服务器均在一起，故地址相同)
                 r.Authority = ProtectApiUrl;
                 //权限标识
-                r.Audience = "Apis";
+                r.Audience = "PlatformApis";
             });
 
             services.AddControllers().AddNewtonsoftJson(options =>
@@ -85,6 +85,8 @@ namespace Office.Work.Platform.Api
             //    FileProvider = new PhysicalFileProvider(Configuration["StaticFileDir"]),
             //    RequestPath = @"/GHStaticFiles"
             //});
+
+            //允许跨域请求
             app.UseCors("cors");
             app.UseRouting();
 

@@ -28,9 +28,11 @@ namespace Office.Work.Platform.Api.IdentityUser
         public static IEnumerable<ApiResource> GetApiResources()
         {
             return new ApiResource[] {
-                new ApiResource("Apis","My Apis")
+                   new ApiResource("PlatformApis","My Platform Apis")
+                // new ApiResource { Name = "PlatformApis", Scopes ={"PlatformApis"} }
             };
         }
+
         /// <summary>
         /// 定义将访问IS4 的客户端(Client)
         /// </summary>
@@ -46,7 +48,7 @@ namespace Office.Work.Platform.Api.IdentityUser
                         GrantType.ResourceOwnerPassword //密码模式
                     },
                     ClientSecrets={new Secret("Work_Platform_ClientPwd".Sha256())},
-                    AllowedScopes={ "Apis",
+                    AllowedScopes={ "PlatformApis",
                     IdentityServerConstants.StandardScopes.Profile,
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.OfflineAccess

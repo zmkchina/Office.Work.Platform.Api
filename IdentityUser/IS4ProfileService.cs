@@ -17,7 +17,6 @@ namespace Office.Work.Platform.Api.IdentityUser
             {
                     //depending on the scope accessing the user data.
                     var claims = context.Subject.Claims.ToList();
-
                     //set issued claims to return
                     context.IssuedClaims = claims.ToList();
             }).ConfigureAwait(false);

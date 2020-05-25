@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Office.Work.Platform.Lib;
 
 namespace Office.Work.Platform.Api.DataService
@@ -15,6 +14,7 @@ namespace Office.Work.Platform.Api.DataService
         {
             _GhDbContext = GhDbContext;
         }
+
         /// <summary>
         /// 返回所有数据
         /// </summary>
@@ -50,7 +50,7 @@ namespace Office.Work.Platform.Api.DataService
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchMember.Name))
                 {
-                    Items = Items.Where(e => e.Name.Contains(mSearchMember.Name, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
+                    Items = Items.Where(e => e.Name.Contains(mSearchMember.Name, StringComparison.Ordinal));
                 }
                 if (!string.IsNullOrWhiteSpace(mSearchMember.UnitName))
                 {
@@ -114,8 +114,6 @@ namespace Office.Work.Platform.Api.DataService
             _GhDbContext.dsMembers.Update(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
-
-
 
         // <summary>
         /// 根据Id删除一个实体信息

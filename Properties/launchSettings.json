@@ -1,15 +1,20 @@
-﻿{
-  "$schema": "http://json.schemastore.org/launchsettings.json",
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:58797/",
+      "sslPort": 44326
+    }
+  },
   "profiles": {
     "Office.Work.Platform.Api": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "Api/Index",
-      "applicationUrl": "http://localhost:9898",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "http://localhost:9898"
     }
   }
 }
-
