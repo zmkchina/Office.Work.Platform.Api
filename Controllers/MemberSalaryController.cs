@@ -11,23 +11,15 @@ namespace Office.Work.Platform.Api.Controllers
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class MemberPayController : ControllerBase
+    public class MemberSalaryController : ControllerBase
     {
-        private readonly MemberPayRepository _PayRepository;
+        private readonly MemberSalaryRepository _PayRepository;
 
-        public MemberPayController(GHDbContext ghDbContet)
+        public MemberSalaryController(GHDbContext ghDbContet)
         {
-            _PayRepository = new MemberPayRepository(ghDbContet);
+            _PayRepository = new MemberSalaryRepository(ghDbContet);
         }
-        /// <summary>
-        /// 返回所有记录
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public async Task<IEnumerable<MemberPay>> GetAsync()
-        {
-            return await _PayRepository.GetAllAsync().ConfigureAwait(false);
-        }
+       
         /// <summary>
         /// 查询指定编号的记录
         /// </summary>
@@ -35,7 +27,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<MemberPay> GetAsync(string Id)
+        public async Task<MemberSalary> GetAsync(string Id)
         {
             return await _PayRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -46,7 +38,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberPay>> GetAsync([FromQuery]MemberPaySearch SearchCondition)
+        public async Task<IEnumerable<MemberSalarySearchResult>> GetAsync([FromQuery] MemberSalarySearch SearchCondition)
         {
             return await _PayRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
@@ -58,7 +50,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromBody]MemberPay PEntity)
+        public async Task<string> PostAsync([FromBody]MemberSalary PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _PayRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
@@ -72,7 +64,7 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]MemberPay PEntity)
+        public async Task<string> PutAsync([FromBody]MemberSalary PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _PayRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)

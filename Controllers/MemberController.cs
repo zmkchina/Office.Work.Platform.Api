@@ -92,6 +92,28 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
+
+        /// <summary>
+        /// 新增或更新一个记录
+        /// </summary>
+        /// <param name="PEntity"></param>
+        /// <returns></returns>
+        [HttpPost("AddOrUpdate")]
+        public async Task<string> PostAddOrUpdateAsync([FromBody] Member PEntity)
+        {
+            ExcuteResult actResult = new ExcuteResult();
+
+            if (await _MemberRepository.AddOrUpdateAsync(PEntity).ConfigureAwait(false) > 0)
+            {
+                actResult.SetValues(0, "保存成功");
+            }
+            else
+            {
+                actResult.SetValues(1, "保存失败");
+            }
+            return JsonConvert.SerializeObject(actResult);
+        }
+
         /// <summary>
         /// 删除一条记录
         /// </summary>

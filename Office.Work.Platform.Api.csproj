@@ -6,6 +6,7 @@
     <Platforms>AnyCPU;x64</Platforms>
     <AssemblyName>Office.Work.Platform.Api</AssemblyName>
     <StartupObject>Office.Work.Platform.Api.Program</StartupObject>
+    <ApplicationIcon>App.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" properties_4launchsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>

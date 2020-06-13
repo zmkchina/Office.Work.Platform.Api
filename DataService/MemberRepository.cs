@@ -115,6 +115,29 @@ namespace Office.Work.Platform.Api.DataService
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// 新增或更新一个实体。
+        /// </summary>
+        /// <param name="P_Entity"></param>
+        /// <returns></returns>
+        public async Task<int> AddOrUpdateAsync(Member PEntity)
+        {
+            //此记录的Id为员工的身份证号码，必须输入
+            if (PEntity == null || PEntity.Id == null || PEntity.Name == null) { return 0; }
+            bool IsExist = await _GhDbContext.dsMembers.AnyAsync(e => e.Id == PEntity.Id).ConfigureAwait(false);
+            if (IsExist)
+            {
+                return await UpdateAsync(PEntity);
+            }
+            else
+            {
+                PEntity.UpDateTime = DateTime.Now;
+                _GhDbContext.dsMembers.Add(PEntity);
+            }
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+        }
+
         // <summary>
         /// 根据Id删除一个实体信息
         /// </summary>

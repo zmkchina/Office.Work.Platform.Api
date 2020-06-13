@@ -30,8 +30,11 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpGet("GetPayTableTypes")]
         public async Task<string[]> GetPayTableTypes()
         {
-            return await _GhDbContext.dsMemberPay.Select(x => x.InTableType).Distinct().ToArrayAsync().ConfigureAwait(false);
+            return await _GhDbContext.dsMemberSalary.Select(x => x.TableType).Distinct().ToArrayAsync().ConfigureAwait(false);
         }
+
+        /*
+
         /// <summary>
         /// 获取所有已生成的待遇表中人员的类型
         /// </summary>
@@ -40,7 +43,7 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpGet("GetPayTableMemberTypes")]
         public async Task<string[]> GetPayTableMemberTypes()
         {
-            return await _GhDbContext.dsMemberPay.Select(x => x.MemberType).Distinct().ToArrayAsync().ConfigureAwait(false);
+            return await _GhDbContext.dsMemberSalary.Select(x => x.MemberType).Distinct().ToArrayAsync().ConfigureAwait(false);
         }
         /// <summary>
         /// 获取正式人员月度工资表
@@ -195,6 +198,7 @@ namespace Office.Work.Platform.Api.Controllers
             int AddCount = await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
             return new ExcuteResult(0, $"待遇快速发放成功，共发放{AddCount}条记录");
         }
+        */
     }
 }
 
