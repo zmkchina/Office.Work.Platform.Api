@@ -61,8 +61,25 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.Caption.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal) || e.Content.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal));
                 }
+                
                 SearchResult.SearchCondition.RecordCount = await Items.CountAsync().ConfigureAwait(false);
                 SearchResult.RecordList = await Items.OrderByDescending(x => x.UpDateTime).Skip((SearchCondition.PageIndex - 1) * SearchCondition.PageSize).Take(SearchCondition.PageSize).ToListAsync().ConfigureAwait(false);
+                if (!string.IsNullOrWhiteSpace(SearchCondition.LongPlan))
+                {
+                    switch (SearchCondition.LongPlan)
+                    {
+                        case "no":
+                            SearchResult.RecordList= SearchResult.RecordList.Where(e => (e.EndDate - e.BeginDate).Days < 90).ToList();
+                            //Items = Items.Where(e => (e.EndDate - e.BeginDate).Days < 90);
+                            break;
+                        case "yes":
+                            SearchResult.RecordList = SearchResult.RecordList.Where(e => (e.EndDate - e.BeginDate).Days >= 90).ToList();
+                            //Items = Items.Where(e => (e.EndDate - e.BeginDate).Days >= 90);
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
             return SearchResult;
         }

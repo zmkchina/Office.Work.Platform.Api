@@ -77,6 +77,28 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
+
+        /// <summary>
+        /// 新增或更新一个记录
+        /// </summary>
+        /// <param name="PEntity"></param>
+        /// <returns></returns>
+        [HttpPost("AddOrUpdate")]
+        public async Task<string> PostAddOrUpdateAsync([FromBody] MemberSalary PEntity)
+        {
+            ExcuteResult actResult = new ExcuteResult();
+
+            if (await _PayRepository.AddOrUpdateAsync(PEntity).ConfigureAwait(false) > 0)
+            {
+                actResult.SetValues(p_state: 0, p_msg: "保存成功", p_tag: PEntity?.Id);
+            }
+            else
+            {
+                actResult.SetValues(1, "保存失败");
+            }
+            return JsonConvert.SerializeObject(actResult);
+        }
+
         [HttpDelete]
         public async Task<string> DeleteAsync(string Id)
         {

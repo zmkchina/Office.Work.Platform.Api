@@ -8,7 +8,7 @@ namespace Office.Work.Platform.Api.AppCodes
         private static int Index = 0;
         public static string GetIdOfDateTime()
         {
-            Index = Index > 9 ? 0 : Index++;
+            Index = Index > 8 ? 0 : ++Index;
             string TimeStr = DateTime.Now.ToString("yyyyMMddHHmmssfff", CultureInfo.GetCultureInfo("zh-CN").DateTimeFormat);
             return $"{TimeStr}{Index}";
         }

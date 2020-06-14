@@ -46,16 +46,32 @@ namespace Office.Work.Platform.Api.DataService
                 int SearchMonth = SearchCondition.PayMonth;
                 List<MemberSalary> SalaryList = await ReadSalarys(SearchCondition).ConfigureAwait(false);
 
-
-                //如果未查到指定月份的数据，则读取上一个月的数据数据
                 if (SalaryList == null || SalaryList.Count == 0)
                 {
-                    SearchCondition.PayYear = SearchCondition.PayMonth == 1 ? SearchCondition.PayYear - 1 : SearchCondition.PayYear;
-                    SearchCondition.PayMonth = SearchCondition.PayMonth > 1 ? SearchCondition.PayMonth - 1 : 12;
+                    //如果未查到指定月份的数据，且要求填充空数据，则尝试读取上一个月的数据数据
+                    if (SearchCondition.FillEmpty)
+                    {
+                        SearchCondition.PayYear = SearchCondition.PayMonth == 1 ? SearchCondition.PayYear - 1 : SearchCondition.PayYear;
+                        SearchCondition.PayMonth = SearchCondition.PayMonth > 1 ? SearchCondition.PayMonth - 1 : 12;
 
-                    SalaryList = await ReadSalarys(SearchCondition).ConfigureAwait(false);
+                        SalaryList = await ReadSalarys(SearchCondition).ConfigureAwait(false);
+                        if (SalaryList != null && SalaryList.Count > 0)
+                        {
+                            foreach (MemberSalary item in SalaryList)
+                            {
+                                item.Id = null;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //不要求填充空数据
+                        return new List<MemberSalarySearchResult>();
+
+                    }
                 }
-                //如果仍未查到，则显示空表
+               
+                //如果仍未查到(包括上一个月数据也没有），则填充空内容
                 if (SalaryList == null || SalaryList.Count == 0)
                 {
                     List<MemberSalarySearchResult> ResultList = await _GhDbContext.dsMembers.AsNoTracking().OrderBy(x => x.OrderIndex)
@@ -64,7 +80,7 @@ namespace Office.Work.Platform.Api.DataService
                         {
                             MemberId = x.Id,
                             MemberName = x.Name,
-                            PayMonth = SearchMonth ,
+                            PayMonth = SearchMonth,
                             PayYear = SearchYear,
                             PayUnitName = SearchCondition.PayUnitName,
                             TableType = SearchCondition.TableType,
@@ -96,13 +112,16 @@ namespace Office.Work.Platform.Api.DataService
                     //返回查到的数据
                     List<MemberSalarySearchResult> ResultList = SalaryList.Select(x => new MemberSalarySearchResult
                     {
+                        Id = x.Id,
                         MemberId = x.Member.Id,
                         MemberName = x.Member.Name,
                         PayMonth = SearchMonth,
                         PayYear = SearchYear,
                         PayUnitName = SearchCondition.PayUnitName,
                         TableType = SearchCondition.TableType,
-                        SalaryItems = JsonConvert.DeserializeObject<List<SalaryItem>>(x.NameAndAmount)
+                        SalaryItems = JsonConvert.DeserializeObject<List<SalaryItem>>(x.NameAndAmount),
+                        UserId = x.UserId,
+                        Remark = x.Remark
                     }).ToList();
                     return ResultList;
                 }
@@ -157,6 +176,7 @@ namespace Office.Work.Platform.Api.DataService
             List<MemberSalary> SalaryList = await Items.OrderBy(x => x.Member.OrderIndex).ToListAsync().ConfigureAwait(false);
             return SalaryList;
         }
+
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2
         /// </summary>
@@ -186,6 +206,29 @@ namespace Office.Work.Platform.Api.DataService
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
             _GhDbContext.dsMemberSalary.Update(PEntity);
+            return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2
+        /// </summary>
+        /// <param name="PEntity"></param>
+        /// <returns></returns>
+        public async Task<int> AddOrUpdateAsync(MemberSalary PEntity)
+        {
+            //此记录的Id为员工的身份证号码，必须输入
+            if (PEntity == null || PEntity.Id == null || PEntity.MemberId == null) { return 0; }
+            bool IsExist = await _GhDbContext.dsMemberSalary.AnyAsync(e => e.Id == PEntity.Id).ConfigureAwait(false);
+            if (IsExist)
+            {
+                return await UpdateAsync(PEntity);
+            }
+            else
+            {
+                PEntity.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
+                PEntity.UpDateTime = DateTime.Now;
+                _GhDbContext.dsMemberSalary.Add(PEntity);
+            }
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 

@@ -76,6 +76,7 @@ namespace Office.Work.Platform.Api.DataService
             }
             PEntity.Id = AppCodes.AppStaticClass.GetIdOfDateTime();
             PEntity.UpDateTime = DateTime.Now;
+            PEntity.Member = null;
             _GhDbContext.dsMemberHoliday.Add(PEntity);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
 
