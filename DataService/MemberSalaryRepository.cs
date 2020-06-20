@@ -15,6 +15,7 @@ namespace Office.Work.Platform.Api.DataService
         {
             _GhDbContext = ghDbContext;
         }
+
         /// <summary>
         /// 返回所有数据
         /// </summary>
@@ -33,6 +34,7 @@ namespace Office.Work.Platform.Api.DataService
         {
             return await _GhDbContext.dsMemberSalary.FindAsync(Id).ConfigureAwait(false);
         }
+
         /// <summary>
         /// 根据条件查询计划,返回查询的实体列表
         /// </summary>
@@ -55,13 +57,16 @@ namespace Office.Work.Platform.Api.DataService
                         SearchCondition.PayMonth = SearchCondition.PayMonth > 1 ? SearchCondition.PayMonth - 1 : 12;
 
                         SalaryList = await ReadSalarys(SearchCondition).ConfigureAwait(false);
+
                         if (SalaryList != null && SalaryList.Count > 0)
                         {
+                            //查询到上一个月的数据
                             foreach (MemberSalary item in SalaryList)
                             {
                                 item.Id = null;
                             }
                         }
+
                     }
                     else
                     {
@@ -70,61 +75,62 @@ namespace Office.Work.Platform.Api.DataService
 
                     }
                 }
-               
-                //如果仍未查到(包括上一个月数据也没有），则填充空内容
-                if (SalaryList == null || SalaryList.Count == 0)
-                {
-                    List<MemberSalarySearchResult> ResultList = await _GhDbContext.dsMembers.AsNoTracking().OrderBy(x => x.OrderIndex)
-                        .Where(x => x.MemberType.Equals(SearchCondition.MemberType, StringComparison.Ordinal) && x.UnitName.Equals(SearchCondition.PayUnitName, StringComparison.Ordinal))
-                        .Select(x => new MemberSalarySearchResult
-                        {
-                            MemberId = x.Id,
-                            MemberName = x.Name,
-                            PayMonth = SearchMonth,
-                            PayYear = SearchYear,
-                            PayUnitName = SearchCondition.PayUnitName,
-                            TableType = SearchCondition.TableType,
-                            SalaryItems = new List<SalaryItem>()
-                        }).ToListAsync().ConfigureAwait(false);
 
-                    List<MemberPayItem> PayItemList = await _GhDbContext.dsMemberPayItem.AsNoTracking().OrderBy(x => x.OrderIndex)
-                        .Where(x => x.MemberTypes.Contains(SearchCondition.MemberType, StringComparison.Ordinal) &&
-                        x.InTableType.Equals(SearchCondition.TableType, StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
-                    List<SalaryItem> salaryItems = new List<SalaryItem>();
-                    List<string> ItemNames = PayItemList.Select(x => x.Name).ToList();
-                    for (int i = 0; i < ItemNames.Count; i++)
-                    {
-                        salaryItems.Add(new SalaryItem()
-                        {
-                            Name = ItemNames[i],
-                            Amount = 0f
-                        });
-                    }
-
-                    foreach (MemberSalarySearchResult item in ResultList)
-                    {
-                        item.SalaryItems.AddRange(salaryItems);
-                    }
-                    return ResultList;
-                }
-                else
+                //查询到了指定月份或指定月份上一个月的数据。
+                if (SalaryList != null && SalaryList.Count > 0)
                 {
                     //返回查到的数据
-                    List<MemberSalarySearchResult> ResultList = SalaryList.Select(x => new MemberSalarySearchResult
+                    List<MemberSalarySearchResult> SearchResultList = SalaryList.Select(x => new MemberSalarySearchResult
                     {
                         Id = x.Id,
                         MemberId = x.Member.Id,
                         MemberName = x.Member.Name,
-                        PayMonth = SearchMonth,
-                        PayYear = SearchYear,
+                        PayMonth = SearchMonth > 0 && SearchMonth != SearchCondition.PayMonth ? SearchMonth : x.PayMonth,
+                        PayYear = SearchYear > 0 && SearchYear != SearchCondition.PayYear ? SearchYear : x.PayYear,
                         PayUnitName = SearchCondition.PayUnitName,
                         TableType = SearchCondition.TableType,
                         SalaryItems = JsonConvert.DeserializeObject<List<SalaryItem>>(x.NameAndAmount),
                         UserId = x.UserId,
                         Remark = x.Remark
                     }).ToList();
-                    return ResultList;
+                    return SearchResultList;
                 }
+
+                //如果仍未查到(包括上一个月数据也没有），则填充空内容
+                List<MemberSalarySearchResult> FillResultList = await _GhDbContext.dsMembers.AsNoTracking().OrderBy(x => x.OrderIndex)
+                    .Where(x => x.MemberType.Equals(SearchCondition.MemberType, StringComparison.Ordinal) && x.UnitName.Equals(SearchCondition.PayUnitName, StringComparison.Ordinal))
+                    .Select(x => new MemberSalarySearchResult
+                    {
+                        MemberId = x.Id,
+                        MemberName = x.Name,
+                        PayMonth = SearchMonth,
+                        PayYear = SearchYear,
+                        PayUnitName = SearchCondition.PayUnitName,
+                        TableType = SearchCondition.TableType,
+                        SalaryItems = new List<SalaryItem>()
+                    }).ToListAsync().ConfigureAwait(false);
+
+                List<MemberPayItem> PayItemList = await _GhDbContext.dsMemberPayItem.AsNoTracking().OrderBy(x => x.OrderIndex)
+                    .Where(x => x.MemberTypes.Contains(SearchCondition.MemberType, StringComparison.Ordinal) &&
+                    x.InTableType.Equals(SearchCondition.TableType, StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
+
+                List<SalaryItem> salaryItems = new List<SalaryItem>();
+                List<string> ItemNames = PayItemList.Select(x => x.Name).ToList();
+                for (int i = 0; i < ItemNames.Count; i++)
+                {
+                    salaryItems.Add(new SalaryItem()
+                    {
+                        Name = ItemNames[i],
+                        Amount = 0f
+                    });
+                }
+
+                foreach (MemberSalarySearchResult item in FillResultList)
+                {
+                    item.SalaryItems.AddRange(salaryItems);
+                }
+                return FillResultList;
+
             }
             return new List<MemberSalarySearchResult>();
         }
@@ -141,11 +147,9 @@ namespace Office.Work.Platform.Api.DataService
             {
                 Items = Items.Where(e => e.PayUnitName.Equals(SearchCondition.PayUnitName, StringComparison.Ordinal));//查询发放单位。
             }
+            //年度只能查询指定年度信息。
+            Items = Items.Where(e => e.PayYear == SearchCondition.PayYear);
 
-            if (SearchCondition.PayYear > 0)
-            {
-                Items = Items.Where(e => e.PayYear == SearchCondition.PayYear);
-            }
             if (SearchCondition.PayMonth > 0)
             {
                 Items = Items.Where(e => e.PayMonth == SearchCondition.PayMonth);
@@ -174,6 +178,7 @@ namespace Office.Work.Platform.Api.DataService
             }
 
             List<MemberSalary> SalaryList = await Items.OrderBy(x => x.Member.OrderIndex).ToListAsync().ConfigureAwait(false);
+
             return SalaryList;
         }
 
@@ -221,7 +226,7 @@ namespace Office.Work.Platform.Api.DataService
             bool IsExist = await _GhDbContext.dsMemberSalary.AnyAsync(e => e.Id == PEntity.Id).ConfigureAwait(false);
             if (IsExist)
             {
-                return await UpdateAsync(PEntity);
+                return await UpdateAsync(PEntity).ConfigureAwait(false);
             }
             else
             {

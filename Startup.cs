@@ -67,9 +67,9 @@ namespace Office.Work.Platform.Api
 
             services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(x =>
             {
-                x.ValueLengthLimit = int.MaxValue;
-                x.MultipartBodyLengthLimit = int.MaxValue;
-                x.MemoryBufferThreshold = int.MaxValue;
+                x.ValueLengthLimit = int.MaxValue;//设置表单键值对中值的长度限制
+                x.MultipartBodyLengthLimit = int.MaxValue;//设置文件上传的大小限制
+                x.MemoryBufferThreshold = int.MaxValue;//设置multipart头长度的限制
             });
         }
 

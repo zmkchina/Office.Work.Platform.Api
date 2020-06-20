@@ -127,7 +127,7 @@ namespace Office.Work.Platform.Api.DataService
             bool IsExist = await _GhDbContext.dsMembers.AnyAsync(e => e.Id == PEntity.Id).ConfigureAwait(false);
             if (IsExist)
             {
-                return await UpdateAsync(PEntity);
+                return await UpdateAsync(PEntity).ConfigureAwait(false);
             }
             else
             {

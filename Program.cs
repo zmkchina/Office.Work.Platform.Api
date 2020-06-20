@@ -14,6 +14,11 @@ namespace Office.Work.Platform.Api
         {
             return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
             {
+                //webBuilder.ConfigureKestrel((context, options) =>
+                //{
+                //    //设置应用服务器Kestrel请求体最大为50MB
+                //    options.Limits.MaxRequestBodySize = 52428800;
+                //});
                 webBuilder.UseStartup<Startup>();
                 //webBuilder.UseUrls("http://*:9898").UseStartup<Startup>();
             });
