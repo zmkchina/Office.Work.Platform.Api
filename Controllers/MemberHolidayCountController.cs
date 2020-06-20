@@ -29,9 +29,9 @@ namespace Office.Work.Platform.Api.Controllers
         public async Task<List<MemberHolidayCount>> GetRecordsAsync([FromQuery] MemberHolidayCountSearch SearchCondition)
         {
             List<Lib.MemberHoliday> AllMemberHolidaies = await _GHDbContext.dsMemberHoliday.Include(x => x.Member).
-                Where(x => x.UnitName.Equals(SearchCondition.UnitName) && x.EndDate.Year.ToString().Equals(SearchCondition.YearNumber))
+                Where(x => x.UnitName.Equals(SearchCondition.UnitName,StringComparison.Ordinal) && Convert.ToString(x.EndDate.Year, System.Globalization.CultureInfo.InvariantCulture).Equals(SearchCondition.YearNumber, StringComparison.Ordinal))
                 .OrderBy(x => x.Member.OrderIndex)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
             List<IGrouping<string, Lib.MemberHoliday>> ListIgroupMemberHolidaies = AllMemberHolidaies.GroupBy(x => x.MemberId).ToList();
             List<MemberHolidayCount> memberScoreCounts = new List<MemberHolidayCount>();
             for (int i = 0; i < ListIgroupMemberHolidaies.Count; i++)
@@ -40,11 +40,11 @@ namespace Office.Work.Platform.Api.Controllers
                 memberScoreCounts.Add(new MemberHolidayCount
                 {
                     MemberId = ListIgroupMemberHolidaies[i].Key, //分组key，本例中即为：MemberId
-                    UnitName = SearchCondition.UnitName,
+                    UnitName = SearchCondition?.UnitName,
                     MemberName = memberScores[0].Member.Name,
-                    PersonalLeaveCount = memberScores.Where(x => x.HolidayType.Equals("事假")).Sum(x => (x.EndDate - x.BeginDate).Days),
-                    AnnualCount = memberScores.Where(x => x.HolidayType.Equals("年休假")).Sum(x => (x.EndDate - x.BeginDate).Days),
-                    SickLeaveCount = memberScores.Where(x => x.HolidayType.Equals("病假")).Sum(x => (x.EndDate - x.BeginDate).Days),
+                    PersonalLeaveCount = memberScores.Where(x => x.HolidayType.Equals("事假", StringComparison.Ordinal)).Sum(x => (x.EndDate - x.BeginDate).Days),
+                    AnnualCount = memberScores.Where(x => x.HolidayType.Equals("年休假", StringComparison.Ordinal)).Sum(x => (x.EndDate - x.BeginDate).Days),
+                    SickLeaveCount = memberScores.Where(x => x.HolidayType.Equals("病假", StringComparison.Ordinal)).Sum(x => (x.EndDate - x.BeginDate).Days),
                     OtherHolidayCount = memberScores.Where(x => !(new string[] { "事假", "年休假", "病假" }).Contains(x.HolidayType)).Sum(x => (x.EndDate - x.BeginDate).Days),
                     YearNumber = SearchCondition.YearNumber,
                     CountDate = DateTime.Now

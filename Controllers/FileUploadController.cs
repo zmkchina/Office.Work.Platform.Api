@@ -56,7 +56,7 @@ namespace Office.Work.Platform.Api.Controllers
 
                 //完整路径
                 string path = GetAbsolutePath(saveKey);
-                await WriteFileAsync(formFile.OpenReadStream(), path);
+                await WriteFileAsync(formFile.OpenReadStream(), path).ConfigureAwait(false);
                 saveKeys.Add(saveKey);
             }
             return saveKeys;
@@ -78,7 +78,7 @@ namespace Office.Work.Platform.Api.Controllers
             //得到reader
             var reader = new MultipartReader(boundary, HttpContext.Request.Body);
 
-            var section = await reader.ReadNextSectionAsync();
+            var section = await reader.ReadNextSectionAsync().ConfigureAwait(false);
 
             //读取 section  每个formData算一个 section  多文件上传时每个文件算一个 section
             while (section != null)
@@ -93,15 +93,15 @@ namespace Office.Work.Platform.Api.Controllers
                         //完整路径
                         string path = GetAbsolutePath(saveKey);
 
-                        await WriteFileAsync(section.Body, path);
+                        await WriteFileAsync(section.Body, path).ConfigureAwait(false);
                         saveKeys.Add(saveKey);
                     }
                     else
                     {
-                        string str = await section.ReadAsStringAsync();
+                        string str = await section.ReadAsStringAsync().ConfigureAwait(false);
                     }
                 }
-                section = await reader.ReadNextSectionAsync();
+                section = await reader.ReadNextSectionAsync().ConfigureAwait(false);
             }
             return saveKeys;
 
@@ -120,9 +120,9 @@ namespace Office.Work.Platform.Api.Controllers
             {
                 byte[] byteArr = new byte[FILE_WRITE_SIZE];
                 int readCount = 0;
-                while ((readCount = await stream.ReadAsync(byteArr, 0, byteArr.Length)) > 0)
+                while ((readCount = await stream.ReadAsync(byteArr, 0, byteArr.Length).ConfigureAwait(false)) > 0)
                 {
-                    await fileStream.WriteAsync(byteArr, 0, readCount);
+                    await fileStream.WriteAsync(byteArr, 0, readCount).ConfigureAwait(false);
                     writeCount += readCount;
                 }
             }

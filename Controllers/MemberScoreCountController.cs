@@ -29,9 +29,9 @@ namespace Office.Work.Platform.Api.Controllers
         public async Task<List<MemberScoreCount>> GetRecordsAsync([FromQuery] MemberScoreCountSearch SearchCondition)
         {
             List<Lib.MemberScore> AllMemberScores = await _GHDbContext.dsMemberScores.Include(x => x.Member).
-                Where(x => x.ScoreUnitName.Equals(SearchCondition.ScoreUnitName) && x.OccurDate.Year.ToString().Equals(SearchCondition.YearNumber))
+                Where(x => x.ScoreUnitName.Equals(SearchCondition.ScoreUnitName,StringComparison.Ordinal) && x.OccurDate.Year.ToString(System.Globalization.CultureInfo.InvariantCulture).Equals(SearchCondition.YearNumber,StringComparison.Ordinal))
                 //.OrderBy(x=>x.MemberIndex)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
             List<IGrouping<string, Lib.MemberScore>> ListIgroupMemberScores = AllMemberScores.GroupBy(x => x.MemberId).ToList();
             List<MemberScoreCount> memberScoreCounts = new List<MemberScoreCount>();
             for (int i = 0; i < ListIgroupMemberScores.Count; i++)
