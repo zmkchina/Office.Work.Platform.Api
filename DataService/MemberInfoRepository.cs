@@ -2,36 +2,52 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Office.Work.Platform.Lib;
 
 namespace Office.Work.Platform.Api.DataService
 {
-    public class MemberRepository
+    public class MemberInfoRepository
     {
         private readonly GHDbContext _GhDbContext;
-        public MemberRepository(GHDbContext GhDbContext)
+        private readonly IMapper _Imapper;
+
+        public MemberInfoRepository(GHDbContext GhDbContext, IMapper mapper)
         {
             _GhDbContext = GhDbContext;
+            _Imapper = mapper;
         }
 
         /// <summary>
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Member>> GetAllAsync()
+        public async Task<IEnumerable<MemberInfoEntity>> GetAllAsync()
         {
             return await _GhDbContext.dsMembers.ToListAsync().ConfigureAwait(false);
         }
 
         /// <summary>
-        /// 根据Id获取一个对象
+        /// 根据Id获取一个对象 Entity
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<Member> GetOneByIdAsync(string Id)
+        public async Task<MemberInfoEntity> GetMemberInfoEntityAsync(string Id)
         {
             return await _GhDbContext.dsMembers.FindAsync(Id).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 根据Id获取一个对象 Dto
+        /// </summary>
+        /// <param name="P_Id"></param>
+        /// <returns></returns>
+        public async Task<MemberInfoDto> GetMemberInfoDtoAsync(string Id)
+        {
+            MemberInfoEntity RecordEntity = await _GhDbContext.dsMembers.FindAsync(Id).ConfigureAwait(false);
+
+            return _Imapper.Map<MemberInfoDto>(RecordEntity);
         }
 
         /// <summary>
@@ -39,9 +55,9 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<IEnumerable<Member>> GetEntitiesAsync(MemberSearch mSearchMember)
+        public async Task<IEnumerable<MemberInfoDto>> GetEntitiesAsync(MemberInfoSearch mSearchMember)
         {
-            IQueryable<Member> Items = _GhDbContext.dsMembers.AsNoTracking() as IQueryable<Member>;
+            IQueryable<MemberInfoEntity> Items = _GhDbContext.dsMembers.AsNoTracking() as IQueryable<MemberInfoEntity>;
             if (mSearchMember != null)
             {
                 if (!string.IsNullOrWhiteSpace(mSearchMember.Id))
@@ -75,16 +91,17 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.PoliticalStatus.Contains(mSearchMember.PoliticalStatus, StringComparison.Ordinal));
                 }
-                return await Items.ToListAsync().ConfigureAwait(false);
+                List<MemberInfoEntity> RecordEntities = await Items.ToListAsync().ConfigureAwait(false);
+                return _Imapper.Map<List<MemberInfoDto>>(RecordEntities);
             }
-            return new List<Member>();
+            return new List<MemberInfoDto>();
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，由返回-2。
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(Member PEntity)
+        public async Task<int> AddAsync(MemberInfoEntity PEntity)
         {
             //此记录的Id为员工的身份证号码，必须输入
             if (PEntity == null || PEntity.Id == null || PEntity.Name == null) { return 0; }
@@ -107,7 +124,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(Member PEntity)
+        public async Task<int> UpdateAsync(MemberInfoEntity PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
@@ -120,7 +137,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddOrUpdateAsync(Member PEntity)
+        public async Task<int> AddOrUpdateAsync(MemberInfoEntity PEntity)
         {
             //此记录的Id为员工的身份证号码，必须输入
             if (PEntity == null || PEntity.Id == null || PEntity.Name == null) { return 0; }
@@ -146,7 +163,7 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<int> DeleteAsync(string Id)
         {
             if (Id == null) { return 0; }
-            Member tempPlan = _GhDbContext.dsMembers.Find(Id);
+            MemberInfoEntity tempPlan = _GhDbContext.dsMembers.Find(Id);
             _GhDbContext.dsMembers.Remove(tempPlan);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }

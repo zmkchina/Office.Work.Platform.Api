@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.Controllers
 {
@@ -17,49 +16,40 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly MemberPrizePunishRepository _DataRepository;
 
-        public MemberPrizePunishController(GHDbContext ghDbContet)
+        public MemberPrizePunishController(GHDbContext ghDbContet,IMapper mapper)
         {
-            _DataRepository = new MemberPrizePunishRepository(ghDbContet);
+            _DataRepository = new MemberPrizePunishRepository(ghDbContet, mapper);
         }
-        /// <summary>
-        /// 返回所有记录
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public async Task<IEnumerable<MemberPrizePunish>> GetAsync()
-        {
-            return await _DataRepository.GetAllAsync().ConfigureAwait(false);
-        }
-        /// <summary>
-        /// 查询指定编号的记录
-        /// </summary>
-        /// <param name="Id"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("{Id}")]
-        public async Task<MemberPrizePunish> GetAsync(string Id)
-        {
-            return await _DataRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
-        }
+
+        ///// <summary>
+        ///// 查询指定编号的记录
+        ///// </summary>
+        ///// <param name="Id"></param>
+        ///// <returns></returns>
+        //[HttpGet("ReadEntity")]
+        //[Route("{Id}")]
+        //public async Task<MemberPrizePunishEntity> ReadEntity(string Id)
+        //{
+        //    return await _DataRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
+        //}
+
         /// <summary>
         /// 查询指定条件的数据
         /// </summary>
-        /// <param name="SearchCondition"></param>
-        /// <returns></returns>
-        [HttpGet("Search")]
-        public async Task<IEnumerable<MemberPrizePunish>> GetAsync([FromQuery]MemberPrizePunishSearch SearchCondition)
+      
+        [HttpGet("ReadDtos")]
+        public async Task<ActionResult<List<Lib.MemberPrizePunishDto>>> ReadDtos<MemberPrizePunishDto, MemberPrizePunishSearch>([FromQuery] Lib.MemberPrizePunishSearch SearchCondition)
         {
             return await _DataRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
-
         /// <summary>
         /// 新增记录
         /// </summary>
         /// <param name="FileInfo"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("AddEntity")]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromBody]MemberPrizePunish PEntity)
+        public async Task<ActionResult<string>> PostAsync([FromBody]MemberPrizePunishEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
@@ -77,8 +67,8 @@ namespace Office.Work.Platform.Api.Controllers
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
-        [HttpPut]
-        public async Task<string> PutAsync([FromBody]MemberPrizePunish PEntity)
+        [HttpPut("UpdateEntity")]
+        public async Task<ActionResult<string>> PutAsync([FromBody]MemberPrizePunishEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
@@ -97,7 +87,8 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="Id"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<string> DeleteAsync(string Id)
+        [Route("DeleteEntity/{Id}")]
+        public async Task<ActionResult<string>> DeleteAsync(string Id)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)
@@ -110,5 +101,7 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
+
+      
     }
 }

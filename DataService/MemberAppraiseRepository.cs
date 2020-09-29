@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Office.Work.Platform.Lib;
 
@@ -10,17 +11,21 @@ namespace Office.Work.Platform.Api.DataService
     public class MemberAppraiseRepository
     {
         private readonly GHDbContext _GhDbContext;
-        public MemberAppraiseRepository(GHDbContext GhDbContext)
+        private readonly IMapper _Mapper;
+        public MemberAppraiseRepository(GHDbContext GhDbContext, IMapper mapper)
         {
             _GhDbContext = GhDbContext;
+            _Mapper = mapper;
         }
         /// <summary>
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberAppraise>> GetAllAsync()
+        public async Task<List<MemberAppraiseDto>> GetAllAsync()
         {
-            return await _GhDbContext.dsMemberAppraise.ToListAsync().ConfigureAwait(false);
+            var Entities = await _GhDbContext.dsMemberAppraise.ToListAsync().ConfigureAwait(false);
+
+            return _Mapper.Map<List<MemberAppraiseDto>>(Entities);
         }
 
         /// <summary>
@@ -28,18 +33,20 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<MemberAppraise> GetOneByIdAsync(string Id)
+        public async Task<MemberAppraiseDto> GetOneByIdAsync(string Id)
         {
-            return await _GhDbContext.dsMemberAppraise.FindAsync(Id).ConfigureAwait(false);
+            var Entity = await _GhDbContext.dsMemberAppraise.FindAsync(Id).ConfigureAwait(false);
+
+            return _Mapper.Map<MemberAppraiseDto>(Entity);
         }
         /// <summary>
         /// 根据条件查询计划,返回查询的实体列表
         /// </summary>
         /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberAppraise>> GetEntitiesAsync(MemberAppraiseSearch SearchCondition)
+        public async Task<List<MemberAppraiseDto>> GetEntitiesAsync(MemberAppraiseSearch SearchCondition)
         {
-            IQueryable<MemberAppraise> Items = _GhDbContext.dsMemberAppraise.AsNoTracking() as IQueryable<MemberAppraise>;
+            IQueryable<MemberAppraiseEntity> Items = _GhDbContext.dsMemberAppraise.AsNoTracking() as IQueryable<MemberAppraiseEntity>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
@@ -62,17 +69,19 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.Remark.Contains(SearchCondition.Remark, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
-                
-                return await Items.ToListAsync().ConfigureAwait(false);
+
+                var Entities = await Items.ToListAsync().ConfigureAwait(false);
+
+                return _Mapper.Map<List<MemberAppraiseDto>>(Entities);
             }
-            return new List<MemberAppraise>();
+            return new List<MemberAppraiseDto>();
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(MemberAppraise PEntity)
+        public async Task<int> AddAsync(MemberAppraiseEntity PEntity)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -90,7 +99,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(MemberAppraise PEntity)
+        public async Task<int> UpdateAsync(MemberAppraiseEntity PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
@@ -106,7 +115,7 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<int> DeleteAsync(string Id)
         {
             if (Id == null) { return 0; }
-            MemberAppraise tempPlan = _GhDbContext.dsMemberAppraise.Find(Id);
+            MemberAppraiseEntity tempPlan = _GhDbContext.dsMemberAppraise.Find(Id);
             _GhDbContext.dsMemberAppraise.Remove(tempPlan);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }

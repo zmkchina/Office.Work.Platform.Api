@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Office.Work.Platform.Lib;
 
@@ -11,15 +12,17 @@ namespace Office.Work.Platform.Api.DataService
     public class PlanFileRepository
     {
         private readonly GHDbContext _GhDbContext;
-        public PlanFileRepository(GHDbContext GhDbContext)
+        private readonly IMapper _Mapper;
+        public PlanFileRepository(GHDbContext ghDbContext, IMapper mapper)
         {
-            _GhDbContext = GhDbContext;
+            _GhDbContext = ghDbContext;
+            _Mapper = mapper;
         }
         /// <summary>
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<PlanFile>> GetAllAsync()
+        public async Task<IEnumerable<PlanFileEntity>> GetAllAsync()
         {
             return await _GhDbContext.dsPlanFiles.ToListAsync().ConfigureAwait(false);
         }
@@ -28,18 +31,20 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<PlanFile> GetOneByIdAsync(string Id)
+        public async Task<PlanFileDto> GetOneByIdAsync(string Id)
         {
-            return await _GhDbContext.dsPlanFiles.FindAsync(Id).ConfigureAwait(false);
+            PlanFileEntity RecordEntity = await _GhDbContext.dsPlanFiles.FindAsync(Id).ConfigureAwait(false);
+
+            return _Mapper.Map<PlanFileDto>(RecordEntity);
         }
         /// <summary>
         /// 按指定的条件查询数据
         /// </summary>
         /// <returns></returns>
-        public async Task<PlanFileSearchResult> GetEntitiesAsync(PlanFileSearch SearchCondition)
+        public async Task<PlanFileDtoPages> GetEntitiesAsync(PlanFileDtoSearch SearchCondition)
         {
-            PlanFileSearchResult SearchResult = new PlanFileSearchResult();
-            IQueryable<PlanFile> Items = _GhDbContext.dsPlanFiles.AsNoTracking() as IQueryable<PlanFile>;
+            PlanFileDtoPages SearchResult = new PlanFileDtoPages();
+            IQueryable<PlanFileEntity> Items = _GhDbContext.dsPlanFiles.AsNoTracking() as IQueryable<PlanFileEntity>;
             //需要连同该文件的Plan信息一同读取，在操作文件时需使用之。
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
@@ -80,7 +85,9 @@ namespace Office.Work.Platform.Api.DataService
                 }
 
                 SearchResult.SearchCondition.RecordCount = await Items.CountAsync().ConfigureAwait(false);
-                SearchResult.RecordList = await Items.OrderByDescending(x => x.UpDateTime).Skip((SearchCondition.PageIndex - 1) * SearchCondition.PageSize).Take(SearchCondition.PageSize).ToListAsync().ConfigureAwait(false);
+
+                List<PlanFileEntity> RecordEntities = await Items.OrderByDescending(x => x.UpDateTime).Skip((SearchCondition.PageIndex - 1) * SearchCondition.PageSize).Take(SearchCondition.PageSize).ToListAsync().ConfigureAwait(false);
+                SearchResult.RecordList = _Mapper.Map<List<PlanFileDto>>(RecordEntities);
             }
             return SearchResult;
         }
@@ -90,7 +97,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(PlanFile PEntity, string FileId)
+        public async Task<int> AddAsync(PlanFileEntity PEntity, string FileId)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -107,7 +114,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(PlanFile PEntity)
+        public async Task<int> UpdateAsync(PlanFileEntity PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
@@ -124,7 +131,7 @@ namespace Office.Work.Platform.Api.DataService
         {
             int DelCount = 0;
             if (Id == null) { return 0; }
-            PlanFile CurFile = _GhDbContext.dsPlanFiles.Find(Id);
+            PlanFileEntity CurFile = _GhDbContext.dsPlanFiles.Find(Id);
             _GhDbContext.dsPlanFiles.Remove(CurFile);
             DelCount = await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
             if (DelCount > 0)
@@ -147,7 +154,7 @@ namespace Office.Work.Platform.Api.DataService
         {
             if (PlanId == null) { return 0; }
             int DelCount = 0;
-            List<PlanFile> PlanFiles = await _GhDbContext.dsPlanFiles.Where(x => x.PlanId.Equals(PlanId, StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
+            List<PlanFileEntity> PlanFiles = await _GhDbContext.dsPlanFiles.Where(x => x.PlanId.Equals(PlanId, StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
             for (int i = 0; i < PlanFiles.Count; i++)
             {
                 _GhDbContext.dsPlanFiles.Remove(PlanFiles[i]);

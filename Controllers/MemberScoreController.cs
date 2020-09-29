@@ -24,7 +24,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<List<MemberScore>> GetRecordsAsync([FromQuery]MemberScoreSearch SearchCondition)
+        public async Task<List<MemberScoreEntity>> GetRecordsAsync([FromQuery]MemberScoreSearch SearchCondition)
         {
             return await _DataRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
@@ -35,7 +35,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<MemberScore> GetAsync(string Id)
+        public async Task<MemberScoreEntity> GetAsync(string Id)
         {
             return await _DataRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -45,7 +45,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="userModel"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<string> PostAsync(MemberScore PEntity)
+        public async Task<string> PostAsync(MemberScoreEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
@@ -64,7 +64,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]MemberScore PEntity)
+        public async Task<string> PutAsync([FromBody]MemberScoreEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (PEntity != null)

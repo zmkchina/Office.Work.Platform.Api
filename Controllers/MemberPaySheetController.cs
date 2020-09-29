@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Office.Work.Platform.Api.DataService;
-using Office.Work.Platform.Lib;
 
 namespace Office.Work.Platform.Api.Controllers
 {
@@ -28,7 +24,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="SearchCondition"></param>
         /// <returns></returns>
         [HttpGet("GetPayTableTypes")]
-        public async Task<string[]> GetPayTableTypes()
+        public async Task<ActionResult<string[]>> GetPayTableTypes()
         {
             return await _GhDbContext.dsMemberSalary.Select(x => x.TableType).Distinct().ToArrayAsync().ConfigureAwait(false);
         }

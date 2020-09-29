@@ -1,9 +1,15 @@
+using System;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Office.Work.Platform.Api.DataService;
@@ -30,7 +36,7 @@ namespace Office.Work.Platform.Api
                 option.UseMySql(Configuration["DbConnString"]);
             });
             //允许跨域请求
-            services.AddCors(option => option.AddPolicy("cors", 
+            services.AddCors(option => option.AddPolicy("cors",
                 policy => policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(new[] { "http://xxx.xxx.com" })));
 
             //注册IS4服务
@@ -63,13 +69,47 @@ namespace Office.Work.Platform.Api
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();
                 //设置时间格式
                 options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
-            }); 
+            })
+                .AddXmlDataContractSerializerFormatters()  //添加XML数据格式支持
+                .ConfigureApiBehaviorOptions(setup =>
+                {
+                    //自定义验证错误信息。
+                    setup.InvalidModelStateResponseFactory = context =>
+                    {
+                        var problemDetails = new ValidationProblemDetails(context.ModelState)
+                        {
+                            Type = "Office/Work/Platform/Api",
+                            Title = "模型状态错误",
+                            Status = StatusCodes.Status422UnprocessableEntity,
+                            Detail = "一般为数据模型绑定时验证错误！",
+                            Instance = context.HttpContext.Request.Path
+                        };
+                        problemDetails.Extensions.Add("TraceId", context.HttpContext.TraceIdentifier);
+                        return new UnprocessableEntityObjectResult(problemDetails)
+                        {
+                            ContentTypes = { "applaication/problem+json" }
+                        };
+                    };
+                });
 
             services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(x =>
+              {
+                  x.ValueLengthLimit = int.MaxValue;//设置表单键值对中值的长度限制
+                  x.MultipartBodyLengthLimit = int.MaxValue;//设置文件上传的大小限制
+                  x.MemoryBufferThreshold = int.MaxValue;//设置multipart头长度的限制
+              });
+
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            // Register the Swagger generator, defining 1 or more Swagger documents
+            services.AddSwaggerGen(c =>
             {
-                x.ValueLengthLimit = int.MaxValue;//设置表单键值对中值的长度限制
-                x.MultipartBodyLengthLimit = int.MaxValue;//设置文件上传的大小限制
-                x.MemoryBufferThreshold = int.MaxValue;//设置multipart头长度的限制
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "Ver：1.0.0",
+                    Title = "Office.Work.Platform.Api",
+                    Description = "政工业务平台API服务，包括：人员信息、劳资管理等"
+                });
             });
         }
 
@@ -85,10 +125,41 @@ namespace Office.Work.Platform.Api
             //    FileProvider = new PhysicalFileProvider(Configuration["StaticFileDir"]),
             //    RequestPath = @"/GHStaticFiles"
             //});
+            app.UseExceptionHandler(config =>
+            {
+                config.Run(async context =>
+                {
+                    context.Response.StatusCode = 500;
+                    context.Response.ContentType = "application/json";
+                    var error = context.Features.Get<IExceptionHandlerFeature>();
+                    if (error != null)
+                    {
+                        var ex = error.Error;
+                        await context.Response.WriteAsync(new
+                        {
+                            StatusCodeContext = 500,
+                            ErrorMessage = ex.Message
+                        }.ToString());
+                    }
+                });
+            });
+
+
 
             //允许跨域请求
             app.UseCors("cors");
             app.UseRouting();
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/Swagger/v1/Swagger.json", "Office.Work.Platform.Api");
+                c.RoutePrefix = string.Empty;
+            });
 
             //IS4Server
             app.UseIdentityServer();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Office.Work.Platform.Lib;
 
@@ -11,15 +12,18 @@ namespace Office.Work.Platform.Api.DataService
     public class MemberFileRepository
     {
         private readonly GHDbContext _GhDbContext;
-        public MemberFileRepository(GHDbContext GhDbContext)
+        private readonly IMapper _Imapper;
+
+        public MemberFileRepository(GHDbContext GhDbContext,IMapper mapper)
         {
             _GhDbContext = GhDbContext;
+            _Imapper = mapper;
         }
         /// <summary>
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberFile>> GetAllAsync()
+        public async Task<IEnumerable<MemberFileEntity>> GetAllAsync()
         {
             return await _GhDbContext.dsMemberFiles.ToListAsync().ConfigureAwait(false);
         }
@@ -28,7 +32,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<MemberFile> GetOneByIdAsync(string Id)
+        public async Task<MemberFileEntity> GetOneByIdAsync(string Id)
         {
             return await _GhDbContext.dsMemberFiles.FindAsync(Id).ConfigureAwait(false);
         }
@@ -36,9 +40,9 @@ namespace Office.Work.Platform.Api.DataService
         /// 按指定的条件查询数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberFile>> GetEntitiesAsync(MemberFileSearch mSearchFile)
+        public async Task<IEnumerable<MemberFileEntity>> GetEntitiesAsync(MemberFileSearch mSearchFile)
         {
-            IQueryable<MemberFile> Items = _GhDbContext.dsMemberFiles.AsNoTracking() as IQueryable<MemberFile>;
+            IQueryable<MemberFileEntity> Items = _GhDbContext.dsMemberFiles.AsNoTracking() as IQueryable<MemberFileEntity>;
             //需要连同该文件的Plan信息一同读取，在操作文件时需使用之。
             if (mSearchFile != null && !string.IsNullOrWhiteSpace(mSearchFile.UserId))
             {
@@ -74,7 +78,7 @@ namespace Office.Work.Platform.Api.DataService
                 }
                 return await Items.ToListAsync().ConfigureAwait(false);
             }
-            return new List<MemberFile>();
+            return new List<MemberFileEntity>();
         }
 
         /// <summary>
@@ -82,7 +86,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(MemberFile PEntity, string FileId)
+        public async Task<int> AddAsync(MemberFileEntity PEntity, string FileId)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -99,7 +103,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(MemberFile PEntity)
+        public async Task<int> UpdateAsync(MemberFileEntity PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
@@ -116,7 +120,7 @@ namespace Office.Work.Platform.Api.DataService
         {
             int DelCount = 0;
             if (Id == null) { return 0; }
-            MemberFile CurFile = _GhDbContext.dsMemberFiles.Find(Id);
+            MemberFileEntity CurFile = _GhDbContext.dsMemberFiles.Find(Id);
             _GhDbContext.dsMemberFiles.Remove(CurFile);
             DelCount = await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
             if (DelCount > 0)
@@ -139,7 +143,7 @@ namespace Office.Work.Platform.Api.DataService
         {
             if (MemberId == null) { return 0; }
             int DelCount = 0;
-            List<MemberFile> PlanFiles = await _GhDbContext.dsMemberFiles.Where(x => x.MemberId.Equals(MemberId, StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
+            List<MemberFileEntity> PlanFiles = await _GhDbContext.dsMemberFiles.Where(x => x.MemberId.Equals(MemberId, StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
             for (int i = 0; i < PlanFiles.Count; i++)
             {
                 _GhDbContext.dsMemberFiles.Remove(PlanFiles[i]);

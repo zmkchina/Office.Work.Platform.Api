@@ -1,4 +1,5 @@
-﻿using IdentityModel;
+﻿using AutoMapper;
+using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Office.Work.Platform.Api.DataService;
@@ -15,9 +16,9 @@ namespace Office.Work.Platform.Api.IdentityUser
     public class IS4UserValidator : IResourceOwnerPasswordValidator
     {
         private readonly UserRepository _UserRepository; //用户数据表操作对象
-        public IS4UserValidator(GHDbContext ghDbContet)
+        public IS4UserValidator(GHDbContext ghDbContet,IMapper mapper)
         {
-            _UserRepository = new UserRepository(ghDbContet);
+            _UserRepository = new UserRepository(ghDbContet, mapper);
         }
         public async Task ValidateAsync(ResourceOwnerPasswordValidationContext context)
         {
@@ -47,7 +48,7 @@ namespace Office.Work.Platform.Api.IdentityUser
         }
 
         //build claims array from user data  
-        public static Claim[] GetUserClaims(User user)
+        public static Claim[] GetUserClaims(Lib.UserDto user)
         {
             return new Claim[]
             {

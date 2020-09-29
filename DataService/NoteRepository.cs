@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Office.Work.Platform.Api.AutoMapperProfiles;
 using Office.Work.Platform.Lib;
 using System;
 using System.Collections.Generic;
@@ -13,36 +15,42 @@ namespace Office.Work.Platform.Api.DataService
     public class NoteRepository
     {
         private readonly GHDbContext _GhDbContext;
-        public NoteRepository(GHDbContext ghDbContext)
+        private readonly IMapper _Mapper;
+        public NoteRepository(GHDbContext ghDbContext, IMapper mapper)
         {
             _GhDbContext = ghDbContext;
+            _Mapper = mapper;
         }
         /// <summary>
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Note>> GetAllAsync()
+        public async Task<IEnumerable<NoteInfoDto>> GetAllAsync()
         {
-            return await _GhDbContext.dsNotes.ToListAsync().ConfigureAwait(false);
+            var NoteEntities = await _GhDbContext.dsNotes.ToListAsync().ConfigureAwait(false);
+            var NoteDtos = _Mapper.Map<IEnumerable<NoteInfoDto>>(NoteEntities);
+            return NoteDtos;
         }
         /// <summary>
         /// 根据Id查询用户信息
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<Note> GetOneByIdAsync(string Id)
+        public async Task<NoteInfoDto> GetOneByIdAsync(string Id)
         {
-            return await _GhDbContext.dsNotes.FindAsync(Id).ConfigureAwait(false);
+            var NoteEntities = await _GhDbContext.dsNotes.FindAsync(Id).ConfigureAwait(false);
+            var NoteDtos = _Mapper.Map<NoteInfoDto>(NoteEntities);
+            return NoteDtos;
         }
         /// <summary>
         /// 根据条件查询计划,返回查询的实体列表
         /// </summary>
         /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<NoteSearchResult> GetEntitiesAsync(NoteSearch SearchCondition)
+        public async Task<NoteInfoDtoPages> GetEntitiesAsync(NoteInfoSearch SearchCondition)
         {
-            NoteSearchResult SearchResult = new NoteSearchResult();
-            IQueryable<Note> Items = _GhDbContext.dsNotes.AsNoTracking() as IQueryable<Note>;
+            NoteInfoDtoPages SearchResult = new NoteInfoDtoPages();
+            IQueryable<NoteInfoEntity> Items = _GhDbContext.dsNotes.AsNoTracking() as IQueryable<NoteInfoEntity>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
@@ -62,7 +70,8 @@ namespace Office.Work.Platform.Api.DataService
                     Items = Items.Where(e => e.Caption.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal) || e.TextContent.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal));//对两个字符串进行byte级别的比较,性能好、速度快。
                 }
                 SearchResult.SearchCondition.RecordCount = await Items.CountAsync().ConfigureAwait(false);
-                SearchResult.RecordList = await Items.OrderByDescending(x => x.UpDateTime).Skip((SearchCondition.PageIndex - 1) * SearchCondition.PageSize).Take(SearchCondition.PageSize).ToListAsync().ConfigureAwait(false);
+                List<NoteInfoEntity> RecordEntities = await Items.OrderByDescending(x => x.UpDateTime).Skip((SearchCondition.PageIndex - 1) * SearchCondition.PageSize).Take(SearchCondition.PageSize).ToListAsync().ConfigureAwait(false);
+                SearchResult.RecordList = _Mapper.Map<List<NoteInfoDto>>(RecordEntities);
             }
             return SearchResult;
         }
@@ -71,7 +80,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(Note PEntity)
+        public async Task<int> AddAsync(NoteInfoEntity PEntity)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -90,7 +99,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(Note PEntity)
+        public async Task<int> UpdateAsync(NoteInfoEntity PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
@@ -106,7 +115,7 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<int> DeleteAsync(string Id)
         {
             if (Id == null) { return 0; }
-            Note tempPlan = _GhDbContext.dsNotes.Find(Id);
+            NoteInfoEntity tempPlan = _GhDbContext.dsNotes.Find(Id);
             _GhDbContext.dsNotes.Remove(tempPlan);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }

@@ -26,18 +26,18 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<List<MemberScoreCount>> GetRecordsAsync([FromQuery] MemberScoreCountSearch SearchCondition)
+        public async Task<List<MemberScoreCountDto>> GetRecordsAsync([FromQuery] MemberScoreCountSearch SearchCondition)
         {
-            List<Lib.MemberScore> AllMemberScores = await _GHDbContext.dsMemberScores.Include(x => x.Member).
+            List<Lib.MemberScoreEntity> AllMemberScores = await _GHDbContext.dsMemberScores.Include(x => x.Member).
                 Where(x => x.ScoreUnitName.Equals(SearchCondition.ScoreUnitName,StringComparison.Ordinal) && x.OccurDate.Year.ToString(System.Globalization.CultureInfo.InvariantCulture).Equals(SearchCondition.YearNumber,StringComparison.Ordinal))
                 //.OrderBy(x=>x.MemberIndex)
                 .ToListAsync().ConfigureAwait(false);
-            List<IGrouping<string, Lib.MemberScore>> ListIgroupMemberScores = AllMemberScores.GroupBy(x => x.MemberId).ToList();
-            List<MemberScoreCount> memberScoreCounts = new List<MemberScoreCount>();
+            List<IGrouping<string, Lib.MemberScoreEntity>> ListIgroupMemberScores = AllMemberScores.GroupBy(x => x.MemberId).ToList();
+            List<MemberScoreCountDto> memberScoreCounts = new List<MemberScoreCountDto>();
             for (int i = 0; i < ListIgroupMemberScores.Count; i++)
             {
-                List<Lib.MemberScore> memberScores = ListIgroupMemberScores[i].ToList();
-                memberScoreCounts.Add(new MemberScoreCount
+                List<Lib.MemberScoreEntity> memberScores = ListIgroupMemberScores[i].ToList();
+                memberScoreCounts.Add(new MemberScoreCountDto
                 {
                     MemberId = ListIgroupMemberScores[i].Key, //分组key，本例中即为：MemberId
                     MemberName = memberScores[0].Member.Name,

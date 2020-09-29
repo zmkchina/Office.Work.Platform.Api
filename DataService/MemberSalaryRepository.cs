@@ -20,7 +20,7 @@ namespace Office.Work.Platform.Api.DataService
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberSalary>> GetAllAsync()
+        public async Task<IEnumerable<MemberSalaryEntity>> GetAllAsync()
         {
             return await _GhDbContext.dsMemberSalary.ToListAsync().ConfigureAwait(false);
         }
@@ -30,7 +30,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<MemberSalary> GetOneByIdAsync(string Id)
+        public async Task<MemberSalaryEntity> GetOneByIdAsync(string Id)
         {
             return await _GhDbContext.dsMemberSalary.FindAsync(Id).ConfigureAwait(false);
         }
@@ -40,13 +40,13 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberSalarySearchResult>> GetEntitiesAsync(MemberSalarySearch SearchCondition)
+        public async Task<IEnumerable<MemberSalaryDto>> GetEntitiesAsync(MemberSalarySearch SearchCondition)
         {
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 int SearchYear = SearchCondition.PayYear;
                 int SearchMonth = SearchCondition.PayMonth;
-                List<MemberSalary> SalaryList = await ReadSalarys(SearchCondition).ConfigureAwait(false);
+                List<MemberSalaryEntity> SalaryList = await ReadSalarys(SearchCondition).ConfigureAwait(false);
 
                 if (SalaryList == null || SalaryList.Count == 0)
                 {
@@ -61,7 +61,7 @@ namespace Office.Work.Platform.Api.DataService
                         if (SalaryList != null && SalaryList.Count > 0)
                         {
                             //查询到上一个月的数据
-                            foreach (MemberSalary item in SalaryList)
+                            foreach (MemberSalaryEntity item in SalaryList)
                             {
                                 item.Id = null;
                             }
@@ -71,7 +71,7 @@ namespace Office.Work.Platform.Api.DataService
                     else
                     {
                         //不要求填充空数据
-                        return new List<MemberSalarySearchResult>();
+                        return new List<MemberSalaryDto>();
 
                     }
                 }
@@ -80,7 +80,7 @@ namespace Office.Work.Platform.Api.DataService
                 if (SalaryList != null && SalaryList.Count > 0)
                 {
                     //返回查到的数据
-                    List<MemberSalarySearchResult> SearchResultList = SalaryList.Select(x => new MemberSalarySearchResult
+                    List<MemberSalaryDto> SearchResultList = SalaryList.Select(x => new MemberSalaryDto
                     {
                         Id = x.Id,
                         MemberId = x.Member.Id,
@@ -97,9 +97,9 @@ namespace Office.Work.Platform.Api.DataService
                 }
 
                 //如果仍未查到(包括上一个月数据也没有），则填充空内容
-                List<MemberSalarySearchResult> FillResultList = await _GhDbContext.dsMembers.AsNoTracking().OrderBy(x => x.OrderIndex)
+                List<MemberSalaryDto> FillResultList = await _GhDbContext.dsMembers.AsNoTracking().OrderBy(x => x.OrderIndex)
                     .Where(x => x.MemberType.Equals(SearchCondition.MemberType, StringComparison.Ordinal) && x.UnitName.Equals(SearchCondition.PayUnitName, StringComparison.Ordinal))
-                    .Select(x => new MemberSalarySearchResult
+                    .Select(x => new MemberSalaryDto
                     {
                         MemberId = x.Id,
                         MemberName = x.Name,
@@ -110,7 +110,7 @@ namespace Office.Work.Platform.Api.DataService
                         SalaryItems = new List<SalaryItem>()
                     }).ToListAsync().ConfigureAwait(false);
 
-                List<MemberPayItem> PayItemList = await _GhDbContext.dsMemberPayItem.AsNoTracking().OrderBy(x => x.OrderIndex)
+                List<MemberPayItemEntity> PayItemList = await _GhDbContext.dsMemberPayItem.AsNoTracking().OrderBy(x => x.OrderIndex)
                     .Where(x => x.MemberTypes.Contains(SearchCondition.MemberType, StringComparison.Ordinal) &&
                     x.InTableType.Equals(SearchCondition.TableType, StringComparison.Ordinal)).ToListAsync().ConfigureAwait(false);
 
@@ -125,14 +125,14 @@ namespace Office.Work.Platform.Api.DataService
                     });
                 }
 
-                foreach (MemberSalarySearchResult item in FillResultList)
+                foreach (MemberSalaryDto item in FillResultList)
                 {
                     item.SalaryItems.AddRange(salaryItems);
                 }
                 return FillResultList;
 
             }
-            return new List<MemberSalarySearchResult>();
+            return new List<MemberSalaryDto>();
         }
 
         /// <summary>
@@ -140,9 +140,9 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="SearchCondition"></param>
         /// <returns></returns>
-        private async Task<List<MemberSalary>> ReadSalarys(MemberSalarySearch SearchCondition)
+        private async Task<List<MemberSalaryEntity>> ReadSalarys(MemberSalarySearch SearchCondition)
         {
-            IQueryable<MemberSalary> Items = _GhDbContext.dsMemberSalary.Include(xx => xx.Member).OrderBy(e => e.PayYear).ThenBy(e => e.PayMonth).AsNoTracking() as IQueryable<MemberSalary>;
+            IQueryable<MemberSalaryEntity> Items = _GhDbContext.dsMemberSalary.Include(xx => xx.Member).OrderBy(e => e.PayYear).ThenBy(e => e.PayMonth).AsNoTracking() as IQueryable<MemberSalaryEntity>;
             if (!string.IsNullOrWhiteSpace(SearchCondition.PayUnitName))
             {
                 Items = Items.Where(e => e.PayUnitName.Equals(SearchCondition.PayUnitName, StringComparison.Ordinal));//查询发放单位。
@@ -177,7 +177,7 @@ namespace Office.Work.Platform.Api.DataService
                 Items = Items.Where(e => e.Remark.Contains(SearchCondition.Remark, StringComparison.Ordinal));
             }
 
-            List<MemberSalary> SalaryList = await Items.OrderBy(x => x.Member.OrderIndex).ToListAsync().ConfigureAwait(false);
+            List<MemberSalaryEntity> SalaryList = await Items.OrderBy(x => x.Member.OrderIndex).ToListAsync().ConfigureAwait(false);
 
             return SalaryList;
         }
@@ -187,7 +187,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(MemberSalary PEntity)
+        public async Task<int> AddAsync(MemberSalaryEntity PEntity)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -206,7 +206,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(MemberSalary PEntity)
+        public async Task<int> UpdateAsync(MemberSalaryEntity PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
@@ -219,7 +219,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
-        public async Task<int> AddOrUpdateAsync(MemberSalary PEntity)
+        public async Task<int> AddOrUpdateAsync(MemberSalaryEntity PEntity)
         {
             //此记录的Id为员工的身份证号码，必须输入
             if (PEntity == null || PEntity.Id == null || PEntity.MemberId == null) { return 0; }
@@ -246,7 +246,7 @@ namespace Office.Work.Platform.Api.DataService
         {
             if (Id == null) { return 0; }
 
-            MemberSalary tempPlan = _GhDbContext.dsMemberSalary.Find(Id);
+            MemberSalaryEntity tempPlan = _GhDbContext.dsMemberSalary.Find(Id);
             _GhDbContext.dsMemberSalary.Remove(tempPlan);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }

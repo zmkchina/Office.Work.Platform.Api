@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Office.Work.Platform.Lib;
 using System;
 using System.Collections.Generic;
@@ -10,31 +11,38 @@ namespace Office.Work.Platform.Api.DataService
     public class PlanRepository
     {
         private readonly GHDbContext _GhDbContext;
-        public PlanRepository(GHDbContext GhDbContext)
+        private readonly IMapper _Mapper;
+        public PlanRepository(GHDbContext ghDbContext, IMapper mapper)
         {
-            _GhDbContext = GhDbContext;
+            _GhDbContext = ghDbContext;
+            _Mapper = mapper;
         }
         /// <summary>
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<Plan>> GetAllAsync()
+        public async Task<IEnumerable<PlanEntity>> GetAllAsync()
         {
             return await _GhDbContext.dsPlans.ToListAsync().ConfigureAwait(false);
         }
-        public async Task<Plan> GetOneByIdAsync(string Id)
+        public async Task<PlanInfoDto> GetOneByIdAsync(string Id)
         {
-            return await _GhDbContext.dsPlans.FindAsync(Id).ConfigureAwait(false);
+            PlanEntity thePlan = await _GhDbContext.dsPlans.FindAsync(Id).ConfigureAwait(false);
+            if (thePlan == null)
+            {
+                return null;
+            }
+            return _Mapper.Map<PlanInfoDto>(thePlan);
         }
         /// <summary>
         /// 根据条件查询计划,返回查询的实体列表
         /// </summary>
         /// <param name="SearchCondition">计划查询类对象</param>
         /// <returns></returns>
-        public async Task<PlanSearchResult> GetEntitiesAsync(PlanSearch SearchCondition)
+        public async Task<PlanInfoDtoPages> GetEntitiesAsync(PlanInfoSearch SearchCondition)
         {
-            PlanSearchResult SearchResult = new PlanSearchResult();
-            IQueryable<Plan> Items = _GhDbContext.dsPlans.AsNoTracking() as IQueryable<Plan>;
+            PlanInfoDtoPages SearchResult = new PlanInfoDtoPages();
+            IQueryable<PlanEntity> Items = _GhDbContext.dsPlans.AsNoTracking() as IQueryable<PlanEntity>;
             if (SearchCondition != null)
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.CreateUserId))
@@ -61,25 +69,32 @@ namespace Office.Work.Platform.Api.DataService
                 {
                     Items = Items.Where(e => e.Caption.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal) || e.Content.Contains(SearchCondition.KeysInMultiple, StringComparison.Ordinal));
                 }
-                
+
                 SearchResult.SearchCondition.RecordCount = await Items.CountAsync().ConfigureAwait(false);
-                SearchResult.RecordList = await Items.OrderByDescending(x => x.UpDateTime).Skip((SearchCondition.PageIndex - 1) * SearchCondition.PageSize).Take(SearchCondition.PageSize).ToListAsync().ConfigureAwait(false);
+
+                //分页查询
+
+                List<PlanEntity> RecordEntities = await Items.OrderByDescending(x => x.UpDateTime).Skip((SearchCondition.PageIndex - 1) * SearchCondition.PageSize).Take(SearchCondition.PageSize).ToListAsync().ConfigureAwait(false);
+
+
                 if (!string.IsNullOrWhiteSpace(SearchCondition.LongPlan))
                 {
                     switch (SearchCondition.LongPlan)
                     {
                         case "no":
-                            SearchResult.RecordList= SearchResult.RecordList.Where(e => (e.EndDate - e.BeginDate).Days < 90).ToList();
+                            RecordEntities = RecordEntities.Where(e => (e.EndDate - e.BeginDate).Days < 90).ToList();
                             //Items = Items.Where(e => (e.EndDate - e.BeginDate).Days < 90);
                             break;
                         case "yes":
-                            SearchResult.RecordList = SearchResult.RecordList.Where(e => (e.EndDate - e.BeginDate).Days >= 90).ToList();
+                            RecordEntities = RecordEntities.Where(e => (e.EndDate - e.BeginDate).Days >= 90).ToList();
                             //Items = Items.Where(e => (e.EndDate - e.BeginDate).Days >= 90);
                             break;
                         default:
                             break;
                     }
                 }
+                SearchResult.RecordList = _Mapper.Map<List<PlanInfoDto>>(RecordEntities);
+
             }
             return SearchResult;
         }
@@ -88,7 +103,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(Plan PEntity)
+        public async Task<int> AddAsync(PlanEntity PEntity)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -106,7 +121,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(Plan PEntity)
+        public async Task<int> UpdateAsync(PlanEntity PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
@@ -124,7 +139,7 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<int> DeleteAsync(string Id)
         {
             if (Id == null) { return 0; }
-            Plan tempPlan = _GhDbContext.dsPlans.Find(Id);
+            PlanEntity tempPlan = _GhDbContext.dsPlans.Find(Id);
             if (tempPlan == null)
             {
                 return 0;

@@ -1,23 +1,22 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.Controllers
 {
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class NoteController : ControllerBase
+    public class NoteInfoController : ControllerBase
     {
         private readonly NoteRepository _DataRepository;
-        public NoteController(GHDbContext ghDbContet)
+        public NoteInfoController(GHDbContext ghDbContet, IMapper mapper)
         {
-            _DataRepository = new NoteRepository(ghDbContet);
+            _DataRepository = new NoteRepository(ghDbContet, mapper);
         }
         /// <summary>
         /// 查询指定条件的数据
@@ -25,7 +24,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<NoteSearchResult> GetRecordsAsync([FromQuery]NoteSearch SearchCondition)
+        public async Task<NoteInfoDtoPages> GetRecordsAsync([FromQuery]NoteInfoSearch SearchCondition)
         {
             return await _DataRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
@@ -36,7 +35,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<Note> GetAsync(string Id)
+        public async Task<NoteInfoDto> GetAsync(string Id)
         {
             return await _DataRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -46,7 +45,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="userModel"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<string> PostAsync(Note PEntity)
+        public async Task<string> PostAsync(NoteInfoEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
@@ -65,7 +64,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]Note PEntity)
+        public async Task<string> PutAsync([FromBody] NoteInfoEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (PEntity != null)

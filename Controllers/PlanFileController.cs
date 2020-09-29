@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -18,23 +18,13 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly string _FileBaseDir;
         private readonly PlanFileRepository _FileRepository;
-        public PlanFileController(IConfiguration configuration, GHDbContext ghDbContext)
+        public PlanFileController(IConfiguration configuration, GHDbContext ghDbContext, IMapper mapper)
         {
-            _FileRepository = new PlanFileRepository(ghDbContext);
+            _FileRepository = new PlanFileRepository(ghDbContext, mapper);
             if (configuration != null)
             {
                 _FileBaseDir = Path.Combine(configuration["StaticFileDir"], "PlanFiles");
             }
-        }
-
-        /// <summary>
-        /// 获取所有文件记录
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public async Task<IEnumerable<PlanFile>> GetAsync()
-        {
-            return await _FileRepository.GetAllAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -44,7 +34,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<PlanFile> GetAsync(string Id)
+        public async Task<PlanFileDto> GetAsync(string Id)
         {
             return await _FileRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -54,8 +44,9 @@ namespace Office.Work.Platform.Api.Controllers
         /// </summary>
         /// <param name="mSearchFile"></param>
         /// <returns></returns>
-        [HttpGet("Search")]
-        public async Task<PlanFileSearchResult> GetFilesAsync([FromQuery]PlanFileSearch mSearchFile)
+        [HttpGet]
+        [Route("Search")]
+        public async Task<PlanFileDtoPages> GetFilesAsync([FromQuery]PlanFileDtoSearch mSearchFile)
         {
             return await _FileRepository.GetEntitiesAsync(mSearchFile).ConfigureAwait(false);
         }
@@ -66,7 +57,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]PlanFile PEntity)
+        public async Task<string> PutAsync([FromBody]PlanFileEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _FileRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
@@ -116,7 +107,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost("UpLoadFile")]
         [DisableRequestSizeLimit]
-        public async Task<string> PostUpLoadFileAsync([FromForm]PlanFile PFile)
+        public async Task<string> PostUpLoadFileAsync([FromForm]PlanFileEntity PFile)
         {
             ExcuteResult actResult = new ExcuteResult();
 
@@ -193,7 +184,7 @@ namespace Office.Work.Platform.Api.Controllers
         [Route("DownLoadFile/{FileId}")]
         public async Task<ActionResult> GetDownLoadFileAsync(string FileId)
         {
-            PlanFile FileInfo = await _FileRepository.GetOneByIdAsync(FileId).ConfigureAwait(false);
+            PlanFileDto FileInfo = await _FileRepository.GetOneByIdAsync(FileId).ConfigureAwait(false);
             if (FileInfo != null)
             {
                 string FileName = $"{FileInfo.Name}({FileInfo.Id}){FileInfo.ExtendName}";

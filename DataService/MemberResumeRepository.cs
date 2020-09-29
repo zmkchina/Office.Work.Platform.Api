@@ -18,7 +18,7 @@ namespace Office.Work.Platform.Api.DataService
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberResume>> GetAllAsync()
+        public async Task<IEnumerable<MemberResumeEntity>> GetAllAsync()
         {
             return await _GhDbContext.dsMemberResume.ToListAsync().ConfigureAwait(false);
         }
@@ -28,7 +28,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="P_Id"></param>
         /// <returns></returns>
-        public async Task<MemberResume> GetOneByIdAsync(string Id)
+        public async Task<MemberResumeEntity> GetOneByIdAsync(string Id)
         {
             return await _GhDbContext.dsMemberResume.FindAsync(Id).ConfigureAwait(false);
         }
@@ -37,9 +37,9 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberResume>> GetEntitiesAsync(MemberResumeSearch SearchCondition)
+        public async Task<IEnumerable<MemberResumeEntity>> GetEntitiesAsync(MemberResumeSearch SearchCondition)
         {
-            IQueryable<MemberResume> Items = _GhDbContext.dsMemberResume.AsNoTracking() as IQueryable<MemberResume>;
+            IQueryable<MemberResumeEntity> Items = _GhDbContext.dsMemberResume.AsNoTracking() as IQueryable<MemberResumeEntity>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
@@ -57,14 +57,14 @@ namespace Office.Work.Platform.Api.DataService
                 
                 return await Items.ToListAsync().ConfigureAwait(false);
             }
-            return new List<MemberResume>();
+            return new List<MemberResumeEntity>();
         }
         /// <summary>
         /// 向数据库表添加一个新的记录，如果该记录已经存在，返回-2
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(MemberResume PEntity)
+        public async Task<int> AddAsync(MemberResumeEntity PEntity)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -83,7 +83,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(MemberResume PEntity)
+        public async Task<int> UpdateAsync(MemberResumeEntity PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
@@ -99,7 +99,7 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<int> DeleteAsync(string Id)
         {
             if (Id == null) { return 0; }
-            MemberResume tempPlan = _GhDbContext.dsMemberResume.Find(Id);
+            MemberResumeEntity tempPlan = _GhDbContext.dsMemberResume.Find(Id);
             _GhDbContext.dsMemberResume.Remove(tempPlan);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }

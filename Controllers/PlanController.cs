@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -20,10 +21,10 @@ namespace Office.Work.Platform.Api.Controllers
         private readonly PlanRepository _PlanRepository;
         private readonly PlanFileRepository _FileRepository;
 
-        public PlanController(IConfiguration configuration, GHDbContext ghDbContext)
+        public PlanController(IConfiguration configuration, GHDbContext ghDbContext, IMapper mapper)
         {
-            _PlanRepository = new PlanRepository(ghDbContext);
-            _FileRepository = new PlanFileRepository(ghDbContext);
+            _PlanRepository = new PlanRepository(ghDbContext, mapper);
+            _FileRepository = new PlanFileRepository(ghDbContext, mapper);
             if (configuration != null)
             {
                 _FileBaseDir = Path.Combine(configuration["StaticFileDir"], "PlanFiles");
@@ -31,16 +32,11 @@ namespace Office.Work.Platform.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Plan>> GetAsync()
-        {
-            return await _PlanRepository.GetAllAsync().ConfigureAwait(false);
-        }
-
-        [HttpGet]
         [Route("{Id}")]
-        public async Task<Plan> GetAsync(string Id)
+        public async Task<ActionResult<PlanInfoDto>> GetAsync(string Id)
         {
-            return await _PlanRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
+            var EntityDto= await _PlanRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
+            return EntityDto;
         }
 
         /// <summary>
@@ -49,7 +45,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<PlanSearchResult> GetAsync([FromQuery]PlanSearch mSearchPlan)
+        public async Task<ActionResult<PlanInfoDtoPages>> GetAsync([FromQuery] PlanInfoSearch mSearchPlan)
         {
             return await _PlanRepository.GetEntitiesAsync(mSearchPlan).ConfigureAwait(false);
         }
@@ -61,7 +57,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromBody]Plan Entity)
+        public async Task<ActionResult<string>> PostAsync([FromBody]PlanEntity Entity)
         {
             ExcuteResult actResult = new ExcuteResult();
 
@@ -76,7 +72,7 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]Plan PEntity)
+        public async Task<ActionResult<string>> PutAsync([FromBody]PlanEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (PEntity != null && !PEntity.CurrectState.Equals(PlanStatus.WaitBegin, StringComparison.Ordinal))
@@ -95,7 +91,7 @@ namespace Office.Work.Platform.Api.Controllers
         }
         //删除指定的计划信息
         [HttpDelete("{Id}")]
-        public async Task<string> DeleteAsync(string Id)
+        public async Task<ActionResult<string>> DeleteAsync(string Id)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _PlanRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)

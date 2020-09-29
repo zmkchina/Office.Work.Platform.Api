@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -15,16 +16,16 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly MemberPayItemRepository _PayRepository;
 
-        public MemberPayItemController(GHDbContext ghDbContet)
+        public MemberPayItemController(GHDbContext ghDbContet,IMapper mapper)
         {
-            _PayRepository = new MemberPayItemRepository(ghDbContet);
+            _PayRepository = new MemberPayItemRepository(ghDbContet, mapper);
         }
         /// <summary>
         /// 返回所有记录
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<MemberPayItem>> GetAsync()
+        public async Task<ActionResult<List<MemberPayItemDto>>> GetAsync()
         {
             return await _PayRepository.GetAllAsync().ConfigureAwait(false);
         }
@@ -35,7 +36,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Name}")]
-        public async Task<MemberPayItem> GetAsync(string Name)
+        public async Task<ActionResult<MemberPayItemDto>> GetAsync(string Name)
         {
             return await _PayRepository.GetOneByIdAsync(Name).ConfigureAwait(false);
         }
@@ -46,7 +47,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberPayItem>> GetAsync([FromQuery]MemberPayItemSearch SearchCondition)
+        public async Task<ActionResult<List<MemberPayItemDto>>> GetAsync([FromQuery] MemberPayItemSearch SearchCondition)
         {
             return await _PayRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
@@ -58,7 +59,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromBody]MemberPayItem PEntity)
+        public async Task<ActionResult<string>> PostAsync([FromBody]MemberPayItemEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _PayRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
@@ -72,7 +73,7 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]MemberPayItem PEntity)
+        public async Task<ActionResult<string>> PutAsync([FromBody]MemberPayItemEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _PayRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
@@ -86,7 +87,7 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         [HttpDelete]
-        public async Task<string> DeleteAsync(string Name)
+        public async Task<ActionResult<string>> DeleteAsync(string Name)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _PayRepository.DeleteAsync(Name).ConfigureAwait(false) > 0)

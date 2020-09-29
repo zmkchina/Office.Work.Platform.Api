@@ -25,7 +25,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<MemberHoliday>> GetAsync()
+        public async Task<IEnumerable<MemberHolidayEntity>> GetAsync()
         {
             return await _DataRepository.GetAllAsync().ConfigureAwait(false);
         }
@@ -36,7 +36,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<MemberHoliday> GetAsync(string Id)
+        public async Task<MemberHolidayEntity> GetAsync(string Id)
         {
             return await _DataRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -46,7 +46,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="SearchCondition"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberHoliday>> GetAsync([FromQuery]MemberHolidaySearch SearchCondition)
+        public async Task<IEnumerable<MemberHolidayEntity>> GetAsync([FromQuery]MemberHolidaySearch SearchCondition)
         {
             return await _DataRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
@@ -58,7 +58,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromBody]MemberHoliday PEntity)
+        public async Task<string> PostAsync([FromBody]MemberHolidayEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
@@ -77,7 +77,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]MemberHoliday PEntity)
+        public async Task<string> PutAsync([FromBody]MemberHolidayEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)

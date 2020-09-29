@@ -26,18 +26,18 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<List<MemberHolidayCount>> GetRecordsAsync([FromQuery] MemberHolidayCountSearch SearchCondition)
+        public async Task<List<Lib.MemberHolidayCountDto>> GetRecordsAsync([FromQuery] MemberHolidayCountSearch SearchCondition)
         {
-            List<Lib.MemberHoliday> AllMemberHolidaies = await _GHDbContext.dsMemberHoliday.Include(x => x.Member).
+            List<Lib.MemberHolidayEntity> AllMemberHolidaies = await _GHDbContext.dsMemberHoliday.Include(x => x.Member).
                 Where(x => x.UnitName.Equals(SearchCondition.UnitName,StringComparison.Ordinal) && Convert.ToString(x.EndDate.Year, System.Globalization.CultureInfo.InvariantCulture).Equals(SearchCondition.YearNumber, StringComparison.Ordinal))
                 .OrderBy(x => x.Member.OrderIndex)
                 .ToListAsync().ConfigureAwait(false);
-            List<IGrouping<string, Lib.MemberHoliday>> ListIgroupMemberHolidaies = AllMemberHolidaies.GroupBy(x => x.MemberId).ToList();
-            List<MemberHolidayCount> memberScoreCounts = new List<MemberHolidayCount>();
+            List<IGrouping<string, Lib.MemberHolidayEntity>> ListIgroupMemberHolidaies = AllMemberHolidaies.GroupBy(x => x.MemberId).ToList();
+            List<MemberHolidayCountDto> memberScoreCounts = new List<MemberHolidayCountDto>();
             for (int i = 0; i < ListIgroupMemberHolidaies.Count; i++)
             {
-                List<Lib.MemberHoliday> memberScores = ListIgroupMemberHolidaies[i].ToList();
-                memberScoreCounts.Add(new MemberHolidayCount
+                List<Lib.MemberHolidayEntity> memberScores = ListIgroupMemberHolidaies[i].ToList();
+                memberScoreCounts.Add(new MemberHolidayCountDto
                 {
                     MemberId = ListIgroupMemberHolidaies[i].Key, //分组key，本例中即为：MemberId
                     UnitName = SearchCondition?.UnitName,

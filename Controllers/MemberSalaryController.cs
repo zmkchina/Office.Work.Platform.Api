@@ -27,7 +27,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<MemberSalary> GetAsync(string Id)
+        public async Task<MemberSalaryEntity> GetAsync(string Id)
         {
             return await _PayRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -38,7 +38,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchPlan"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberSalarySearchResult>> GetAsync([FromQuery] MemberSalarySearch SearchCondition)
+        public async Task<IEnumerable<MemberSalaryDto>> GetAsync([FromQuery] MemberSalarySearch SearchCondition)
         {
             return await _PayRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
@@ -50,7 +50,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromBody]MemberSalary PEntity)
+        public async Task<string> PostAsync([FromBody]MemberSalaryEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _PayRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
@@ -64,7 +64,7 @@ namespace Office.Work.Platform.Api.Controllers
             return JsonConvert.SerializeObject(actResult);
         }
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]MemberSalary PEntity)
+        public async Task<string> PutAsync([FromBody]MemberSalaryEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _PayRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
@@ -84,7 +84,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPost("AddOrUpdate")]
-        public async Task<string> PostAddOrUpdateAsync([FromBody] MemberSalary PEntity)
+        public async Task<string> PostAddOrUpdateAsync([FromBody] MemberSalaryEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
 

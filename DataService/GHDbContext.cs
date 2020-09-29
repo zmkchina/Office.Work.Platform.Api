@@ -9,46 +9,46 @@ namespace Office.Work.Platform.Api.DataService
         {
 
         }
-        public DbSet<SettingServer> dsServerSetting { get; set; }
+        public DbSet<SettingServerEntity> dsServerSetting { get; set; }
 
-        public DbSet<User> dsUsers { get; set; }
+        public DbSet<UserEntity> dsUsers { get; set; }
 
-        public DbSet<Note> dsNotes { get; set; }
+        public DbSet<NoteInfoEntity> dsNotes { get; set; }
 
-        public DbSet<Plan> dsPlans { get; set; }
-        public DbSet<PlanFile> dsPlanFiles { get; set; }
+        public DbSet<PlanEntity> dsPlans { get; set; }
+        public DbSet<PlanFileEntity> dsPlanFiles { get; set; }
 
-        public DbSet<Member> dsMembers { get; set; }
-        public DbSet<MemberSalary> dsMemberSalary { get; set; }
-        public DbSet<MemberPayItem> dsMemberPayItem { get; set; }
-        public DbSet<MemberFile> dsMemberFiles { get; set; }
+        public DbSet<MemberInfoEntity> dsMembers { get; set; }
+        public DbSet<MemberSalaryEntity> dsMemberSalary { get; set; }
+        public DbSet<MemberPayItemEntity> dsMemberPayItem { get; set; }
+        public DbSet<MemberFileEntity> dsMemberFiles { get; set; }
 
         /// <summary>
         /// 个人绩效得分情况
         /// </summary>
-        public DbSet<MemberScore> dsMemberScores { get; set; }
+        public DbSet<MemberScoreEntity> dsMemberScores { get; set; }
 
         /// <summary>
         /// 个人简历
         /// </summary>
-        public DbSet<MemberResume> dsMemberResume { get; set; }
+        public DbSet<MemberResumeEntity> dsMemberResume { get; set; }
 
         /// <summary>
         /// 奖惩情况
         /// </summary>
-        public DbSet<MemberPrizePunish> dsMemberPrizePunish { get; set; }
+        public DbSet<MemberPrizePunishEntity> dsMemberPrizePunish { get; set; }
         /// <summary>
         /// 考核情况
         /// </summary>
-        public DbSet<MemberAppraise> dsMemberAppraise { get; set; }
+        public DbSet<MemberAppraiseEntity> dsMemberAppraise { get; set; }
         /// <summary>
         /// 社会关系
         /// </summary>
-        public DbSet<MemberRelations> dsMemberRelations { get; set; }
+        public DbSet<MemberRelationsEntity> dsMemberRelations { get; set; }
         /// <summary>
         /// 休假信息
         /// </summary>
-        public DbSet<MemberHoliday> dsMemberHoliday { get; set; }
+        public DbSet<MemberHolidayEntity> dsMemberHoliday { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

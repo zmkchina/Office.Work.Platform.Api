@@ -1,55 +1,62 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Office.Work.Platform.Api.Controllers
 {
+    /// <summary>
+    /// 控制器：用于管理本单位职工信息。
+    /// </summary>
     [Authorize]
     [ApiController]
     [Route("Api/[controller]")]
-    public class MemberController : ControllerBase
+    public class MemberInfoController : ControllerBase
     {
         private readonly string _FileBaseDir;
         private readonly MemberFileRepository _FileRepository;
-        private readonly MemberRepository _MemberRepository;
-        public MemberController(IConfiguration configuration, GHDbContext ghDbContext)
+        private readonly MemberInfoRepository _MemberRepository;
+        public MemberInfoController(IConfiguration configuration, GHDbContext ghDbContext, IMapper mapper)
         {
-            _MemberRepository = new MemberRepository(ghDbContext);
-            _FileRepository = new MemberFileRepository(ghDbContext);
+            _MemberRepository = new MemberInfoRepository(ghDbContext, mapper);
+            _FileRepository = new MemberFileRepository(ghDbContext, mapper);
             if (configuration != null)
             {
                 _FileBaseDir = Path.Combine(configuration["StaticFileDir"], "MemberFiles");
             }
         }
-        [HttpGet]
-        public async Task<IEnumerable<Member>> GetAsync()
-        {
-            return await _MemberRepository.GetAllAsync().ConfigureAwait(false);
-        }
 
-        [HttpGet]
-        [Route("{Id}")]
-        public async Task<Member> GetAsync(string Id)
+        /// <summary>
+        /// 根据Id查询单个职工信息。
+        /// </summary>
+        /// <param name="Id">职工的Id号</param>
+        /// <returns></returns>
+        [HttpGet("Entity/{Id}")]
+        public async Task<ActionResult<MemberInfoEntity>> ReadEntity(string Id)
         {
-            return await _MemberRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
+            return await _MemberRepository.GetMemberInfoEntityAsync(Id).ConfigureAwait(false);
+        }
+        [HttpGet("{Id}")]
+        public async Task<ActionResult<MemberInfoDto>> ReadDto(string Id)
+        {
+            return await _MemberRepository.GetMemberInfoDtoAsync(Id).ConfigureAwait(false);
         }
         /// <summary>
         /// 根据条件查询记录。
         /// </summary>
         /// <param name="mSearchMember"></param>
         /// <returns></returns>
-        [HttpGet("Search")]
-        public async Task<IEnumerable<Member>> GetMemberByConditionAsync([FromQuery]MemberSearch mSearchMember)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<MemberInfoDto>>> ReadDtos([FromQuery] MemberInfoSearch mSearchMember)
         {
-            return await _MemberRepository.GetEntitiesAsync(mSearchMember).ConfigureAwait(false);
+            IEnumerable<MemberInfoDto> Dtos = await _MemberRepository.GetEntitiesAsync(mSearchMember).ConfigureAwait(false);
+            return Ok(Dtos);
         }
         /// <summary>
         /// 新增一个记录
@@ -57,7 +64,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<string> PostAsync([FromBody]Member PEntity)
+        public async Task<ActionResult<string>> AddEntity([FromBody] MemberInfoEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
 
@@ -71,14 +78,14 @@ namespace Office.Work.Platform.Api.Controllers
             }
             return JsonConvert.SerializeObject(actResult);
         }
- 
+
         /// <summary>
         /// 更新一条记录
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> Put([FromBody]Member PEntity)
+        public async Task<string> UpdateEntity([FromBody] MemberInfoEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
 
@@ -99,7 +106,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPost("AddOrUpdate")]
-        public async Task<string> PostAddOrUpdateAsync([FromBody] Member PEntity)
+        public async Task<string> AddOrUpdateEntity([FromBody] MemberInfoEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
 
@@ -119,8 +126,8 @@ namespace Office.Work.Platform.Api.Controllers
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        [HttpDelete]
-        public async Task<string> Delete(string Id)
+        [HttpDelete("{Id}")]
+        public async Task<string> DeleteEntity(string Id)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _MemberRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)

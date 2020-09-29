@@ -26,7 +26,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<MemberResume>> GetAsync()
+        public async Task<IEnumerable<MemberResumeEntity>> GetAsync()
         {
             return await _DataRepository.GetAllAsync().ConfigureAwait(false);
         }
@@ -37,7 +37,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<MemberResume> GetAsync(string Id)
+        public async Task<MemberResumeEntity> GetAsync(string Id)
         {
             return await _DataRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -47,7 +47,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="SearchCondition"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberResume>> GetAsync([FromQuery]MemberResumeSearch SearchCondition)
+        public async Task<IEnumerable<MemberResumeEntity>> GetAsync([FromQuery]MemberResumeSearch SearchCondition)
         {
             return await _DataRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
@@ -59,7 +59,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromBody]MemberResume PEntity)
+        public async Task<string> PostAsync([FromBody]MemberResumeEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
@@ -78,7 +78,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]MemberResume PEntity)
+        public async Task<string> PutAsync([FromBody]MemberResumeEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)

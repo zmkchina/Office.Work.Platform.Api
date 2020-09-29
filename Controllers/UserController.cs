@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -14,30 +15,31 @@ namespace Office.Work.Platform.Api.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserRepository _UserRepository;
-        public UserController(GHDbContext ghDbContet)
+        public UserController(GHDbContext ghDbContet, IMapper mapper)
         {
-            _UserRepository = new UserRepository(ghDbContet);
+            _UserRepository = new UserRepository(ghDbContet, mapper);
         }
         /// <summary>
         /// 读取所有用户
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<User>> GetAsync()
+        public async Task<ActionResult<IEnumerable<Lib.UserDto>>> GetAsync()
         {
-            return await _UserRepository.GetAllAsync().ConfigureAwait(false);
+            var Dtos = await _UserRepository.GetAllAsync().ConfigureAwait(false);
+            return Ok(Dtos);
         }
         /// <summary>
         /// 根据ID读取单个用户
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("{Id}")]
-        public async Task<User> GetAsync(string Id)
+        [HttpGet("{Id}")]
+        public async Task<ActionResult<Lib.UserDto>> GetAsync(string Id)
         {
-           
-            return await _UserRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
+
+            var Dto = await _UserRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
+            return Ok(Dto);
         }
         /// <summary>
         /// 新增记录
@@ -45,18 +47,16 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<string> PostAsync([FromBody]User PEntity)
+        public async Task<ActionResult<string>> PostAsync([FromBody] UserEntity PEntity)
         {
-            ExcuteResult actResult = new ExcuteResult();
             if (await _UserRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
             {
-                actResult.SetValues(0, "更新成功");
+                return Ok(PEntity);
             }
             else
             {
-                actResult.SetValues(1, "更新失败");
+                return  Ok(PEntity);
             }
-            return JsonConvert.SerializeObject(actResult);
         }
         /// <summary>
         /// 更新记录
@@ -64,10 +64,10 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]User PEntity)
+        public async Task<string> PutAsync([FromBody] UserEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
-           
+
             if (await _UserRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
             {
                 actResult.SetValues(0, "更新成功");

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,9 +30,9 @@ namespace Office.Work.Platform.Api.Controllers
 
         private readonly string _FileBaseDir;
         private readonly PlanFileRepository _FileRepository;
-        public FileUpLoadController(IConfiguration configuration, GHDbContext ghDbContext)
+        public FileUpLoadController(IConfiguration configuration, GHDbContext ghDbContext, IMapper mapper)
         {
-            _FileRepository = new PlanFileRepository(ghDbContext);
+            _FileRepository = new PlanFileRepository(ghDbContext, mapper);
             if (configuration != null)
             {
                 _FileBaseDir = Path.Combine(configuration["StaticFileDir"], "PlanFiles");
@@ -45,8 +46,9 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpPost]
         [DisableRequestSizeLimit]
         //[RequestSizeLimit(20971520)]
-        public async Task<List<string>> UploadFile(List<IFormFile> files)
+        public async Task<ActionResult<List<string>>> UploadFile(List<IFormFile> files)
         {
+            if (files == null) return null;
             List<string> saveKeys = new List<string>();
 
             foreach (var formFile in files)
@@ -69,7 +71,7 @@ namespace Office.Work.Platform.Api.Controllers
         [HttpPost]
         [Route("BigFileUpload")]
         [DisableRequestSizeLimit]
-        public async Task<List<string>> BigFileUpload()
+        public async Task<ActionResult<List<string>>> BigFileUpload()
         {
             List<string> saveKeys = new List<string>();
 
@@ -112,7 +114,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="stream">流</param>
         /// <param name="path">文件保存路径</param>
         /// <returns></returns>
-        private static async Task<int> WriteFileAsync(System.IO.Stream stream, string path)
+        private static async Task<ActionResult<int>> WriteFileAsync(System.IO.Stream stream, string path)
         {
             const int FILE_WRITE_SIZE = 84975;//写出缓冲区大小
             int writeCount = 0;

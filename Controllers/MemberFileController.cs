@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -18,9 +19,9 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly string _FileBaseDir;
         private readonly MemberFileRepository _FileRepository;
-        public MemberFileController(IConfiguration configuration, GHDbContext ghDbContext)
+        public MemberFileController(IConfiguration configuration, GHDbContext ghDbContext, IMapper mapper)
         {
-            _FileRepository = new MemberFileRepository(ghDbContext);
+            _FileRepository = new MemberFileRepository(ghDbContext, mapper);
             if (configuration != null)
             {
                 _FileBaseDir = Path.Combine(configuration["StaticFileDir"], "MemberFiles");
@@ -32,7 +33,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<MemberFile>> GetAsync()
+        public async Task<IEnumerable<MemberFileEntity>> GetAsync()
         {
             return await _FileRepository.GetAllAsync().ConfigureAwait(false);
         }
@@ -44,7 +45,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<MemberFile> GetAsync(string Id)
+        public async Task<MemberFileEntity> GetAsync(string Id)
         {
             return await _FileRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -55,7 +56,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="mSearchFile"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberFile>> GetFilesAsync([FromQuery]MemberFileSearch mSearchFile)
+        public async Task<IEnumerable<MemberFileEntity>> GetFilesAsync([FromQuery] MemberFileSearch mSearchFile)
         {
             return await _FileRepository.GetEntitiesAsync(mSearchFile).ConfigureAwait(false);
         }
@@ -66,7 +67,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]MemberFile PEntity)
+        public async Task<string> PutAsync([FromBody] MemberFileEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _FileRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
@@ -87,7 +88,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost("UpLoadFile")]
         [DisableRequestSizeLimit]
-        public async Task<string> PostUpLoadFileAsync([FromForm]MemberFile PFile)
+        public async Task<string> PostUpLoadFileAsync([FromForm] MemberFileEntity PFile)
         {
             ExcuteResult actResult = new ExcuteResult();
 
@@ -141,7 +142,7 @@ namespace Office.Work.Platform.Api.Controllers
         [Route("DownLoadFile/{FileId}")]
         public async Task<ActionResult> GetDownLoadFileAsync(string FileId)
         {
-            MemberFile FileInfo = await _FileRepository.GetOneByIdAsync(FileId).ConfigureAwait(false);
+            MemberFileEntity FileInfo = await _FileRepository.GetOneByIdAsync(FileId).ConfigureAwait(false);
             if (FileInfo != null)
             {
                 string FileName = $"{FileInfo.Name}({FileInfo.Id}){FileInfo.ExtendName}";

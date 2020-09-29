@@ -21,7 +21,7 @@ namespace Office.Work.Platform.Api.DataService
         /// 返回所有数据
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<MemberScore>> GetAllAsync()
+        public async Task<IEnumerable<MemberScoreEntity>> GetAllAsync()
         {
             return await _GhDbContext.dsMemberScores.ToListAsync().ConfigureAwait(false);
         }
@@ -30,7 +30,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        public async Task<MemberScore> GetOneByIdAsync(string Id)
+        public async Task<MemberScoreEntity> GetOneByIdAsync(string Id)
         {
             return await _GhDbContext.dsMemberScores.FindAsync(Id).ConfigureAwait(false);
         }
@@ -39,10 +39,10 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="mSearchMember">员工查询类对象</param>
         /// <returns></returns>
-        public async Task<List<MemberScore>> GetEntitiesAsync(MemberScoreSearch SearchCondition)
+        public async Task<List<MemberScoreEntity>> GetEntitiesAsync(MemberScoreSearch SearchCondition)
         {
-            List<MemberScore> RecordList = new List<MemberScore>();
-            IQueryable<MemberScore> Items = _GhDbContext.dsMemberScores.AsNoTracking() as IQueryable<MemberScore>;
+            List<MemberScoreEntity> RecordList = new List<MemberScoreEntity>();
+            IQueryable<MemberScoreEntity> Items = _GhDbContext.dsMemberScores.AsNoTracking() as IQueryable<MemberScoreEntity>;
             if (SearchCondition != null && !string.IsNullOrWhiteSpace(SearchCondition.UserId))
             {
                 if (!string.IsNullOrWhiteSpace(SearchCondition.Id))
@@ -79,7 +79,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="PEntity"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(MemberScore PEntity)
+        public async Task<int> AddAsync(MemberScoreEntity PEntity)
         {
             if (PEntity == null || PEntity.Id != null)
             {
@@ -99,7 +99,7 @@ namespace Office.Work.Platform.Api.DataService
         /// </summary>
         /// <param name="Entity"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(MemberScore PEntity)
+        public async Task<int> UpdateAsync(MemberScoreEntity PEntity)
         {
             if (PEntity == null) { return 0; }
             PEntity.UpDateTime = DateTime.Now;
@@ -115,7 +115,7 @@ namespace Office.Work.Platform.Api.DataService
         public async Task<int> DeleteAsync(string Id)
         {
             if (Id == null) { return 0; }
-            MemberScore tempRecord = _GhDbContext.dsMemberScores.Find(Id);
+            MemberScoreEntity tempRecord = _GhDbContext.dsMemberScores.Find(Id);
             _GhDbContext.dsMemberScores.Remove(tempRecord);
             return await _GhDbContext.SaveChangesAsync().ConfigureAwait(false);
         }

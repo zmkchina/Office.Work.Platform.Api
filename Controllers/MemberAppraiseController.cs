@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -15,16 +16,16 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly MemberAppraiseRepository _DataRepository;
 
-        public MemberAppraiseController(GHDbContext ghDbContet)
+        public MemberAppraiseController(GHDbContext ghDbContet, IMapper mapper)
         {
-            _DataRepository = new MemberAppraiseRepository(ghDbContet);
+            _DataRepository = new MemberAppraiseRepository(ghDbContet, mapper);
         }
         /// <summary>
         /// 返回所有记录
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<MemberAppraise>> GetAsync()
+        public async Task<ActionResult<List<MemberAppraiseDto>>> GetAsync()
         {
             return await _DataRepository.GetAllAsync().ConfigureAwait(false);
         }
@@ -35,7 +36,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{Id}")]
-        public async Task<MemberAppraise> GetAsync(string Id)
+        public async Task<ActionResult<MemberAppraiseDto>> GetAsync(string Id)
         {
             return await _DataRepository.GetOneByIdAsync(Id).ConfigureAwait(false);
         }
@@ -45,7 +46,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="SearchCondition"></param>
         /// <returns></returns>
         [HttpGet("Search")]
-        public async Task<IEnumerable<MemberAppraise>> GetAsync([FromQuery]MemberAppraiseSearch SearchCondition)
+        public async Task<ActionResult<List<MemberAppraiseDto>>> GetAsync([FromQuery] MemberAppraiseSearch SearchCondition)
         {
             return await _DataRepository.GetEntitiesAsync(SearchCondition).ConfigureAwait(false);
         }
@@ -57,7 +58,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [DisableRequestSizeLimit]
-        public async Task<string> PostAsync([FromBody]MemberAppraise PEntity)
+        public async Task<ActionResult<string>> PostAsync([FromBody]MemberAppraiseEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.AddAsync(PEntity).ConfigureAwait(false) > 0)
@@ -76,7 +77,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]MemberAppraise PEntity)
+        public async Task<ActionResult<string>> PutAsync([FromBody]MemberAppraiseEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
@@ -95,7 +96,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="Id"></param>
         /// <returns></returns>
         [HttpDelete]
-        public async Task<string> DeleteAsync(string Id)
+        public async Task<ActionResult<string>> DeleteAsync(string Id)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataRepository.DeleteAsync(Id).ConfigureAwait(false) > 0)

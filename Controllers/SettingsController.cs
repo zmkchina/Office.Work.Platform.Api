@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Office.Work.Platform.Api.DataService;
 using Office.Work.Platform.Lib;
@@ -15,13 +15,13 @@ namespace Office.Work.Platform.Api.Controllers
     {
         private readonly SettingsRepository _DataSettingsRepository;
 
-        public SettingsController(GHDbContext ghDbContext)
+        public SettingsController(GHDbContext ghDbContext, IMapper mapper)
         {
-            _DataSettingsRepository = new SettingsRepository(ghDbContext);
+            _DataSettingsRepository = new SettingsRepository(ghDbContext, mapper);
         }
 
         [HttpGet]
-        public async Task<SettingServer> GetAsync()
+        public async Task<SettingServerDto> GetAsync()
         {
             return await _DataSettingsRepository.ReadAsync().ConfigureAwait(false);
         }
@@ -31,7 +31,7 @@ namespace Office.Work.Platform.Api.Controllers
         /// <param name="PEntity"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<string> PutAsync([FromBody]SettingServer PEntity)
+        public async Task<string> PutAsync([FromBody]SettingServerEntity PEntity)
         {
             ExcuteResult actResult = new ExcuteResult();
             if (await _DataSettingsRepository.UpdateAsync(PEntity).ConfigureAwait(false) > 0)
